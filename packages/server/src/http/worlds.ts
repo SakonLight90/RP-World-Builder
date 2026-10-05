@@ -26,7 +26,7 @@ import { loadCorpus } from "../corpus/load.js";
 import type { ArcRepository } from "../db/repo/arcs.js";
 import { newId } from "../db/repo/common.js";
 import { defaultNarratorModel, readModelCatalog } from "../opencode/models.js";
-import { BibleBody, CreateWorldBody, EraBody, UpdateWorldBody } from "./schema.js";
+import { BibleBody, CreateWorldBody, EraBody, SelectStartBody, UpdateWorldBody } from "./schema.js";
 import type { RouteScope } from "./scope.js";
 
 /**
@@ -150,6 +150,44 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
     const world = scope.worlds.update(id, body.data);
     if (!world) return reply.code(404).send(apiProblem("world.notFound"));
     return { world };
+  });
+
+  /**
+   * Chooses how the campaign begins.
+   *
+   * Inside the chat, not at creation: the world is the setting and the start is the
+   * way into it, so the choice belongs to the moment the player starts playing.
+   * By then they can see the names of the scenarios, which is more than a creation
+   * form could have shown them.
+   *
+   * The repository refuses a lore-only start and an id that is not in the list. Here
+   * those become 400s with a code the interface can name, instead of a 500 with a
+   * message that says what an exception said.
+   */
+  app.post("/api/worlds/:id/start", async (request, reply) => {
+    const { id } = request.params as { id: string };
+    if (!scope.worlds.get(id)) return reply.code(404).send(apiProblem("world.notFound"));
+
+    const body = SelectStartBody.safeParse(request.body);
+    if (!body.success)
+      return reply
+        .code(400)
+        .send(apiProblem("body.invalid", { detail: body.error.issues[0]?.message ?? "" }));
+
+    try {
+      const world = scope.worlds.selectStart(id, body.data.startId);
+      if (!world) return reply.code(404).send(apiProblem("world.notFound"));
+      return { world };
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      // The two refusals are separated because they are different mistakes: one is a
+      // start the world does not have, the other is a start the player is not allowed
+      // to begin. The interface names them differently.
+      const lore = reason.includes("lore only");
+      return reply
+        .code(400)
+        .send(apiProblem(lore ? "start.loreOnly" : "start.notFound", { detail: reason }));
+    }
   });
 
   app.delete("/api/worlds/:id", async (request, reply) => {

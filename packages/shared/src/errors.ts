@@ -71,6 +71,22 @@ export const ERROR_CATALOG = {
   "import.unrecognizedFile": "Unrecognized campaign file",
   "import.noWorld": "Campaign without a world",
 
+  /**
+   * The start is not one of the world's. The campaign may have been forked from a
+   * template that has since changed its starts, so this is not always a mistake by
+   * the caller: the selection is stale and the player has to choose again.
+   */
+  "start.notFound": "This world has no start called {{detail}}",
+
+  /**
+   * The start exists but cannot be played.
+   *
+   * Separate from `start.notFound` because the two need different words in the
+   * interface: here the player is being offered something the project does not have
+   * an opening for, which is a different thing from a start that does not exist.
+   */
+  "start.loreOnly": "This start is lore only: it cannot be played",
+
   /** An error nobody planned for. The message is the only thing there is to show. */
   "server.unexpected": "Something went wrong: {{reason}}",
 } as const;

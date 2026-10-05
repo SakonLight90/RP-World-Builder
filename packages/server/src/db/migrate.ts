@@ -8,6 +8,7 @@ import { TURNS_SCHEMA } from "./migrations/006_turns.js";
 import { CANON_EDITS_SCHEMA } from "./migrations/007_canon_edits.js";
 import { ENGLISH_COLUMNS_SCHEMA } from "./migrations/008_english_columns.js";
 import { CONTEXT_LIMIT_SCHEMA } from "./migrations/009_context_limit.js";
+import { WORLD_STARTS_SCHEMA } from "./migrations/010_world_starts.js";
 
 export interface Migration {
   version: number;
@@ -29,6 +30,7 @@ export const MIGRATIONS: Migration[] = [
   { version: 7, name: "canon-edits", sql: CANON_EDITS_SCHEMA },
   { version: 8, name: "english-columns", sql: ENGLISH_COLUMNS_SCHEMA },
   { version: 9, name: "context-limit", sql: CONTEXT_LIMIT_SCHEMA },
+  { version: 10, name: "world-starts", sql: WORLD_STARTS_SCHEMA },
 ];
 
 const CREATE_LEDGER = `

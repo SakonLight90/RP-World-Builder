@@ -187,8 +187,25 @@ export const conversation = async (
    * it opens the story in their own words and in their own language. Only when
    * all three are empty is there nothing honest left to say, and that case says
    * so rather than pretending.
+   *
+   * A selected start comes before all of them. When the player has chosen how to
+   * begin, that choice *is* the opening: the transcript opens on the narration
+   * they picked, and the Bible is what the narrator follows afterwards. Ranking it
+   * third would mean choosing a start and still being shown the generic prologue,
+   * with the choice visible nowhere except in a field.
    */
   const prologueOf = (): ConversationMessage | null => {
+    const starts = world.starts;
+    if (starts.selectedId !== null) {
+      const selected = starts.list.find((entry) => entry.id === starts.selectedId);
+      // A start with no narration is not an opening. It is a start that was
+      // written without a scene, and falling through to the Bible keeps the
+      // campaign readable instead of opening the transcript on an empty bubble.
+      if (selected !== undefined && selected.narration.trim() !== "") {
+        return { role: "assistant", text: cleanNarration(selected.narration), createdAt: 0 };
+      }
+    }
+
     const bible = scope.worlds.getBible(world.id);
     const fromBible = [bible.premise, bible.rules]
       .filter((section) => section.trim() !== "")

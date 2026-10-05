@@ -1,9 +1,9 @@
-name: Appalachia 2287
+name: Fallout
 slug: appalachia-2287
 description: >-
-  Appalachia in 2287, two hundred and ten years after the Great War. A world of
-  survivors rebuilding a fragmented civilisation among ruins, forgotten
-  technology and creatures the war transformed.
+  The Fallout timeline, from the Great War to the present. A world of survivors
+  rebuilding a fragmented civilisation among ruins, forgotten technology and
+  creatures the war transformed.
 baseLocale: it
 isTemplate: true
 templateAuthor: "0x1994"
@@ -24,7 +24,7 @@ activeEras:
 libraries:
   - id: fallout
     version: "1.0.0"
-    hash: "sha256:f236200c74c7ececc663bb85eadb23705b96764cb5afb514706e396c16d6ab27"
+    hash: "sha256:2ec0986925e16b461ab69260b71672f9a896f50bfc0becc50699bb2c3ec6ff6e"
 
 eras:
   - key: pre-war
@@ -104,3 +104,54 @@ bible:
     Technology is never convenient where it should be. A device that works in a
     laboratory may not work in the field, and repairing it costs more than
     replacing it.
+
+# The ways into this world. Each one is a scenario the player chooses inside the
+# chat, and its narration is the first message of the conversation: it sets the
+# scene and leaves the decision to them. The player is nobody in particular until
+# they say who they are, and never the protagonist of the game unless they want to
+# be.
+#
+# `id` is what a selection points at, so it is written down and not derived: it has
+# to survive a rename of `name`, and a world forked from this template stores the id,
+# not the index of the entry it came from.
+#
+# The games that have lore but no scenario to step into — Fallout 1, Fallout 2,
+# Fallout Tactics, Shelter, Brotherhood of Steel — are not here at all. They are in
+# the library below so the narrator can cite them, and they are not starts because
+# there is nothing to begin from.
+starts:
+  - id: fallout-76
+    name: Fallout 76
+    game: fallout-76
+    playable: true
+    narration: >-
+      Flatwoods, 2287. The saloon is quiet this morning. You sit at the bar,
+      a room key in your hand, and the proprietress is watching you from
+      behind the counter. She has something to say.
+
+  - id: fallout-3
+    name: Fallout 3
+    game: fallout-3
+    playable: true
+    narration: >-
+      Vault 101. The air tastes recycled and the lights never change. You are
+      going about your day when the loudspeaker crackles to life, and the
+      Overseer wants to see you. Now.
+
+  - id: new-vegas
+    name: "Fallout: New Vegas"
+    game: new-vegas
+    playable: true
+    narration: >-
+      Goodsprings. You wake on the floor of a small house, a hole in your
+      head and a man standing over you with a shovel. He says your name. He
+      says you were shot. He says you should lie still.
+
+  - id: fallout-4
+    name: Fallout 4
+    game: fallout-4
+    playable: true
+    narration: >-
+      Sanctuary Hills, 2287. The bombs fell this morning. You are in the
+      vault door, your family behind you, and the world you knew is ending.
+      The vault is sealed. What happens next is up to you.

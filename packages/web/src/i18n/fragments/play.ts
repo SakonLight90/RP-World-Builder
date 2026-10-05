@@ -78,6 +78,28 @@ export const playEn = {
   "play.state.noChapter": "none yet",
   "play.state.noTier": "no tier",
 
+  /*
+   * The start selector.
+   *
+   * It says nothing about games it does not offer. A campaign that has not begun
+   * is a few words and a list of names: the player picks where to enter the world,
+   * and the narrator opens on that. The line about "you decide who you are" is
+   * there because the starts are openings to somebody else's story, and a player
+   * who assumes they are about to play the protagonist is in for a surprise on
+   * their first turn.
+   */
+  "play.start.title": "How does your story begin?",
+  "play.start.hint": "Pick where to enter this world. You decide who you are.",
+  "play.start.choose": "Begin here",
+  "play.start.chosen": "Selected",
+  "play.start.change": "Change the start",
+  "play.start.loreOnly": "Lore only, not playable",
+  "play.start.selected": "The campaign begins here.",
+  "play.start.titleAttribute": "{{name}}: {{summary}}",
+  "play.start.aria.group": "Campaign starts",
+  "play.start.aria.open": "Choose how this campaign begins",
+  "play.start.aria.close": "Close the start selector",
+
   "play.error.loadTitle": "I can't load this campaign.",
   "play.error.loadFailed": "I couldn't load this campaign.",
   "play.error.loadPartial": "I couldn't load everything.",
@@ -175,6 +197,18 @@ export const playIt = {
   "play.state.noChapter": "nessuno ancora",
   "play.state.noTier": "nessun tier",
 
+  "play.start.title": "Come comincia la tua storia?",
+  "play.start.hint": "Scegli da dove entrare in questo mondo. Decidi chi sei.",
+  "play.start.choose": "Comincia qui",
+  "play.start.chosen": "Selezionato",
+  "play.start.change": "Cambia inizio",
+  "play.start.loreOnly": "Solo lore, non giocabile",
+  "play.start.selected": "La campagna comincia qui.",
+  "play.start.titleAttribute": "{{name}}: {{summary}}",
+  "play.start.aria.group": "Inizi della campagna",
+  "play.start.aria.open": "Scegli come comincia questa campagna",
+  "play.start.aria.close": "Chiudi il selettore degli inizi",
+
   "play.error.loadTitle": "Non riesco a caricare questa campagna.",
   "play.error.loadFailed": "Non sono riuscito a caricare questa campagna.",
   "play.error.loadPartial": "Non sono riuscito a caricare tutto.",
@@ -270,6 +304,18 @@ export const playEs = {
   "play.state.noDescription": "Sin descripción.",
   "play.state.noChapter": "ninguno todavía",
   "play.state.noTier": "ningún nivel",
+
+  "play.start.title": "¿Cómo empieza tu historia?",
+  "play.start.hint": "Elige por dónde entrar en este mundo. Tú decides quién eres.",
+  "play.start.choose": "Empezar aquí",
+  "play.start.chosen": "Seleccionado",
+  "play.start.change": "Cambiar el inicio",
+  "play.start.loreOnly": "Solo lore, no jugable",
+  "play.start.selected": "La campaña empieza aquí.",
+  "play.start.titleAttribute": "{{name}}: {{summary}}",
+  "play.start.aria.group": "Inicios de la campaña",
+  "play.start.aria.open": "Elige cómo empieza esta campaña",
+  "play.start.aria.close": "Cerrar el selector de inicios",
 
   "play.error.loadTitle": "No consigo cargar esta campaña.",
   "play.error.loadFailed": "No he podido cargar esta campaña.",
@@ -367,6 +413,18 @@ export const playFr = {
   "play.state.noChapter": "aucun pour l'instant",
   "play.state.noTier": "aucun niveau",
 
+  "play.start.title": "Comment votre histoire commence-t-elle ?",
+  "play.start.hint": "Choisissez par où entrer dans ce monde. Vous décidez qui vous êtes.",
+  "play.start.choose": "Commencer ici",
+  "play.start.chosen": "Sélectionné",
+  "play.start.change": "Changer de début",
+  "play.start.loreOnly": "lore seule, non jouable",
+  "play.start.selected": "La campagne commence ici.",
+  "play.start.titleAttribute": "{{name}} : {{summary}}",
+  "play.start.aria.group": "Débuts de campagne",
+  "play.start.aria.open": "Choisir le début de cette campagne",
+  "play.start.aria.close": "Fermer le sélecteur de début",
+
   "play.error.loadTitle": "Je n'arrive pas à charger cette campagne.",
   "play.error.loadFailed": "Je n'ai pas pu charger cette campagne.",
   "play.error.loadPartial": "Je n'ai pas pu tout charger.",
@@ -461,6 +519,18 @@ export const playDe = {
   "play.state.noDescription": "Keine Beschreibung.",
   "play.state.noChapter": "noch keiner",
   "play.state.noTier": "kein Tier",
+
+  "play.start.title": "Wie beginnt deine Geschichte?",
+  "play.start.hint": "Wähle, wo du in diese Welt eintrittst. Du entscheidest, wer du bist.",
+  "play.start.choose": "Hier beginnen",
+  "play.start.chosen": "Ausgewählt",
+  "play.start.change": "Start ändern",
+  "play.start.loreOnly": "Nur Lore, nicht spielbar",
+  "play.start.selected": "Die Kampagne beginnt hier.",
+  "play.start.titleAttribute": "{{name}}: {{summary}}",
+  "play.start.aria.group": "Kampagnen-Starts",
+  "play.start.aria.open": "Wähle, wie diese Kampagne beginnt",
+  "play.start.aria.close": "Start-Auswahl schließen",
 
   "play.error.loadTitle": "Ich kann diese Kampagne nicht laden.",
   "play.error.loadFailed": "Ich konnte diese Kampagne nicht laden.",

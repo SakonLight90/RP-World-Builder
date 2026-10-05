@@ -195,6 +195,46 @@ function bibleBlock(bible: Record<string, string>): string {
 }
 
 /**
+ * The chosen start, told to the narrator.
+ *
+ * It goes in the agent and not only in the transcript for the reason the Bible is
+ * there: the opening narration is the first thing the player reads and the first
+ * thing the narrator has to continue, and by the time the session is compacted
+ * that first message is far away. Without this block the narrator would be asked
+ * to continue a story it can no longer see the beginning of, and it would invent
+ * a different one — which is how a campaign set in Goodsprings ends up somewhere
+ * the player never chose.
+ *
+ * The last line is the one that matters most. The starts are openings into
+ * somebody else's story, and a narrator that assumes its player is the Courier
+ * will write around them: the player's own decisions get treated as a rewrite of
+ * canon the narrator already knows how it goes. They are nobody in particular until
+ * they say who they are.
+ */
+function startBlock(world: World): string {
+  const starts = world.starts;
+  if (starts.selectedId === null) return "";
+  const selected = starts.list.find((entry) => entry.id === starts.selectedId);
+  // A selection pointing at nothing, or at a start with no narration, is a state
+  // `toStarts` already refuses to produce. Returning "" here is not a second
+  // policy: it is the same one, in the one place that renders.
+  if (selected === undefined || selected.narration.trim() === "") return "";
+  return [
+    "## THE OPENING OF THIS CAMPAIGN",
+    "",
+    `The player chose to begin in ${selected.name}. This is where the story starts, and it is`,
+    "the first thing they read:",
+    "",
+    selected.narration,
+    "",
+    "The player is not the protagonist of this game unless they say so. Treat the opening",
+    "above as the situation they wake up into, not as a role they were assigned: whoever they",
+    "decide to be is theirs, and if they decide to be somebody who is not in the scenario,",
+    "that is the character you write.",
+  ].join("\n");
+}
+
+/**
  * The narrator's writing language, stated in words.
  *
  * It has to be stated, not deduced. The prompt is written in Italian and the
@@ -255,9 +295,19 @@ export function renderAgent(
 
   const language = languageName(world);
 
+  // Computed once: `startBlock` walks the starts to find the selected one, and
+  // calling it twice to ask "is it empty" and then to print it would do that walk
+  // twice on every single agent render.
+  const opening = startBlock(world);
+
   let rendered = template
     .replace(FRONTMATTER_MARKER, () => frontmatter(world, libraries.readableRoots))
-    .replace(BIBLE_MARKER, () => bibleBlock(bible));
+    .replace(BIBLE_MARKER, () => bibleBlock(bible))
+    // Appended and not put in place of anything: the template has no placeholder
+    // for it, and adding one would make every template written before this feature
+    // fail the check above for a missing placeholder — the narrator would stop
+    // loading altogether instead of getting one extra section.
+    .concat(opening === "" ? "" : `\n\n${opening}\n`);
 
   // The presence of the placeholders is read **before** replacing them: afterwards
   // there is nothing left to ask, and the right question is "did the template have

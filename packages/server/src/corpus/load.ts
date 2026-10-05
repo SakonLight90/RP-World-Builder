@@ -280,6 +280,15 @@ export async function loadCorpus(db: Database, options: LoadOptions): Promise<Lo
       // validation has already flagged it, and creating the world makes it
       // inspectable anyway.
       libraries: world.libraries,
+      // The ways into the world travel with it, and none is selected: choosing is
+      // the player's first move inside the chat.
+      starts: world.starts.map((start) => ({
+        id: start.id,
+        name: start.name,
+        game: start.game,
+        playable: start.playable,
+        narration: start.narration,
+      })),
     });
 
     writeBible(worlds, created.id, world.bible);

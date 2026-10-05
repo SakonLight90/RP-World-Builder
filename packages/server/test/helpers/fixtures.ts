@@ -1,5 +1,5 @@
-import type { ModelInfo, World } from "@rpwb/shared";
-import { DEFAULT_REASONING_EFFORT } from "@rpwb/shared";
+import type { ModelInfo, StartsState, World } from "@rpwb/shared";
+import { DEFAULT_REASONING_EFFORT, EMPTY_STARTS } from "@rpwb/shared";
 
 /**
  * World and model fixtures for tests.
@@ -26,10 +26,56 @@ export function makeWorld(patch: Partial<World> = {}): World {
     opencodeDir: "/tmp/prova",
     opencodeSessionId: null,
     libraries: [],
+    /*
+     * Empty and not undefined, because on the real `World` it is never absent: a
+     * world with no starts is a world with none, not a world whose column has not
+     * been migrated yet. A fixture that defaulted to `undefined` would let a test
+     * read `world.starts.list` without a guard and pass here while production
+     * always hands over a real object.
+     */
+    starts: { ...EMPTY_STARTS },
     isTemplate: false,
     templateAuthor: null,
     createdAt: "2026-09-28",
     updatedAt: "2026-09-28",
+    ...patch,
+  };
+}
+
+/**
+ * A world with playable starts, for the tests that need to choose one.
+ *
+ * Two of them, and one lore-only on purpose: the third exists so the tests can
+ * check that a game nobody can play stays out of the selector and cannot be
+ * selected, which is the rule that keeps a library from turning into a list of
+ * campaigns that begin nowhere.
+ */
+export function makeStarts(patch: Partial<StartsState> = {}): StartsState {
+  return {
+    list: [
+      {
+        id: "new-vegas",
+        name: "Fallout: New Vegas",
+        game: "new-vegas",
+        playable: true,
+        narration: "Goodsprings. You wake on the floor with a hole in your head.",
+      },
+      {
+        id: "fallout-76",
+        name: "Fallout 76",
+        game: "fallout-76",
+        playable: true,
+        narration: "Flatwoods. The saloon is quiet and the proprietress is watching you.",
+      },
+      {
+        id: "fallout-1",
+        name: "Fallout",
+        game: "fallout-1",
+        playable: false,
+        narration: "",
+      },
+    ],
+    selectedId: null,
     ...patch,
   };
 }

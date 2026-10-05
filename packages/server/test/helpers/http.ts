@@ -2,7 +2,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { OpencodeClient } from "@opencode-ai/sdk";
-import type { World } from "@rpwb/shared";
+import type { World, WorldStart } from "@rpwb/shared";
 import type { Database } from "better-sqlite3";
 import Fastify, { type FastifyInstance } from "fastify";
 import { resolveRoots, slugify } from "../../src/config/paths.js";
@@ -176,7 +176,7 @@ export function harnessWorldDir(h: Harness, slug: string): string {
 }
 
 /** A world with its folder under temp data. */
-export function makeWorld(h: Harness, nameOf: string): World {
+export function makeWorld(h: Harness, nameOf: string, starts?: WorldStart[]): World {
   const slug = `${slugify(nameOf)}-${Math.random().toString(36).slice(2, 8)}`;
   return h.worlds.create({
     name: nameOf,
@@ -184,6 +184,7 @@ export function makeWorld(h: Harness, nameOf: string): World {
     model: "opencode/space-bunny-free",
     smallModel: "opencode/space-bunny-free",
     opencodeDir: harnessWorldDir(h, slug),
+    ...(starts === undefined ? {} : { starts }),
   });
 }
 

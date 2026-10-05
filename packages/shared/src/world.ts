@@ -67,6 +67,55 @@ export interface PlayerCharacter {
   role: string;
 }
 
+/**
+ * A playable scenario inside a world.
+ *
+ * A world is a setting and a start is a way into it: Fallout is one world with a
+ * Capital Wasteland start, a Mojave start and a Commonwealth start, and the player
+ * picks one when they begin playing. Selecting a start is what makes the first
+ * message of the conversation that game's opening, instead of a generic prologue.
+ *
+ * `narration` is written to be the first thing the player reads. It sets the
+ * scene, hands the player a situation, and stops: it never decides who they are.
+ * A start that put words in the player's mouth would take away the only decision
+ * that matters at the start of a roleplay.
+ *
+ * `playable` is not decorative. Games that have lore but no scenario to step
+ * into stay in the library as reference: the narrator can cite them when the
+ * player names them, but there is nothing to begin from.
+ */
+export interface WorldStart {
+  /** Stable identifier, derived from the game: survives a rename of the name. */
+  id: string;
+  /** Shown in the selector. The name of the game. */
+  name: string;
+  /** Which game the scenario comes from, e.g. `new-vegas`. */
+  game: string;
+  /** False for lore-only games: present in the library, absent from the selector. */
+  playable: boolean;
+  /** The opening narration, shown as the first message of the conversation. */
+  narration: string;
+}
+
+/**
+ * A world's starts and which one is in play.
+ *
+ * Both live in one place, and not as two independent fields, because the question
+ * "which start is selected" only has a meaning relative to the list. Stored apart,
+ * a selection can point at a start that no longer exists, and the conversation
+ * would open on a scenario with no narration to show.
+ *
+ * `selectedId` is null and not "the first one" on purpose. The opening narration
+ * is the player's first real choice, and picking one for them would spend it
+ * before they arrive.
+ */
+export interface StartsState {
+  list: WorldStart[];
+  selectedId: string | null;
+}
+
+export const EMPTY_STARTS: StartsState = { list: [], selectedId: null };
+
 export interface World {
   id: string;
   name: string;
@@ -106,6 +155,15 @@ export interface World {
    * a protagonist the player did not write.
    */
   player?: PlayerCharacter;
+  /**
+   * The playable starts, and which one is in play.
+   *
+   * Never absent and never optional: a world with no starts is a legitimate state
+   * reached by every world built from scratch, so it is an empty list rather than
+   * a missing field. The client draws the selector from this, and a missing field
+   * would mean a check on every read to tell "no starts" apart from "old database".
+   */
+  starts: StartsState;
   isTemplate: boolean;
   templateAuthor: string | null;
   createdAt: string;

@@ -1,5 +1,5 @@
 import type { TokenUsage, World } from "@rpwb/shared";
-import { DEFAULT_REASONING_EFFORT, emptyTokenUsage } from "@rpwb/shared";
+import { DEFAULT_REASONING_EFFORT, EMPTY_STARTS, emptyTokenUsage } from "@rpwb/shared";
 import { describe, expect, it } from "vitest";
 import { ChapterDraftSchema } from "../src/canon/chapterer.js";
 import {
@@ -32,6 +32,7 @@ const WORLD: World = {
   opencodeDir: "/tmp/w1",
   opencodeSessionId: null,
   libraries: [],
+  starts: { ...EMPTY_STARTS },
   isTemplate: false,
   templateAuthor: null,
   createdAt: "2026-09-28",

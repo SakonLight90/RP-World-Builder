@@ -203,6 +203,125 @@ describe("corpus", () => {
       await rm(root, { recursive: true, force: true });
     });
 
+    it("carries the world's starts over, and selects none of them", async () => {
+      /*
+       * The template is the model somebody starts from, so it brings the ways into
+       * the setting and not the choice between them: whoever forks it has not
+       * decided how their campaign begins, and the selector is the first thing they
+       * should meet.
+       *
+       * The lore-only entry is here on purpose. Fallout 1 and 2 are in the library so
+       * the narrator can cite them; there is no scenario to step into, so they must
+       * arrive marked `playable: false` and stay out of the selector.
+       */
+      const root = await makeWorld("prova", {
+        "world.yaml": `${WORLD_YAML}
+starts:
+  - id: "new-vegas"
+    name: "Fallout: New Vegas"
+    game: "new-vegas"
+    playable: true
+    narration: "Goodsprings. You wake on the floor with a hole in your head."
+  - id: "fallout-1"
+    name: "Fallout"
+    game: "fallout-1"
+    playable: false
+`,
+        "entries/000.yaml": ENTRIES_YAML,
+      });
+
+      await loadCorpus(db, {
+        root,
+        loreRoot: LORE,
+        model: MODEL,
+        smallModel: MODEL,
+        worldsDir: "/tmp",
+      });
+
+      const world = new WorldRepository(db).getBySlug("mondo-di-prova");
+      expect(world?.starts.list.map((s) => s.id)).toEqual(["new-vegas", "fallout-1"]);
+      expect(world?.starts.list[0]?.narration).toContain("Goodsprings");
+      expect(world?.starts.list[1]?.playable).toBe(false);
+      expect(world?.starts.selectedId).toBeNull();
+    });
+
+    it("a start that doesn't say it can be played is not playable", async () => {
+      /*
+       * The default is false and not true, and the direction matters: a start written
+       * without the flag belongs in the library as reference, and the worst case is a
+       * start nobody sees. The other default would offer a campaign that begins
+       * nowhere.
+       */
+      const root = await makeWorld("prova", {
+        "world.yaml": `${WORLD_YAML}
+starts:
+  - id: "senza-flag"
+    name: "No flag"
+    narration: "Una scena."
+`,
+        "entries/000.yaml": ENTRIES_YAML,
+      });
+
+      await loadCorpus(db, {
+        root,
+        loreRoot: LORE,
+        model: MODEL,
+        smallModel: MODEL,
+        worldsDir: "/tmp",
+      });
+
+      expect(new WorldRepository(db).getBySlug("mondo-di-prova")?.starts.list[0]?.playable).toBe(
+        false,
+      );
+    });
+
+    it("a corpus with no starts loads a world with none", async () => {
+      // Every world built from scratch reaches this, so it is not a corner: an
+      // absent field would be indistinguishable from a missing column.
+      const root = await makeWorld("prova", {
+        "world.yaml": WORLD_YAML,
+        "entries/000.yaml": ENTRIES_YAML,
+      });
+
+      await loadCorpus(db, {
+        root,
+        loreRoot: LORE,
+        model: MODEL,
+        smallModel: MODEL,
+        worldsDir: "/tmp",
+      });
+
+      expect(new WorldRepository(db).getBySlug("mondo-di-prova")?.starts).toEqual({
+        list: [],
+        selectedId: null,
+      });
+    });
+
+    it("a start with no id is a blocking error", async () => {
+      // The id is what a selection points at and what the transcript is opened by,
+      // so a start nobody can point at is a mistake in the template, and it is
+      // caught at load time rather than at the first choice.
+      const root = await makeWorld("prova", {
+        "world.yaml": `${WORLD_YAML}
+starts:
+  - name: "Senza id"
+    playable: true
+    narration: "Una scena."
+`,
+        "entries/000.yaml": ENTRIES_YAML,
+      });
+
+      await expect(
+        loadCorpus(db, {
+          root,
+          loreRoot: LORE,
+          model: MODEL,
+          smallModel: MODEL,
+          worldsDir: "/tmp",
+        }),
+      ).rejects.toThrow(/blocking problems/);
+    });
+
     it("reloading doesn't duplicate", async () => {
       const root = await makeWorld("prova", {
         "world.yaml": WORLD_YAML,

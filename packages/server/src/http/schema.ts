@@ -59,6 +59,18 @@ export const UpdateWorldBody = z.object({
   player: PlayerBody.optional(),
 });
 
+/**
+ * The choice of how the campaign begins.
+ *
+ * `null` is a real value and not "not given": unselecting a start is something the
+ * player can do, and it puts the world back to waiting for a choice. It is written
+ * as an explicit `null` in the body, and the schema distinguishes it from an absent
+ * field, which leaves the selection alone.
+ */
+export const SelectStartBody = z.object({
+  startId: z.string().min(1).nullable(),
+});
+
 export const BibleBody = z.object({
   section: z.enum(BIBLE_SECTIONS) as unknown as z.ZodType<BibleSection>,
   body: z.string().max(20_000),

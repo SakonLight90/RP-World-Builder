@@ -3,7 +3,7 @@ import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { World } from "@rpwb/shared";
-import { DEFAULT_REASONING_EFFORT } from "@rpwb/shared";
+import { DEFAULT_REASONING_EFFORT, EMPTY_STARTS } from "@rpwb/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type ChapterSummary, closeChapter, reinsertPointer } from "../src/canon/chapterer.js";
 import { probeOpencodeVersion, resolveOpencodeBinary } from "../src/opencode/binary.js";
@@ -88,6 +88,7 @@ describeIfLive("chapterer at runtime", () => {
       opencodeDir: rootDir,
       opencodeSessionId: null,
       libraries: [],
+      starts: { ...EMPTY_STARTS },
       isTemplate: false,
       templateAuthor: null,
       createdAt: "2026-09-28",

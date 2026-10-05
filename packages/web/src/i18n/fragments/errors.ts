@@ -21,6 +21,8 @@ export const errorsEn = {
 
   "error.world.notFound": "World not found",
   "error.world.templateNotFound": "Template not found",
+  "error.start.notFound": "This world has no start called {{detail}}",
+  "error.start.loreOnly": "This start is lore only: it cannot be played",
   "error.world.deleteBlocked":
     "Could not delete the campaign folder, so nothing was deleted: {{path}}. Close whatever is using it, for example an opencode server still running for this campaign, and try again.",
 
@@ -75,6 +77,8 @@ export const errorsIt = {
 
   "error.world.notFound": "Mondo non trovato",
   "error.world.templateNotFound": "Template non trovato",
+  "error.start.notFound": "Questo mondo non ha un inizio chiamato {{detail}}",
+  "error.start.loreOnly": "Questo inizio è solo lore: non è giocabile",
   "error.world.deleteBlocked":
     "Non è stato possibile cancellare la cartella della campagna, quindi non è stato eliminato nulla: {{path}}. Chiudi ciò che la sta usando, per esempio un server opencode ancora attivo per questa campagna, e riprova.",
 
@@ -129,6 +133,8 @@ export const errorsEs = {
 
   "error.world.notFound": "Mundo no encontrado",
   "error.world.templateNotFound": "Plantilla no encontrada",
+  "error.start.notFound": "Este mundo no tiene un inicio llamado {{detail}}",
+  "error.start.loreOnly": "Este inicio es solo lore: no se puede jugar",
   "error.world.deleteBlocked":
     "No se pudo borrar la carpeta de la campaña, así que no se eliminó nada: {{path}}. Cierra lo que la esté usando, por ejemplo un servidor de opencode todavía en marcha para esta campaña, e inténtalo otra vez.",
 
@@ -182,6 +188,8 @@ export const errorsFr = {
 
   "error.world.notFound": "Monde introuvable",
   "error.world.templateNotFound": "Modèle introuvable",
+  "error.start.notFound": "Ce monde n'a pas de début nommé {{detail}}",
+  "error.start.loreOnly": "Ce début est réservé au lore : il ne peut pas être joué",
   "error.world.deleteBlocked":
     "Impossible de supprimer le dossier de la campagne, donc rien n'a été supprimé : {{path}}. Fermez ce qui l'utilise, par exemple un serveur opencode encore actif pour cette campagne, puis réessayez.",
 
@@ -236,6 +244,8 @@ export const errorsDe = {
 
   "error.world.notFound": "Welt nicht gefunden",
   "error.world.templateNotFound": "Vorlage nicht gefunden",
+  "error.start.notFound": "Diese Welt hat keinen Start namens {{detail}}",
+  "error.start.loreOnly": "Dieser Start ist nur Lore: er ist nicht spielbar",
   "error.world.deleteBlocked":
     "Der Kampagnenordner konnte nicht gelöscht werden, es wurde also nichts entfernt: {{path}}. Schließe, was ihn noch belegt, etwa einen opencode-Server für diese Kampagne, und versuche es erneut.",
 

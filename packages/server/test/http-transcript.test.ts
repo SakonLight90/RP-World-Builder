@@ -22,6 +22,37 @@ let h: Harness;
 const PROLOGUE = "Appalachia, 2287: the world is post-nuclear.";
 const RULES = "No gratuitous violence.";
 
+/**
+ * Two playable starts and one lore-only entry.
+ *
+ * The third exists so the tests can check that a game nobody can play stays out of
+ * the selector and cannot be selected: it is in the library as reference, and the
+ * rule that keeps it from turning into a campaign that begins nowhere is the point.
+ */
+const STARTS = [
+  {
+    id: "new-vegas",
+    name: "Fallout: New Vegas",
+    game: "new-vegas",
+    playable: true,
+    narration: "Goodsprings. You wake on the floor with a hole in your head.",
+  },
+  {
+    id: "fallout-76",
+    name: "Fallout 76",
+    game: "fallout-76",
+    playable: true,
+    narration: "Flatwoods. The saloon is quiet and the proprietress watches you.",
+  },
+  {
+    id: "fallout-1",
+    name: "Fallout",
+    game: "fallout-1",
+    playable: false,
+    narration: "",
+  },
+];
+
 const LINE: SessionMessage = { role: "user", text: "I open the door." };
 const REPLY: SessionMessage = {
   role: "assistant",
@@ -110,6 +141,59 @@ describe("conversation history", () => {
     // description was already on screen and the two would be indistinguishable.
     const world = worldWithSession("chronology-bible-wins", [LINE], PROLOGUE);
     h.worlds.update(world.id, { description: "A description that must lose." });
+
+    const payload = (await transcript(world.id)).json<{ messages: { text: string }[] }>();
+    expect(payload.messages[0]?.text).toBe(`${PROLOGUE}\n\n${RULES}`);
+  });
+
+  it("the chosen start becomes the opening, in place of the generic prologue", async () => {
+    /*
+     * The whole point of the feature.
+     *
+     * Choosing a start and still being shown the Bible's prologue would leave the
+     * choice invisible: the player picks "Goodsprings, on the floor with a hole in
+     * your head" and the first line they read is a paragraph about a setting they
+     * have not entered yet. The selection would be a field with no consequence,
+     * which is the same failure mode as the one the deletion bookmark had.
+     */
+    const world = worldWithSession("start-opening", [LINE, REPLY]);
+    h.worlds.setStarts(world.id, STARTS, "new-vegas");
+
+    const payload = (await transcript(world.id)).json<{
+      messages: { role: string; text: string; createdAt: number }[];
+    }>();
+
+    expect(payload.messages[0]?.text).toBe(STARTS[0]?.narration);
+    expect(payload.messages[0]?.role).toBe("assistant");
+    expect(payload.messages[0]?.createdAt).toBe(0);
+    // The Bible's opening is replaced, not appended: two openings would be one too
+    // many, and the generic one would sit on top of the one the player picked.
+    expect(payload.messages.map((m) => m.text)).not.toContain(`${PROLOGUE}\n\n${RULES}`);
+    // And the session still starts right after it.
+    expect(payload.messages[1]?.text).toBe(LINE.text);
+  });
+
+  it("a start with no narration falls through to the Bible", async () => {
+    // A start written without a scene is not an opening. Falling back keeps the
+    // transcript readable instead of opening it on an empty bubble, and the
+    // repository refuses to select one anyway: this is the renderer agreeing with it.
+    const world = worldWithSession("start-senza-narrazione", [LINE]);
+    h.worlds.setStarts(
+      world.id,
+      [{ id: "vuoto", name: "No scene", game: "", playable: true, narration: "  " }],
+      "vuoto",
+    );
+
+    const payload = (await transcript(world.id)).json<{ messages: { text: string }[] }>();
+    expect(payload.messages[0]?.text).toBe(`${PROLOGUE}\n\n${RULES}`);
+  });
+
+  it("a world that hasn't chosen a start keeps the generic prologue", async () => {
+    // The selection is the player's first decision and this must not be spent for
+    // them: with starts available and none chosen, the campaign opens on the world
+    // itself and the selector waits in the chat.
+    const world = worldWithSession("start-non-scelto", [LINE]);
+    h.worlds.setStarts(world.id, STARTS, null);
 
     const payload = (await transcript(world.id)).json<{ messages: { text: string }[] }>();
     expect(payload.messages[0]?.text).toBe(`${PROLOGUE}\n\n${RULES}`);

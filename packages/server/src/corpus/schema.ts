@@ -53,6 +53,26 @@ export const CorpusBibleSchema = z.object({
   conventions: z.string().default(""),
 });
 
+/**
+ * A playable scenario written in the corpus.
+ *
+ * `playable` defaults to false, not true, and the reason is what it means for the
+ * games this corpus does not have an opening for: they are in the library as
+ * reference, and defaulting them to playable would offer a campaign that begins
+ * nowhere. Defaulting to false means a start that does not say it can be played is
+ * not offered, which is the safe direction: the worst case is a start nobody sees
+ * instead of a start that opens on nothing.
+ */
+const CorpusStartSchema = z.object({
+  id: z.string().min(1, "a start needs an id: it is what a selection points at"),
+  name: z.string().min(1, "a start needs a name to show in the selector"),
+  /** Which game the scenario comes from, e.g. `new-vegas`. */
+  game: z.string().default(""),
+  playable: z.boolean().default(false),
+  /** The opening narration, shown as the first message of the conversation. */
+  narration: z.string().default(""),
+});
+
 export const CorpusWorldSchema = z.object({
   name: z.string().min(1),
   slug: z
@@ -92,6 +112,14 @@ export const CorpusWorldSchema = z.object({
       }),
     )
     .default([]),
+  /**
+   * The ways into this world.
+   *
+   * A setting can have several beginnings: Fallout is one world with a Capital
+   * Wasteland start and a Mojave start, and the player picks the one they want when
+   * they begin playing. The world itself is unchanged by the choice.
+   */
+  starts: z.array(CorpusStartSchema).default([]),
 });
 
 export type CorpusWorld = z.infer<typeof CorpusWorldSchema>;

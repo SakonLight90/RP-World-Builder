@@ -4,13 +4,16 @@ import {
   type BibleSection,
   DEFAULT_REASONING_EFFORT,
   EMPTY_BIBLE,
+  EMPTY_STARTS,
   type Era,
   type LibraryRequirement,
   type PlayerCharacter,
   REASONING_EFFORTS,
   type ReasoningEffort,
+  type StartsState,
   WORLD_DEFAULTS,
   type World,
+  type WorldStart,
 } from "@rpwb/shared";
 import type { Database } from "better-sqlite3";
 import { CanonRepository } from "./canon.js";
@@ -47,6 +50,13 @@ interface WorldRow {
    * "no character" instead of making the row fail.
    */
   player_character?: string | null;
+  /**
+   * The starts and the selected one, serialised as JSON.
+   *
+   * Optional for the same reason as `player_character`: the column arrives with a
+   * migration, and a database that does not have it yet simply has no starts.
+   */
+  starts?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -68,6 +78,7 @@ const WORLD_COLUMNS = `
 `;
 
 const PLAYER_COLUMN = "player_character";
+const STARTS_COLUMN = "starts";
 
 /**
  * The character column is added to `worlds` with a migration, so it is not
@@ -86,6 +97,22 @@ function playerColumn(db: Database): string {
     .all()
     .some((column) => column.name === PLAYER_COLUMN);
   return present ? `, ${PLAYER_COLUMN}` : "";
+}
+
+/**
+ * The starts column, asked of the schema for the same reason as the character's.
+ *
+ * It does not share `playerColumn`'s answer on purpose: the two arrive with
+ * different migrations, so a database can have one and not the other, and reusing
+ * the single check would make a world load with a character's column and no
+ * starts, or the other way round.
+ */
+function startsColumn(db: Database): string {
+  const present = db
+    .prepare<[], { name: string }>("PRAGMA table_info(worlds)")
+    .all()
+    .some((column) => column.name === STARTS_COLUMN);
+  return present ? `, ${STARTS_COLUMN}` : "";
 }
 
 function toWorld(row: WorldRow): World {
@@ -107,6 +134,7 @@ function toWorld(row: WorldRow): World {
     opencodeSessionId: row.opencode_session_id,
     libraries: toLibraries(row.libraries),
     player: toPlayer(row.player_character),
+    starts: toStarts(row.starts),
     isTemplate: toBool(row.is_template),
     templateAuthor: row.template_author,
     createdAt: row.created_at,
@@ -175,6 +203,57 @@ function toPlayer(raw: unknown): PlayerCharacter | undefined {
   }
 }
 
+/**
+ * The starts, or none at all.
+ *
+ * Degrading for the same reason as the libraries and the character: a corrupted
+ * column must not make the world fail to load, because a world that does not load
+ * cannot be told apart from a world that does not exist. Losing the starts costs
+ * the player the selector, which they can get back by choosing again; losing the
+ * world costs them the campaign.
+ *
+ * Two things are validated beyond "is it JSON", and both matter:
+ *
+ * * A start without an id is dropped. The id is what a selection points at, so a
+ *   start that cannot be pointed at is not a start.
+ * * A `selectedId` that names no start in the list becomes null. That is the case
+ *   the single-column decision exists to prevent from ever being written, but a
+ *   hand-edited database can still hold one, and the consequence would be a
+ *   transcript opening on nothing.
+ */
+function toStarts(raw: unknown): StartsState {
+  if (typeof raw !== "string" || raw === "") return { ...EMPTY_STARTS };
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return { ...EMPTY_STARTS };
+    }
+    const entry = parsed as Record<string, unknown>;
+    const rawList = Array.isArray(entry.list) ? entry.list : [];
+    const list: WorldStart[] = [];
+    const seen = new Set<string>();
+    for (const item of rawList) {
+      if (item === null || typeof item !== "object" || Array.isArray(item)) continue;
+      const start = item as Record<string, unknown>;
+      const id = toStr(start.id).trim();
+      if (id === "" || seen.has(id)) continue;
+      seen.add(id);
+      list.push({
+        id,
+        name: toStr(start.name).trim(),
+        game: toStr(start.game).trim(),
+        playable: start.playable === true,
+        narration: toStr(start.narration).trim(),
+      });
+    }
+    const selected = toStr(entry.selectedId).trim();
+    const selectedId = selected !== "" && seen.has(selected) ? selected : null;
+    return { list, selectedId };
+  } catch {
+    return { ...EMPTY_STARTS };
+  }
+}
+
 function toEra(row: EraRow): Era {
   return {
     key: row.key,
@@ -203,6 +282,8 @@ export interface CreateWorldInput {
   libraries?: LibraryRequirement[];
   /** Player character to set at creation. */
   player?: PlayerCharacter;
+  /** The playable starts to set at creation. */
+  starts?: WorldStart[];
   chapterThresholdRatio?: number;
   canonBudgetRatio?: number;
 }
@@ -211,6 +292,7 @@ export class WorldRepository {
   readonly #db: Database;
   /** Suffix of the columns to read, decided once and reused. */
   #playerColumns: string | null = null;
+  #startsColumns: string | null = null;
 
   constructor(db: Database) {
     this.#db = db;
@@ -222,9 +304,15 @@ export class WorldRepository {
     return this.#playerColumns;
   }
 
-  /** `worlds` columns, with the character's only if the migration created it. */
+  /** The starts column, or the empty string if the migration is not there. */
+  #startsColumn(): string {
+    this.#startsColumns ??= startsColumn(this.#db);
+    return this.#startsColumns;
+  }
+
+  /** `worlds` columns, with the extra ones only if their migrations created them. */
   #columns(): string {
-    return `${WORLD_COLUMNS}${this.#playerColumn()}`;
+    return `${WORLD_COLUMNS}${this.#playerColumn()}${this.#startsColumn()}`;
   }
 
   create(input: CreateWorldInput): World {
@@ -274,6 +362,12 @@ opencode_dir, opencode_session_id, is_template, template_author, kept_messages, 
     // is forgotten in one of the two.
     if (input.player !== undefined) this.setPlayer(id, input.player);
 
+    // Same as the character: written through the method the player will use, and
+    // not inside the `INSERT`. A world created from a template is born with its
+    // starts and with none selected, because choosing is the player's first move
+    // inside the chat and doing it here would spend it for them.
+    if (input.starts !== undefined) this.setStarts(id, input.starts, null);
+
     const world = this.get(id);
     if (!world) throw new Error("world not found after creation");
     return world;
@@ -303,6 +397,76 @@ opencode_dir, opencode_session_id, is_template, template_author, kept_messages, 
     this.#db
       .prepare("UPDATE worlds SET player_character = ?, updated_at = ? WHERE id = ?")
       .run(player === null ? null : JSON.stringify(player), nowIso(), id);
+  }
+
+  /**
+   * The starts, and which one is in play.
+   *
+   * The list is cleaned on the way in, not only on the way out: `toStarts` would
+   * drop a start with no id on the next read, and a selection naming a start that
+   * does not exist is nulled. Validating at the door means what is stored is what
+   * will be read, instead of the two quietly disagreeing.
+   *
+   * A selection naming a start that is not in the list is refused with an error
+   * rather than corrected to null. The two are not the same: null is "the player
+   * has not chosen yet", which is a state the selector shows and offers, while a
+   * dropped id is a caller passing something wrong, and silently answering with a
+   * world that has no opening narration would hide it until the transcript looked
+   * empty.
+   */
+  setStarts(id: string, list: WorldStart[], selectedId: string | null): void {
+    if (this.#startsColumn() === "") {
+      throw new Error("starts column missing: the world starts migration was not applied");
+    }
+    const cleaned: WorldStart[] = [];
+    const seen = new Set<string>();
+    for (const start of list) {
+      const startId = toStr(start.id).trim();
+      if (startId === "" || seen.has(startId)) continue;
+      seen.add(startId);
+      cleaned.push({
+        id: startId,
+        name: toStr(start.name).trim(),
+        game: toStr(start.game).trim(),
+        playable: start.playable === true,
+        narration: toStr(start.narration).trim(),
+      });
+    }
+    if (selectedId !== null && !seen.has(selectedId)) {
+      throw new Error(`start "${selectedId}" is not one of this world's starts`);
+    }
+    this.#db
+      .prepare("UPDATE worlds SET starts = ?, updated_at = ? WHERE id = ?")
+      .run(JSON.stringify({ list: cleaned, selectedId }), nowIso(), id);
+  }
+
+  /**
+   * Chooses the start the conversation opens on.
+   *
+   * Only a playable start can be chosen. A lore-only entry is in the library so
+   * the narrator can cite it, not so a campaign can begin there: there is no
+   * scenario to step into, and selecting one would produce an opening narration
+   * for a game nobody can play.
+   *
+   * It does not touch the session. Changing the start of a campaign that has
+   * already been played would leave the transcript beginning one way and the story
+   * another, and only the player can decide that; the interface asks before
+   * calling this on a world with messages in it.
+   */
+  selectStart(id: string, startId: string | null): World | null {
+    const world = this.get(id);
+    if (!world) return null;
+    if (startId === null) {
+      this.setStarts(id, world.starts.list, null);
+      return this.get(id);
+    }
+    const start = world.starts.list.find((entry) => entry.id === startId);
+    if (!start) throw new Error(`start "${startId}" is not one of this world's starts`);
+    if (!start.playable) {
+      throw new Error(`start "${startId}" is lore only: it cannot be played`);
+    }
+    this.setStarts(id, world.starts.list, startId);
+    return this.get(id);
   }
 
   /**
@@ -414,6 +578,12 @@ is_template = @isTemplate, template_author = @templateAuthor,
     // a character must not touch it.
     if (patch.player !== undefined) this.setPlayer(id, patch.player);
 
+    // Same rule as the character: writing them unconditionally would wipe the
+    // selection every time the world was renamed.
+    if (patch.starts !== undefined) {
+      this.setStarts(id, patch.starts.list, patch.starts.selectedId);
+    }
+
     return this.get(id);
   }
 
@@ -521,12 +691,17 @@ is_template = @isTemplate, template_author = @templateAuthor,
       // is the point of the whole mechanism: cloning a world does not clone the
       // lore.
       libraries: overrides.libraries ?? source.libraries,
-      // The character, on the other hand, is not cloned. A template is the model
-      // somebody starts from, and whoever starts declares their own protagonist:
-      // without this, forking a template would carry around the name of whoever
-      // wrote it, and the narrator would tell a stranger about a person they have
-      // never met.
+      // The character is not cloned, for the reason the starts are not *selected*:
+      // a template is the model somebody starts from, and whoever starts declares
+      // their own protagonist. Without this, forking a template would carry around
+      // the name of whoever wrote it, and the narrator would tell a stranger about a
+      // person they have never met.
       player: overrides.player,
+      // The starts travel with the world, and the selection does not: whoever starts
+      // from a template has not chosen their opening yet, and the selector is the
+      // first thing they should meet. A template that arrived with a start already
+      // chosen would open the new campaign on the previous player's decision.
+      starts: overrides.starts ?? source.starts.list,
     });
 
     const bible = this.getBible(sourceId);

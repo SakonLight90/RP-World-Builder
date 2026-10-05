@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import type { World } from "@rpwb/shared";
 import { describe, expect, it } from "vitest";
 import { loadTemplate, renderAgent } from "../src/canon/gm-agent.js";
-import { makeWorld } from "./helpers/fixtures.js";
+import { makeStarts, makeWorld } from "./helpers/fixtures.js";
 
 const HERE = fileURLToPath(new URL(".", import.meta.url));
 // The test lives in packages/server/test/, the prompt in packages/server/prompts/.
@@ -199,5 +199,97 @@ describe("the narrator language", () => {
     const content = renderAgent(world({ activeLocale: "fr" }), {}, legacy);
     expect(content).not.toContain("__LANGUAGE__");
     expect(content).toContain("French");
+  });
+});
+
+/**
+ * The chosen start, inside the prompt.
+ *
+ * It belongs here and not only in the transcript for the reason the Bible is in the
+ * system prompt: the opening is the first thing the player reads and the first thing
+ * the narrator has to continue from, and by the time a session is compacted that
+ * message is far behind. A narrator asked to continue a story it cannot see the
+ * beginning of will invent a different one — which is how a campaign set in
+ * Goodsprings ends up somewhere the player never chose.
+ */
+describe("the opening of the campaign", () => {
+  const starts = makeStarts();
+
+  it("a campaign with no start chosen has no opening block", async () => {
+    // The block would be empty and its absence is not a bug: a world with no starts,
+    // and a world whose selector is still waiting, both write an ordinary prompt.
+    const content = renderAgent(world(), BIBLE, await template());
+    expect(content).not.toContain("THE OPENING OF THIS CAMPAIGN");
+  });
+
+  it("the selected start enters the prompt with its narration", async () => {
+    const content = renderAgent(
+      world({ starts: makeStarts({ selectedId: "new-vegas" }) }),
+      BIBLE,
+      await template(),
+    );
+
+    expect(content).toContain("THE OPENING OF THIS CAMPAIGN");
+    expect(content).toContain("Fallout: New Vegas");
+    expect(content).toContain("Goodsprings. You wake on the floor with a hole in your head.");
+  });
+
+  it("the narrator is told the player is not the protagonist", async () => {
+    /*
+     * The line that matters most, and the one a model will not invent for itself.
+     * The starts are openings into somebody else's story: a narrator that assumes
+     * its player is the Courier writes around them, treating the player's own
+     * decisions as a rewrite of a plot it already knows how it goes. The player
+     * decides who they are, and may well decide to be somebody who is not in the
+     * scenario at all.
+     */
+    const content = renderAgent(
+      world({ starts: makeStarts({ selectedId: "new-vegas" }) }),
+      BIBLE,
+      await template(),
+    );
+
+    expect(content).toContain("not the protagonist of this game unless they say so");
+    expect(content).toContain("that is the character you write");
+  });
+
+  it("an unplayable start that somehow got selected writes no opening", async () => {
+    // `toStarts` and `selectStart` both refuse this, so it is a hand-edited
+    // database. Returning "" is not a second policy: it is the same one, in the one
+    // place that renders, so the renderer cannot disagree with what was validated.
+    const content = renderAgent(
+      world({ starts: makeStarts({ selectedId: "fallout-1" }) }),
+      BIBLE,
+      await template(),
+    );
+    expect(content).not.toContain("THE OPENING OF THIS CAMPAIGN");
+  });
+
+  it("a selection naming no start writes no opening", async () => {
+    const content = renderAgent(
+      world({ starts: { list: starts.list, selectedId: "cyberpunk-2077" } }),
+      BIBLE,
+      await template(),
+    );
+    expect(content).not.toContain("THE OPENING OF THIS CAMPAIGN");
+  });
+
+  it("a template written before this feature still renders", async () => {
+    /*
+     * The reason the block is appended and not put in a placeholder. Adding a
+     * `__START__` marker and requiring it would make every template written before
+     * this fail the placeholder check: the narrator would stop loading altogether,
+     * instead of getting one extra section.
+     */
+    const legacy = "__FRONTMATTER__\n\nCorpo.\n\n__BIBLE__\n";
+    const content = renderAgent(
+      world({ starts: makeStarts({ selectedId: "fallout-76" }) }),
+      BIBLE,
+      legacy,
+    );
+
+    expect(content).toContain("Corpo.");
+    expect(content).toContain("THE OPENING OF THIS CAMPAIGN");
+    expect(content).not.toContain("__");
   });
 });

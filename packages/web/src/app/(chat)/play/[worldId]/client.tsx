@@ -167,6 +167,77 @@ export default function PlayClient({ worldId }: Props) {
     if (active === null) setModelChanged(false);
   }, [active]);
 
+  /**
+   * The playable starts of the world, and whether the player has chosen one.
+   *
+   * Only the playable ones are offered. A lore-only game is in the library so the
+   * narrator can cite it, not so a campaign can begin there: there is no scenario
+   * to step into, and offering it would hand the player a start with no opening.
+   *
+   * Derived and not stored: the filter is two conditions, and a second copy of the
+   * list in state is a second copy that can disagree with the world's.
+   */
+  const playableStarts = useMemo(() => {
+    const starts = world?.starts;
+    if (starts === undefined) return [];
+    return starts.list.filter((entry) => entry.playable);
+  }, [world]);
+
+  /**
+   * True while the player still has to say how the campaign begins.
+   *
+   * It is a world with starts and no selection, and nothing more: a world with no
+   * starts at all has no selector to show, and a campaign already underway has
+   * messages and is past this. The conversation itself is not the test, because a
+   * world can have a prologue in the transcript and still be waiting for a start.
+   */
+  const awaitingStart =
+    world !== null && playableStarts.length > 0 && world.starts.selectedId === null;
+
+  /**
+   * Failure of the selection, kept apart from `problem`.
+   *
+   * The two refusals the server can answer with are worth telling apart: a start
+   * that does not exist means the campaign was forked from a template that has
+   * since changed, and the player has to choose again, while a lore-only start is
+   * the interface offering something it should not have.
+   */
+  const [startProblem, setStartProblem] = useState<string | null>(null);
+  const [choosing, setChoosing] = useState(false);
+
+  /**
+   * Chooses the start, and re-reads the transcript so the opening narration is the
+   * first message.
+   *
+   * The transcript is re-read rather than the narration inserted by hand: the
+   * prologue is built on the server out of the selected start, so the page would
+   * be guessing at a thing it can simply ask for. Guessing would also mean two
+   * copies of "what the first message is", and the one on screen would stop being
+   * what the narrator was given.
+   */
+  const chooseStart = useCallback(
+    async (startId: string | null): Promise<void> => {
+      setStartProblem(null);
+      try {
+        const data = await api.selectStart(worldId, startId);
+        setWorld(data.world);
+        const transcript = await api.transcript(worldId);
+        setLines(
+          transcript.messages
+            .filter((message) => message.text.trim() !== "")
+            .map((message) => ({
+              id: nextId.current++,
+              role: message.role === "user" ? ("player" as const) : ("narrator" as const),
+              text: message.text,
+            })),
+        );
+      } catch (error) {
+        setStartProblem(explainError(error, locale));
+      }
+    },
+    [worldId, locale],
+  );
+
   const refresh = useCallback(() => {
     api
       .context(worldId)
@@ -594,6 +665,26 @@ export default function PlayClient({ worldId }: Props) {
           </Link>
           <h1 className="clamp2">{world?.name ?? "…"}</h1>
           <span className="spacer" />
+          {/*
+              Reopening the selector, for a campaign already under way.
+
+              It is offered and not forced: the opening narration is the first
+              message of the transcript, and changing the start of a campaign that
+              has been played does not rewrite that message. The player is left to
+              decide, which is why this is a button in the header rather than
+              something the page does on its own.
+            */}
+          {playableStarts.length > 0 && !awaitingStart && (
+            <button
+              type="button"
+              className="btn btn-sm btn-outline"
+              aria-label={t("play.start.aria.open")}
+              title={t("play.start.change")}
+              onClick={() => setChoosing((open) => !open)}
+            >
+              ◆
+            </button>
+          )}
           <Link href={`/world/${worldId}`} className="btn btn-sm btn-outline">
             ⚙
           </Link>
@@ -614,6 +705,103 @@ export default function PlayClient({ worldId }: Props) {
                   <strong>{t("play.error.loadTitle")}</strong>
                   <div style={{ marginTop: 4 }}>{loadError}</div>
                 </div>
+              </div>
+            )}
+
+            {/* The world prologue is message 1 and comes from history, not
+                from here. Exactly once: placed at this point too,
+                it would appear twice atop the chat, looking like the
+                narrator says it then repeats it. */}
+            {/*
+                The selector, inside the conversation and not on the creation form.
+
+                The player chooses how to begin here, where the narration of the
+                start is the first message they will read. A form at creation time
+                would have asked the same question earlier and with less to go on:
+                the names of the scenarios are what make the choice meaningful, and
+                here they can already see the one they will start from.
+
+                It is a panel and not a replacement for the empty state: below it
+                the world is still shown, because a world with no start chosen is a
+                world waiting, not an empty one.
+              */}
+            {world !== null && (awaitingStart || choosing) && (
+              <div className="pad">
+                <section
+                  className="note"
+                  aria-label={t("play.start.aria.group")}
+                  style={{ marginBottom: 20 }}
+                >
+                  <div className="row" style={{ alignItems: "flex-start" }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <strong>{t("play.start.title")}</strong>
+                      <div className="muted" style={{ marginTop: 4, fontSize: 13 }}>
+                        {t("play.start.hint")}
+                      </div>
+                    </div>
+                    {!awaitingStart && (
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline"
+                        aria-label={t("play.start.aria.close")}
+                        onClick={() => setChoosing(false)}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+
+                  {startProblem !== null && (
+                    <div className="note note-bad" style={{ marginTop: 12 }}>
+                      {startProblem}
+                    </div>
+                  )}
+
+                  {/*
+                      Buttons, not radios.
+
+                      A radio group would be the semantically correct choice for "pick
+                      one of these", and it is refused for one reason: these are not
+                      values in a form, they are actions. Choosing one writes the
+                      selection and changes the opening the narrator will write from,
+                      and a radio only holds a value without submitting it. The
+                      pressed state carries the meaning instead, and `aria-pressed` is
+                      what a screen reader announces on a control that acts.
+
+                      `aria-pressed` and not a checked state, for the same reason: a
+                      radio announces "checked", which is a promise about a form value
+                      that does not exist here.
+                    */}
+                  <div className="stack" style={{ gap: 8, marginTop: 14 }}>
+                    {playableStarts.map((start) => {
+                      const isSelected = world.starts.selectedId === start.id;
+                      return (
+                        <button
+                          key={start.id}
+                          type="button"
+                          aria-pressed={isSelected}
+                          className="btn btn-block"
+                          style={{ textAlign: "left", justifyContent: "flex-start" }}
+                          onClick={() => void chooseStart(start.id)}
+                        >
+                          <span className="stack" style={{ gap: 2, minWidth: 0 }}>
+                            <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                              <strong>{start.name}</strong>
+                              {isSelected && (
+                                <span className="tag" style={{ marginLeft: "auto" }}>
+                                  {t("play.start.chosen")}
+                                </span>
+                              )}
+                            </span>
+                            <span className="muted" style={{ fontSize: 13, fontWeight: 400 }}>
+                              {start.narration}
+                            </span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
               </div>
             )}
 

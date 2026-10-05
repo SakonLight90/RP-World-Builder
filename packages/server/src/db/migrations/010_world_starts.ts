@@ -1,0 +1,34 @@
+export const WORLD_STARTS_SCHEMA = `
+-- Migration 010: several starts inside one world.
+--
+-- A world used to have one beginning, written into the Bible's premise, and the
+-- transcript always opened with it. That made a setting and a story the same
+-- thing: Fallout 76 and Fallout: New Vegas could not both live in this project,
+-- because whichever was written second would overwrite the premise of the first.
+--
+-- The two are separated. The world holds the setting, and the starts hold the
+-- ways into it. Fallout is one world with a Capital Wasteland start, a Mojave
+-- start and a Commonwealth start, and the player picks the one they want when
+-- they begin playing, inside the chat.
+--
+-- One column, not a table, and not two:
+--
+-- Not a table because a start has no life of its own. It is never queried
+-- across worlds, never referenced by anything, and never edited on its own: it
+-- is read as a list and written as a list. A table would add ids, joins and a
+-- cascade for a value nobody can point at.
+--
+-- Not two columns because the selection only means something relative to the
+-- list. Stored apart, the id can survive the start it names, and the
+-- conversation would open on a scenario that no longer has its narration.
+--
+-- The column is JSON, like the libraries and player_character ones, and it is
+-- absent on a database whose migrations have not run. The repository asks the
+-- schema whether it is there: an old world loads with no starts, which is exactly
+-- what it has.
+--
+-- The backticks other migrations use to name a column cannot be written here: this
+-- whole block is one JS template literal, and a backtick inside it closes the
+-- string.
+ALTER TABLE worlds ADD COLUMN starts TEXT;
+`;

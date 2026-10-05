@@ -302,6 +302,35 @@ export interface PlayerCharacter {
 }
 
 /**
+ * A way into a world.
+ *
+ * `playable` is what separates a scenario from a lore-only game: both are in the
+ * library, only one can be the first message of a conversation. `narration` is
+ * written to be read before the player writes anything, so it sets a scene and
+ * leaves the decision to them.
+ */
+export interface WorldStart {
+  id: string;
+  name: string;
+  game: string;
+  playable: boolean;
+  narration: string;
+}
+
+/**
+ * The starts of a world, and which one is in play.
+ *
+ * `selectedId` is null on a world that has not begun: the transcript opens with the
+ * generic prologue until a start is chosen, and the selector is shown. It is never
+ * defaulted to the first entry, because opening on a scenario the player did not
+ * pick spends their first choice for them.
+ */
+export interface StartsState {
+  list: WorldStart[];
+  selectedId: string | null;
+}
+
+/**
  * What `PATCH /api/worlds/:id` accepts.
  *
  * Fewer fields than the world has: the ones the UI has a
@@ -337,6 +366,13 @@ export interface World {
   isTemplate: boolean;
   templateAuthor: string | null;
   player?: PlayerCharacter;
+  /**
+   * Present on every world, including one from an older database that has no
+   * starts at all. It is not optional: an absent field would be indistinguishable
+   * from "the column has not been migrated yet", and the selector would have to
+   * guess which of the two it is looking at.
+   */
+  starts: StartsState;
 }
 
 export interface Chapter {
@@ -489,6 +525,21 @@ export const api = {
    */
   updateWorld: (id: string, body: WorldPatch) =>
     request<{ world: World }>(`/api/worlds/${id}`, { method: "PATCH", ...json(body) }),
+
+  /**
+   * Chooses how the campaign begins, or takes the choice back with `null`.
+   *
+   * A dedicated route and not a field of `updateWorld` because this is not a
+   * property the edit screen changes: it is a step of playing. The caller has to
+   * deal with the two refusals the server can answer with — an id the world does
+   * not have, and a start that is lore only — and both are about the choice, not
+   * about the settings.
+   */
+  selectStart: (id: string, startId: string | null) =>
+    request<{ world: World }>(`/api/worlds/${id}/start`, {
+      method: "POST",
+      ...json({ startId }),
+    }),
 
   bible: (id: string, section: string, body: string) =>
     request<{ bible: Record<string, string> }>(`/api/worlds/${id}/bible`, {
