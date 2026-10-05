@@ -1,0 +1,99 @@
+id: fallout
+version: "1.0.0"
+title: "Fallout - locations, factions and category structure"
+generatedAt: "2026-09-30"
+summary: >-
+  Canonical location and faction names from every Fallout game, taken from the
+  Fallout Wiki categories. It exists so the narrator can know that a name exists
+  and how it is spelled, without carrying all of them in every prompt.
+counts:
+  factions: 233
+  locations: 6816
+  total: 7049
+
+# How this library is shaped, declared here and not written into the server.
+#
+# The engine that looks for names in the player's text does not know what a Vault
+# is and does not know what "mentioned" means: it only knows that there are two
+# kinds of record here, that the index is a list of records, that an entry's file
+# is named in one particular way, and that some of the wiki's categories are
+# citations rather than holdings. What it knows, it knows because it is written
+# above.
+layout:
+  # Index format: `- name: "..."` with the columns indented underneath.
+  adapter: wiki-record-list
+  sections:
+    locations:
+      dir: locations
+      index: "{group}.md"
+    factions:
+      dir: factions
+      index: "{group}.md"
+  fields:
+    # There is no `source` column: the library no longer carries a link per row,
+    # so the field is absent rather than declared and always empty. A row that
+    # carried one anyway would be ignored, like any undeclared column.
+    name: name
+    aliases: variants
+    categories: categories
+  # Entries live in `entries/<game>/<type>/<slug>.md`, where the slug is the
+  # normalised name plus a tag taken from the title. The tag is there because
+  # two different names can normalise to the same slug, and without it one of
+  # the two entries would overwrite the other.
+  entryPath: "entries/{group}/{section}/{slug}.md"
+  slug:
+    strategy: slug-hash
+    maxLength: 70
+    hashLength: 6
+    hash: sha1
+    fallback: entry
+  matching:
+    # "NCR" is in the library but on its own it identifies nothing: it is the
+    # noise that would fill the context with wrong names.
+    minNameLength: 5
+    # "New Vegas" is recognised from "Vegas", but "New" on its own identifies
+    # nothing, and neither do "Vault", "Fort" or "Camp": they are prefixes that
+    # the canon repeats dozens of times.
+    ignoreWords:
+      - the
+      - new
+      - old
+      - north
+      - south
+      - east
+      - west
+      - upper
+      - lower
+      - great
+      - big
+      - little
+      - first
+      - second
+      - third
+      - vault
+      - fort
+      - camp
+      - city
+      - town
+      - point
+      - national
+      - state
+      - united
+      - royal
+    # These forms are not place names: they are section headings and wiki
+    # containers.
+    ignoreNamePatterns:
+      - '^(Fallout|New|Category|Unmarked|Marked|Mentioned)\b'
+      - 'locations?$'
+      - 'factions?$'
+      - ' Secondary Locations$'
+  primary:
+    # "Fallout: New Vegas locations" is the game's record; "Fallout 4
+    # mentioned-only locations" is a citation. The category ending in the type's
+    # name is the record, unless it is one of the ones the wiki uses to flag a
+    # place as only being named.
+    sectionSuffix: true
+    excludePatterns:
+      - 'mentioned[- ]only'
+      - 'Secondary Locations$'
+      - 'unmarked|marked|shops|roadways'

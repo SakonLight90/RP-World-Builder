@@ -1,0 +1,9 @@
+# Treehouse Hamlet
+
+- type: location
+- game: fallout-76
+- categories: Fallout 76 locations
+
+## Summary from the source
+
+Treehouse Hamlet is an unmarked location in Fallout 76.

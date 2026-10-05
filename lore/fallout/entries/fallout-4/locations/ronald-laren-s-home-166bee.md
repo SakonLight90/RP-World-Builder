@@ -1,0 +1,10 @@
+# Ronald Laren's Home
+
+- type: location
+- game: fallout-4
+- variants: "Girdershade"
+- categories: Girdershade
+
+## Summary from the source
+
+Ronald Laren's Home is a location in Girdershade.

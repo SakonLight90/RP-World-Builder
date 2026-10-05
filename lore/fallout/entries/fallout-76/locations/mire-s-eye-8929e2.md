@@ -1,0 +1,10 @@
+# Mire's Eye
+
+- type: location
+- game: fallout-76
+- variants: "Fallout 76 outdoors theme locations"
+- categories: Fallout 76 locations; Fallout 76 outdoors theme locations
+
+## Summary from the source
+
+Mire's Eye is a location in Fallout 76, introduced in the Atlantic City America's Playground update.

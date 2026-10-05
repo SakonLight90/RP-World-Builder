@@ -1,0 +1,447 @@
+# Survivor factions in Appalachia after the Great War.
+#
+# `subject` is the exact canonical name: it is to be used as it is, never
+# translated, never reworded, never replaced with an invented synonym.
+# If a proper name is not in this file, the narrator does not use it: it does not
+# guess.
+#
+# `status` reflects the Status column of the reference listing:
+#   Active   -> `active`
+#   Restarted-> `active` + note: the faction dissolved and reappeared
+#   Defunct  -> `retconned` (dissolved; it is only named in the past)
+#
+  # Note: for People's Liberation Army the listing gives no status.
+# It is not deduced: the entry stays with no stated state.
+#
+# RELIABILITY SCOPE
+# From that listing only the following are verified: the canonical name and the
+# status. Descriptions, chiefs, bases and slogans are not taken from the
+# consulted reference and were kept only where verifiable elsewhere.
+# Everything else is marked "unverified: do not invent".
+# If a detail is needed that is missing here, it must be looked up and added
+# once verified: not deduced.
+
+entries:
+  - subject: "Responders"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 100
+    aliases: ["i Responders"]
+    summary: >-
+      Survivors who reorganised after the crisis that hit them and were then
+      reformed: the listing classifies them as restarted.
+    facts:
+      - "Listed status: Restarted, that is dissolved and then reassembled."
+      - "They are among the factions named by the survivors of Morganthown and around."
+
+  - subject: "Brotherhood of Steel"
+    kind: faction
+    era: "2287"
+    status: retconned
+    priority: 100
+    summary: >-
+      Technological military order present in Appalachia. The listing gives it
+      as dissolved: it exists in the history of the world, not as an active force.
+    facts:
+      - "Listed status: Defunct."
+      - "The Appalachia chapter was dissolved; the surviving men went away."
+      - "The name is to be used only when speaking of the past or of local history."
+
+  - subject: "Brotherhood First Expeditionary Force"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 85
+    summary: >-
+      Expedition of the Brotherhood of Steel that arrived in Appalachia after the
+      local chapter disappeared.
+    facts:
+      - "Listed status: Active."
+      - "It came from the east and brings technologies Appalachia had not seen for years."
+
+  - subject: "Brotherhood of Zeal"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 60
+    summary: >-
+      Group of devotees that follows the doctrine of the Brotherhood of Steel in a
+      stricter and more devoted way.
+    facts:
+      - "Listed status: Active."
+
+  - subject: "Enclave"
+    kind: faction
+    era: "2287"
+    status: retconned
+    priority: 85
+    summary: >-
+      The Continuity military government. The listing gives it as dissolved; its
+      places and its technological legacy remain.
+    facts:
+      - "Listed status: Defunct."
+      - "There is no active garrison any more, but its infrastructure is still standing."
+
+  - subject: "Free States"
+    kind: faction
+    era: "2287"
+    status: retconned
+    priority: 90
+    summary: >-
+      Community founded at Harpers Ferry that wanted to decide for itself, closed
+      and distrustful. The listing gives it as dissolved.
+    facts:
+      - "Listed status: Defunct."
+      - "They had an army of their own: the Secret Service."
+      - "Naming them today means speaking about them in the past."
+
+  - subject: "Secret Service"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 75
+    summary: >-
+      Armed force of the Free States. The listing gives them as active, and the
+      places where they operated still exist.
+    facts:
+      - "Listed status: Active."
+      - "Do not confuse them with the Responders: it is a distinct faction."
+      - "They have an office of their own, the Secret Service Office."
+
+  - subject: "Cult of the Mothman"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 90
+    summary: >-
+      Pre-war cult dedicated to the Mothman. It still has a museum and a valley
+      where it lives.
+    facts:
+      - "Listed status: Active."
+      - "They have the Mothman Museum and a base in the Kanawha valley."
+      - "They are not hostile to whoever arrives in peace."
+
+  - subject: "The Enlightened"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 65
+    summary: "Separate sect that venerates the Mothman Wise, the one with the purple eyes."
+    facts:
+      - "Listed status: Active."
+      - "Do not confuse it with the main body of the Cult of the Mothman."
+
+  - subject: "Raiders"
+    kind: faction
+    era: "2287"
+    status: retconned
+    priority: 85
+    summary: >-
+      Bands from the mountains, divided into groups with names of their own. The
+      listing gives them as dissolved, because their human members have been
+      wiped out.
+    facts:
+      - "Listed status: Defunct."
+      - "They had several groups with a name of their own: some are listed here, others are not."
+      - "Last base: Top of the World."
+      - "Their fate after the return is told by the Crater Raiders."
+      - "Complete list of the groups and their chiefs unverified: do not invent."
+
+  - subject: "Cutthroats"
+    kind: faction
+    era: "2287"
+    status: retconned
+    priority: 55
+    summary: "One of the five groups of the Raiders. Dissolved with the rest of the band."
+    facts:
+      - "Listed status: Defunct."
+
+  - subject: "Diehards"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 55
+    summary: "Group of the Raiders still active in the region."
+    facts:
+      - "Listed status: Active."
+      - "They survived the breakup of the Raiders: the listing gives them as active."
+
+  - subject: "Crater Raiders"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 80
+    summary: >-
+      The Raiders who came back after years away, with a base inside the crater of
+      the Valiant-1 station.
+    facts:
+      - "Listed status: Active."
+      - "Base: The Crater."
+      - "Motto and chiefs unverified here: do not invent."
+
+  - subject: "Order of Mysteries"
+    kind: faction
+    era: "2287"
+    status: retconned
+    priority: 75
+    summary: >-
+      Secret organisation of women only, based at Riverside Manor. The listing
+      gives it as dissolved.
+    facts:
+      - "Listed status: Defunct."
+      - "It never seeks an audience."
+
+  - subject: "People's Liberation Army"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 55
+    summary: >-
+      Revolutionary organisation that operates inside abandoned industrial
+      structures.
+    facts:
+      - "The listing names the faction but indicates no status: it is not deduced."
+
+  - subject: "Blue Ridge Caravan Company"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 60
+    summary: "Trading company that moves goods and news along the Blue Ridge."
+    facts:
+      - "Listed status: Active."
+      - "They carry information from one settlement to another."
+
+  - subject: "Settlers"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 70
+    summary: >-
+      Survivors who arrived recently in the region to rebuild, more numerous than
+      those who were there before.
+    facts:
+      - "Listed status: Active."
+      - "They are among the groups that arrived after the great gap left by the other factions."
+
+  - subject: "Refugees"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 65
+    summary: "Refugees gathered at the Whitespring Refuge."
+    facts:
+      - "Listed status: Active."
+      - "They live at the Whitespring Refuge."
+
+  - subject: "Municipal Government"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 60
+    summary: "The city administration that survived the war and is still in office."
+    facts:
+      - "Listed status: Active."
+      - "They are still in office: the listing does not give them as dissolved."
+
+  - subject: "Pioneer Scouts"
+    kind: faction
+    era: "2287"
+    status: retconned
+    priority: 50
+    summary: >-
+      Groups of children who escaped a school trip, today scattered and without a
+      common leader any more. Dissolved.
+    facts:
+      - "Listed status: Defunct."
+      - "They had leaders with names of their own, not verified here: do not invent."
+
+  - subject: "Ash Cavers"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 50
+    summary: >-
+      Group that goes into the Ash Heap looking for materials, and sometimes does
+      not come back.
+    facts:
+      - "Listed status: Active."
+
+  - subject: "Blood Eagles"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 55
+    summary: "Band of raiders who kidnap people."
+    facts:
+      - "Listed status: Active."
+      - "They have camps of their own, such as Blood Eagle Camp."
+
+  - subject: "Blackwater Bad Boys"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 45
+    summary: "Group of Raiders linked to the Blackwater area."
+    facts:
+      - "Listed status: Active."
+      - "Do not confuse it with the Blackwater Bandits: the exact name is Blackwater Bad Boys."
+
+  - subject: "Cattle Rustlers"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 45
+    summary: "Raiders specialised in stealing livestock, which they then resell."
+    facts:
+      - "Listed status: Active."
+
+  - subject: "Fanatics"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 45
+    summary: "Armed religious sect."
+    facts:
+      - "Listed status: Active."
+
+  - subject: "Free Radicals"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 45
+    summary: "Small group of revolutionaries that refuses any authority."
+    facts:
+      - "Listed status: Active."
+
+  - subject: "Gladiators of Steel"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 40
+    summary: "Organised fighting with rules, a referee and spectators."
+    facts:
+      - "Listed status: Active."
+
+  - subject: "Hellcat Company"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 55
+    summary: "Company that produces heavy armour and military technology."
+    facts:
+      - "Listed status: Active."
+      - "It has an armed force of its own and a production base."
+      - "Their control is what makes The Crater a place you cannot simply walk into."
+
+  - subject: "Lev's Crew"
+    kind: faction
+    era: "2287"
+    status: retconned
+    priority: 35
+    summary: "Small band of raiders, dissolved."
+    facts:
+      - "Listed status: Defunct."
+      - "Chief: Lev, not verified here."
+
+  - subject: "Lombardi Family"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 40
+    summary: "Family that controls a building and the territory around it."
+    facts:
+      - "Listed status: Active."
+
+  - subject: "Rust Eagles"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 45
+    summary: "Band of raiders with vehicles of their own."
+    facts:
+      - "Listed status: Active."
+
+  - subject: "Revenants"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 45
+    summary: "They are not an armed group: they are scattered ghouls, partly reorganised."
+    facts:
+      - "Listed status: Active."
+      - "Linked to Radiant Hills."
+      - "The listing gives them as restarted: their gathering is new, they are not."
+
+  - subject: "Sargento's Gang"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 40
+    summary: "Band of raiders active in the region."
+    facts:
+      - "Listed status: Active."
+      - "Seat and chiefs unverified here: do not invent."
+
+  - subject: "Showmen"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 40
+    summary: "Travelling performers who make a living putting on shows."
+    facts:
+      - "Listed status: Active."
+      - "They move their structures following the audience."
+
+  - subject: "Trash Ratz"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 40
+    summary: "Children raised in the landfill, with laws and a hierarchy of their own."
+    facts:
+      - "Listed status: Active."
+
+  - subject: "The Pint-Sized Phantoms"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 40
+    summary: "Group of small survivors, organised enough to have a name."
+    facts:
+      - "Listed status: Active."
+
+  - subject: "The Rust Kingdom"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 50
+    summary: >-
+      Small court of raiders that gave itself a king. The canonical name is
+      The Rust Kingdom, not Rust King's Army.
+    facts:
+      - "Listed status: Active."
+      - "Their territory is The Rust Kingdom, distinct from the faction of the same name."
+
+  - subject: "War Party"
+    kind: faction
+    era: "2287"
+    status: active
+    priority: 40
+    summary: "Armed group that moves and attacks in a pack."
+    facts:
+      - "Listed status: Active."
+
+  - subject: "Union"
+    kind: faction
+    era: pre-war
+    status: active
+    priority: 40
+    summary: >-
+      Pre-war mining union. The listing counts it among the active factions,
+      because the name is still alive among the miners' children.
+    facts:
+      - "Listed status: Active."
+      - "It already existed before 2077, in the mines of the region."
+      - "It is not a militia of survivors: it is a social legacy."

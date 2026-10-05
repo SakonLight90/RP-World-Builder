@@ -1,0 +1,10 @@
+# Red Rocket (Smith Casey's Garage)
+
+- type: location
+- game: fallout-3
+- variants: "Red Rocket", "Red Rocket locations FO3"
+- categories: Red Rocket locations FO3
+
+## Summary from the source
+
+The Red Rocket is a gas station near Smith Casey's Garage in Fallout 3.

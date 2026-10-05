@@ -1,0 +1,32 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+# Next build output. Two directories, not one: the dev server writes to
+# `.next-dev` so a production build in `.next` survives a `next dev`.
+.next/
+.next-dev/
+
+# local databases and campaign data
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# configuration written by the setup wizard
+world-builder.config.json
+
+# the launcher's record of the last successful build
+.build-stamp
+
+# runtime output
+coverage/
+logs/
+*.log
+npm-debug.log*
+
+# environments
+.env
+.env.local

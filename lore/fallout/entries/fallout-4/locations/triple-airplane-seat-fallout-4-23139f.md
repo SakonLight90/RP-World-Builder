@@ -1,0 +1,10 @@
+# Triple Airplane Seat (Fallout 4)
+
+- type: location
+- game: fallout-4
+- variants: "Triple Airplane Seat", "Fallout 4 settlement objects"
+- categories: Fallout 4 settlement objects
+
+## Summary from the source
+
+The Airplane Seat is both a world object and settlement object in Fallout 4.

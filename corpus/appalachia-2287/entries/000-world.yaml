@@ -1,0 +1,308 @@
+entries:
+  - subject: "Appalachia"
+    kind: location
+    era: any
+    summary: >-
+      The mountainous region of the north-east of America, today devastated and
+      partly radioactive. It is the territory where the story takes place and at
+      the same time the place where the vaults try to restore a government.
+    facts:
+      - "Mountainous region of the north-east of the United States, largely unusable."
+      - "The Great War of 2077 hit the whole area."
+      - "Today it is crossed by settlements, camps and the ruins of cities."
+    priority: 100
+
+  - subject: "The Old World"
+    kind: terminology
+    era: post-war
+    summary: >-
+      What the survivors call America and the world as they were before the Great
+      War. The name is bitter: for them the previous world is a lost myth, not a
+      place to return to.
+    facts:
+      - "Name used for the world before the Great War."
+      - "It appears often in the speeches of the older vault dwellers."
+
+  - subject: "Big War"
+    kind: event
+    era: post-war
+    aliases: ["the war", "the 2077 conflict"]
+    summary: >-
+      The conflict of 2077 that ended the Cold War with the use of nuclear
+      weapons. It destroyed the cities and society, and it cost the lives of an
+      enormous part of the world's population.
+    facts:
+      - "Broke out in 2077."
+      - "It made the great cities unusable."
+      - "Its consequences are still with us in 2287."
+    priority: 60
+
+  - subject: "megastructures"
+    kind: terminology
+    era: post-war
+    summary: >-
+      The big buildings the survivors call megastructures: skyscrapers, shopping
+      centres, stations, hospitals and other enormous constructions. They are the
+      most profitable places to loot and the most dangerous ones.
+    facts:
+      - "They are constructions from before the war."
+      - "They hold rare technology and materials, but also the worst dangers."
+      - "They are unstable: many structures collapse without warning."
+    priority: 40
+
+  - subject: "Nuka-Cola"
+    kind: item
+    era: any
+    aliases: ["nukacola"]
+    summary: >-
+      The soft drink that is the symbol of American life before the war, produced
+      by the Nuka-Cola Corporation. Today it is rare, expensive, and not always
+      safe.
+    facts:
+      - "Produced by the Nuka-Cola Corporation."
+      - "There are several variants of it, some known only by name."
+      - "Today it is more a trade good than a drink."
+    priority: 30
+
+  - subject: "Pip-Boy"
+    kind: technology
+    era: any
+    summary: >-
+      A wrist computer produced by RobCo that, before the war, read the
+      environmental and biometric data of the soldier wearing it. Today some of
+      them still work in part, depending on the model and on the condition they
+      are in.
+    facts:
+      - "Produced by RobCo Industries."
+      - "It read environmental, health and navigation data."
+      - "An intact unit is one of the most valuable goods in Appalachia."
+      - "The more recent models have scanning functions the old ones do not have."
+    priority: 80
+
+  - subject: "power armor"
+    kind: technology
+    era: any
+    summary: >-
+      An exoskeleton that increases the strength, the resistance and the survival
+      capacity of the body. It is the most sought-after military equipment in
+      Appalachia, and it is kept running with parts, fuel and skills.
+    facts:
+      - "Prototype developed by General Atomics before the war."
+      - "It consumes fuel and requires constant maintenance."
+      - "A working unit changes the balance of any deployment."
+      - "Getting trapped inside damaged armour is a real risk."
+    priority: 90
+
+  - subject: "Nuka-World"
+    kind: faction
+    era: post-war
+    summary: >-
+      The survivors of Nuka-World, a pre-war amusement park turned settlement.
+      They are organised in clans led by a chief, they compete for territory and
+      they treat strangers according to their internal hierarchy.
+    facts:
+      - "They occupy the former Nuka-World."
+      - "The social structure is based on clans and on a chief."
+      - "They do not treat strangers politely."
+    priority: 50
+
+  - subject: "Minutemen"
+    kind: faction
+    era: post-war
+    summary: >-
+      A group of armed civilians who chose to defend small settlements instead
+      of competing for large territories. They act by mutual aid and answer
+      above all to whoever asks.
+    facts:
+      - "An organisation of civilian survivors, not military."
+      - "They defend small and medium communities."
+      - "They have no wide-reaching political goal."
+    priority: 55
+
+  - subject: "Responders"
+    kind: faction
+    era: post-war
+    summary: >-
+      An organisation born from the rescuers and the firefighters of the
+      Morganthown area, before and during the war. After the collapse they go
+      back to protecting the community, with a light structure and trust in their
+      neighbour.
+    facts:
+      - "Their origins are in the local rescue corps."
+      - "They operate in the territory of Morganthown and around."
+      - "They have a distributed command structure."
+    priority: 55
+
+  - subject: "Brotherhood of Steel"
+    kind: faction
+    era: any
+    summary: >-
+      A military order that chose to keep pre-war technological knowledge
+      instead of rebuilding civilisation. It looks for military weapons, in
+      particular power armor, and regards the rest of the world with contempt
+      before hostility.
+    facts:
+      - "Technological military order."
+      - "It keeps weapons and knowledge from before the war."
+      - "In Appalachia its base is Fort Atlas, dug into the mountain."
+      - "It has tense relations with almost all the other factions."
+    priority: 70
+
+  - subject: "Railroad"
+    kind: faction
+    era: post-war
+    summary: >-
+      A clandestine organisation that deals on behalf of third parties, oriented
+      to the traffic of people and goods between factions. It has no territory
+      to conquer: it has a reputation.
+    facts:
+      - "Organisation of intermediaries and traffickers."
+      - "It operates between groups that do not talk to each other."
+      - "Its authority is informational more than military."
+    priority: 45
+
+  - subject: "Fort Atlas"
+    kind: location
+    era: any
+    summary: >-
+      An enormous pre-war military complex built inside a mountain, north of
+      Morganthown. It is one of the few places in Appalachia that keeps intact
+      structures, and it is the Brotherhood of Steel's fortress.
+    facts:
+      - "Military complex dug into the rock."
+      - "Seat of the Brotherhood of Steel in Appalachia."
+      - "Access is controlled and not open to everyone."
+    priority: 85
+
+  - subject: "Morganthown"
+    kind: location
+    era: any
+    summary: >-
+      One of the major cities of Appalachia, built on several levels and partly
+      rebuilt by the survivors. There is a campus and a jobs board, and it is the
+      busiest hub of the region.
+    facts:
+      - "Multi-level city, partly buried."
+      - "It hosts a university with a fitted-out campus."
+      - "It is the main trading point between survivors."
+    priority: 85
+
+  - subject: "Vault 12"
+    kind: location
+    era: post-war
+    summary: >-
+      A small nuclear vault in West Virginia that after the war was reorganised
+      several times and is today an autonomous community. Access is controlled and
+      whoever arrives from outside has to be let in.
+    facts:
+      - "Underground vault of limited size."
+      - "Today it is inhabited by a restricted group of survivors."
+      - "It is not a place that accepts anyone."
+    priority: 85
+
+  - subject: "Whitespring"
+    kind: location
+    era: any
+    aliases: ["the resort"]
+    summary: >-
+      An enormous pre-war residential area built around a resort, with services
+      still partly working. It is one of the few places where running water and
+      electricity are still a reality, and for this reason everyone covets it.
+    facts:
+      - "Pre-war residential and tourist area."
+      - "It still has running water and electricity in some areas."
+      - "Control of the place is contested."
+    priority: 80
+
+  - subject: "Prydwen"
+    kind: location
+    era: any
+    aliases: ["the flying ship"]
+    summary: >-
+      An enormous spacecraft the Brotherhood of Steel uses as a flying base. It
+      is the only large-scale air support operational in Appalachia, and its
+      presence changes the balance of every conflict.
+    facts:
+      - "Spacecraft of the Brotherhood of Steel."
+      - "It serves as base, workshop and residence."
+      - "It is not accessible to strangers."
+    priority: 70
+
+  - subject: "No magic"
+    kind: rule
+    era: any
+    priority: 1000
+    summary: >-
+      Absolute constraint of the world. In this world magic does not exist, nor
+      any phenomenon that is an equivalent of it. No spell, no prophecy, no
+      supernatural power, no being with supernatural abilities.
+
+      If the player attempts an action that would require magic, the world
+      answers in fiction: the technique does not work, the object does not exist,
+      the spell produces nothing, and whoever tries it fails.
+    facts:
+      - "No supernatural phenomena exist."
+      - "Exceptional abilities derive from technology, biology or chance."
+
+  - subject: "No modern world"
+    kind: rule
+    era: any
+    priority: 990
+    summary: >-
+      The world is technologically and socially late nineteenth century, not
+      modern. There are no smartphones, internet, social networks, video games,
+      widespread modern cars, no public healthcare. Pre-war technology exists as a
+      rare and often broken relic, not as infrastructure.
+    facts:
+      - "Everyday life is survival."
+      - "A working technological object is an event, not the norm."
+
+  - subject: "the overseer"
+    kind: character
+    era: "2287"
+    summary: >-
+      The title given to whoever is in charge of a vault. Whoever holds it
+      administers the running of the vault and answers for its operation and its
+      inhabitants. In 2287 several vaults have opened their doors and the title
+      has regained political weight.
+    facts:
+      - "Leadership role of a vault."
+      - "It administers the running and the resources of the vault."
+
+  - subject: "super mutants"
+    kind: creature
+    era: post-war
+    summary: >-
+      Humans transformed by radiation and by the Commonwealth experiments. They
+      are tougher and often stronger than normal humans, and they are one of the
+      main causes of death in Appalachia.
+    facts:
+      - "They derive from exposure to fallout and from Commonwealth experiments."
+      - "Very different varieties of them exist."
+      - "The danger depends on the variety."
+    priority: 60
+
+  - subject: "ghoul"
+    kind: creature
+    era: post-war
+    summary: >-
+      Humans hit by fallout who have lost much of their memory and personality.
+      Some still wander, others are called ferals and attack whoever they meet;
+      few survive in human conditions.
+    facts:
+      - "They are survivors of the shadows, not zombies."
+      - "The feral varieties are hostile."
+      - "Very different variants and behaviours exist among them."
+
+  - subject: "Replicants Beach"
+    kind: item
+    era: "2287"
+    summary: >-
+      A hooded garment produced by Replicated Life, a company that before the war
+      produced synthetic fabrics for the army. It resists acids and weathering,
+      and for this reason the survivors appreciate it.
+    facts:
+      - "Produced by Replicated Life."
+      - "Synthetic fabric designed for military use."
+      - "It holds up well against chemical agents."
+    priority: 25

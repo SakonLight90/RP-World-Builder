@@ -1,0 +1,33 @@
+name: verify
+
+# What this runs is the whole local check, in the order that fails fastest:
+# type errors before lint complaints, lint before a build that takes minutes,
+# and the tests last because they are the slowest thing here.
+#
+# `build:web` is in the chain because it caught a bug nothing else could: the
+# interface imported `./en.js`, which tsc and vitest both resolve happily and
+# webpack does not. A check that cannot fail on a broken build is decoration.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      # better-sqlite3 is a native module: it has to be built against the runner's
+      # ABI, and a cached `node_modules` from another platform would not load.
+      - run: npm ci
+
+      - run: npm run verify
+
+      - name: the lore corpus is valid
+        run: npm run build && npm run corpus:validate

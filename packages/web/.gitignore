@@ -1,0 +1,7 @@
+# Artefatti di Next, non sorgente.
+#
+# Sono due cartelle e non una perché `next build` e `next dev` non possono
+# scrivere nella stessa: la build cancella i pezzi che il server di sviluppo ha
+# già in memoria, e ogni rotta risponde 500 finché non lo si riavvia.
+.next/
+.next-dev/

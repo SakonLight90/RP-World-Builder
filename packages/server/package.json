@@ -1,0 +1,24 @@
+{
+  "name": "@rpwb/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "rpwb": "./dist/cli/doctor.js"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@opencode-ai/sdk": "1.18.33",
+    "@rpwb/shared": "*",
+    "better-sqlite3": "13.0.3",
+    "fastify": "5.12.5",
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "9.6.0"
+  }
+}

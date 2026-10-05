@@ -1,0 +1,13 @@
+# The lore and the corpus are hashed, and a hash that depends on the platform is
+# not a hash: the same library would validate on one machine and fail on another
+# because of a line ending. Force LF everywhere, so the bytes are the bytes.
+lore/** text eol=lf
+corpus/** text eol=lf
+
+# The narrator prompt is read verbatim and goes into the generated agent.
+packages/server/prompts/** text eol=lf
+
+# Windows launchers are CRLF by convention; keep them that way.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.sh text eol=lf

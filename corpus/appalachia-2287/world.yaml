@@ -1,0 +1,106 @@
+name: Appalachia 2287
+slug: appalachia-2287
+description: >-
+  Appalachia in 2287, two hundred and ten years after the Great War. A world of
+  survivors rebuilding a fragmented civilisation among ruins, forgotten
+  technology and creatures the war transformed.
+baseLocale: it
+isTemplate: true
+templateAuthor: "0x1994"
+
+activeEras:
+  - "2287"
+
+# Libraries this world requires, not libraries it contains.
+#
+# The lore of every Fallout game lives in `lore/fallout`, read-only and shared:
+# this world does not contain it, it requires it. The narrator reads it with its
+# read tools when the player names a place or a faction, instead of carrying it
+# in every prompt.
+#
+# `hash` is the fingerprint of the content at the moment of the requirement. If
+# the library changes and this world does not, validation says so: it is how you
+# find out that the campaign is describing a different version of its content.
+libraries:
+  - id: fallout
+    version: "1.0.0"
+    hash: "sha256:f236200c74c7ececc663bb85eadb23705b96764cb5afb514706e396c16d6ab27"
+
+eras:
+  - key: pre-war
+    label: "Before the war (2052-2077)"
+    startYear: 2052
+    endYear: 2077
+    summary: >-
+      Vault societies help America recover from the energy and environmental
+      crisis. It is the era of the Cold War, the arms race and the corporations
+      fighting over the control of resources.
+  - key: post-war
+    label: "After the war (2077-2286)"
+    startYear: 2077
+    endYear: 2286
+    summary: >-
+      The bombs fall, the Old World collapses and the rebuilding begins. For
+      more than two centuries survival is the dominant problem: the megastructures
+      are still standing, but almost nobody knows how to use them yet.
+  - key: "2287"
+    label: "Appalachia 2287"
+    startYear: 2287
+    summary: >-
+      The era of the game. The vaults start opening their doors again, factions
+      fight over territory and humanity begins to remember what the world used
+      to be.
+
+bible:
+  premise: >-
+    You are a survivor of Appalachia, two hundred and ten years after the war
+    that wiped out the Old World. The vault dwellers came out to restore order
+    to a continent that stopped working, and the search for a lasting solution
+    is the reason you exist in this story.
+
+  rules: >-
+    This world has no magic, and nothing that works like magic. No spell, no
+    psychic power, no being made supernatural by mystic means. What happens to
+    the protagonists happens through mechanics, through technology, through
+    biology altered by radiation, or through human choices.
+
+    The technology that exists is that of the 2040s plus a few pre-war rarities.
+    It works, but it is rare, expensive to maintain and almost always damaged.
+    Energy weapons and advanced technologies exist on paper and in display cases,
+    not in everyday life.
+
+    Survival is the central problem: food, clean water, medicine and ammunition
+    are scarce. Whoever has weapons, water and information has power, and
+    whoever has nothing is at the mercy of the others. No character is omnipotent.
+
+    Appalachia is contested territory. Different factions have different
+    interests and do not ally stably: when two groups meet, the outcome depends
+    on who needs what and who is better armed.
+
+  tone: >-
+    Grounded, realistic post-apocalyptic. Hope exists but is earned, never
+    guaranteed. Danger is concrete and has consequences. Humour exists and is
+    often bitter, but it never undercuts the gravity of the situation.
+
+  style: >-
+    Narrate in the third person, with concrete, sensory descriptions: sounds,
+    smells, temperatures, materials. Avoid encyclopedic exposition: if a
+    character knows a fact, they say it in dialogue, not in a narrator's voice
+    that explains.
+
+    Do not describe the player character's feelings. Describe what they see, hear
+    and undergo, and leave it to them to decide what they feel.
+
+    Close every turn with an open situation that invites a decision, without
+    choosing in the player's place.
+
+  conventions: >-
+    Canon proper nouns are not translated and not localised: if the canon says
+    "Vault 12", you write "Vault 12", even in Italian.
+
+    Distances are real and Appalachia is big: moving between two settlements
+    means time, resources and concrete dangers, not a change of scene.
+
+    Technology is never convenient where it should be. A device that works in a
+    laboratory may not work in the field, and repairing it costs more than
+    replacing it.

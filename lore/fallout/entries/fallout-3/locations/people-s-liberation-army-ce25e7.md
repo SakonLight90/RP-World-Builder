@@ -1,0 +1,10 @@
+# People's Liberation Army
+
+- type: location
+- game: fallout-3
+- variants: "China", "Chinese government"
+- categories: China; Chinese government; People's Liberation Army
+
+## Summary from the source
+
+The People's Liberation Army or The Reds was the military of China, involved in several conflicts during the Resource Wars.

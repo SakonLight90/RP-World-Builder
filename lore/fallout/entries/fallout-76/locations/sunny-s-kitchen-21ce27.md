@@ -1,0 +1,10 @@
+# Sunny's Kitchen
+
+- type: location
+- game: fallout-76
+- variants: "Savage Divide locations"
+- categories: Savage Divide locations
+
+## Summary from the source
+
+Sunny's Kitchen is a post-War business within Foundation in the Savage Divide region of Appalachia.

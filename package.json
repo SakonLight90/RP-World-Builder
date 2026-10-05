@@ -1,0 +1,42 @@
+{
+  "name": "rp-world-builder",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A local roleplay platform built on opencode. The narrator only does roleplay; everything else comes from the database.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "build:shared": "tsc -b packages/shared",
+    "typecheck": "tsc -b && tsc -p tsconfig.test.json && tsc -p packages/web/tsconfig.json",
+    "build:web": "npm run build:shared && npm run build -w @rpwb/web",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:live": "vitest run --config vitest.live.config.ts",
+    "test:live:opencode": "vitest run --config vitest.live.config.ts opencode.live",
+    "test:live:chapterer": "vitest run --config vitest.live.config.ts chapterer.live",
+    "verify": "npm run build && npm run typecheck && npm run lint && npm run build:web && npm test",
+    "dev": "npm run build:shared && node scripts/dev.mjs",
+    "dev:server": "npm run build:shared && tsx watch --clear-screen=false packages/server/src/index.ts",
+    "dev:web": "npm run dev -w @rpwb/web",
+    "serve": "node scripts/dev.mjs --production",
+    "start": "npm run build && node packages/server/dist/index.js",
+    "doctor": "node packages/server/dist/cli/doctor.js",
+    "corpus:validate": "node packages/server/dist/cli/corpus.js validate",
+    "corpus:load": "node packages/server/dist/cli/corpus.js load"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.14",
+    "@types/node": "26.6.3",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vitest": "5.0.2"
+  }
+}

@@ -1,0 +1,540 @@
+# Regions and locations of Appalachia, with the **exact** name.
+#
+# Note: the Italian adjectives that appear here inside the `aliases` field are
+# only shortcuts for spoken Italian. The narrator must use `subject` exactly as
+# it is. "The Mire" does not become "la Palude" as a proper name: if it needs to
+# say "la palude", it says it around the name.
+#
+# This is a curated subset of ~55 main locations out of the ~700 present in the
+# listing. The others exist but have not been verified here: the narrator must
+# not name them until they are added.
+#
+# RELIABILITY SCOPE
+# From the consulted listing only the canonical names are verified.
+# Descriptions, garrisons and the links between locations are reconstructions and
+# hold until they are checked: where they are not certain it says
+# "unverified: do not invent".
+# The name, on the other hand, is reliable and is to be used literally.
+
+entries:
+  - subject: "Appalachia"
+    kind: location
+    era: "2287"
+    priority: 100
+    summary: >-
+      The mountainous region of the north-east of America in which the whole
+      story of Fallout 76 takes place. In this corpus the term means the game
+      territory, not the real state.
+    facts:
+      - "Region at the far eastern end of the United States, destroyed by the Great War."
+      - "It is the territory of Fallout 76, not a generic word for 'territory'."
+      - "It borders the real West Virginia, which the game takes its name from."
+
+  - subject: "The Ash Heap"
+    kind: location
+    era: "2287"
+    priority: 90
+    aliases: ["Ash Heap"]
+    summary: >-
+      Territory covered by a fall of radioactive particles dropped during the war.
+      Whoever stays inside it turns into a Scorched.
+    facts:
+      - "Most dangerous area of the region, saturated with radiation."
+      - "The surviving inhabitants have become Scorched."
+      - "The canonical name is The Ash Heap; Ash Heap is the short form."
+
+  - subject: "Cranberry Bog"
+    kind: location
+    era: "2287"
+    priority: 85
+    summary: "Red bog of Appalachia, saturated with radioactive blueberry bushes."
+    facts:
+      - "Bog of Appalachia, rich in radioactive vegetation."
+      - "In the bog there are abandoned plantations and lost settlements."
+
+  - subject: "The Forest"
+    kind: location
+    era: "2287"
+    priority: 85
+    summary: "Thick fog of Appalachia, territory of the Pioneer Scout kids."
+    facts:
+      - "Dense forest in the centre of the map."
+      - "It is the territory of the Pioneer Scouts and of their scattered camps."
+
+  - subject: "The Mire"
+    kind: location
+    era: "2287"
+    priority: 85
+    summary: "Marshy and unhealthy area south of Appalachia."
+    facts:
+      - "Unhealthy bog of southern Appalachia."
+      - "Description and garrisons not verified yet: do not invent."
+
+  - subject: "Savage Divide"
+    kind: location
+    era: "2287"
+    priority: 85
+    summary: "Mountain range beyond which the survivors of the east did not pass willingly."
+    facts:
+      - "Mountainous divide on the east side of the map."
+      - "Passage point towards the east of the region."
+
+  - subject: "Toxic Valley"
+    kind: location
+    era: "2287"
+    priority: 85
+    summary: "Valley into which the toxic waste of the region is discharged."
+    facts:
+      - "Polluted industrial area, interconnected with the pipes and structures of the Crater."
+      - "In the valley there are numerous abandoned factories."
+
+  - subject: "Skyline Valley"
+    kind: location
+    era: "2287"
+    priority: 85
+    summary: "Mountain valley crossed by the Skyline Drive."
+    facts:
+      - "Valley crossed by the Skyline Drive."
+      - "It contains the Sunnytop ski station."
+
+  - subject: "Burning Springs"
+    kind: location
+    era: "2287"
+    priority: 80
+    summary: "Mining town destroyed by the bombs, today an area of ruins."
+    facts:
+      - "Mining town of Appalachia, destroyed in the 2077 explosion."
+      - "Today it is an area of ruins and enemies."
+
+  - subject: "The Crater"
+    kind: location
+    era: "2287"
+    priority: 95
+    summary: >-
+      Crater formed by the impact of a re-entry capsule, in the centre of the
+      region. It contains the Valiant-1 station, today the base of the Crater
+      Raiders.
+    facts:
+      - "Impact crater in the centre of Appalachia."
+      - "In the centre there is the Valiant-1 space station, base of the Crater Raiders."
+      - "Inside there are The Core and the Crater War Room."
+      - "The gates are controlled by the Hellcat Company."
+
+  - subject: "Whitespring Refuge"
+    kind: location
+    era: "2287"
+    priority: 90
+    summary: >-
+      Enormous tourist complex, the largest in Appalachia. Today it is the main
+      Responders settlement and it takes in the refugees.
+    facts:
+      - "Enormous tourist complex of Appalachia, used as a base."
+      - "Today it is the largest Responders settlement."
+      - "In it live the Refugees, the group of refugees."
+
+  - subject: "Vault 76"
+    kind: location
+    era: "2287"
+    priority: 95
+    summary: "The player's Vault in Fallout 76, built by Vault-Tec."
+    facts:
+      - "Vault of the numbered series, the player's one."
+      - "It is the place where the Fallout 76 player lives at the start."
+
+  - subject: "Vault 94"
+    kind: location
+    era: "2287"
+    priority: 70
+    summary: "One of the twin surface Vaults, built by Vault-Tec before the war."
+    facts:
+      - "Twin Vault of Vault 95, built on the same model as the 76."
+
+  - subject: "Vault 96"
+    kind: location
+    era: "2287"
+    priority: 70
+    summary: "One of the twin surface Vaults of Vault-Tec."
+    facts:
+      - "Twin Vault of Vault 95, built on the same model as the 76."
+
+  - subject: "Vault 63"
+    kind: location
+    era: "2287"
+    priority: 65
+    summary: "Abandoned mountain Vault, with the surface in ruins."
+    facts:
+      - "Vault dug into the mountain, today in ruins."
+      - "Nearby there is the Vault 63 Crash Site."
+
+  - subject: "Vault 79"
+    kind: location
+    era: "2287"
+    priority: 65
+    summary: "Abandoned underground Vault, without water and now without survivors."
+    facts:
+      - "Underground Vault, joined to the West Tek laboratories."
+      - "It is abandoned and almost without water."
+
+  - subject: "Foundation"
+    kind: location
+    era: "2287"
+    priority: 80
+    summary: "Planned city, the largest reconstruction project in Appalachia."
+    facts:
+      - "City built from scratch by the survivors, on an urban scale."
+      - "It contains the Founder's Hall, the main hall of the foundation."
+
+  - subject: "Camp Venture"
+    kind: location
+    era: "2287"
+    priority: 75
+    summary: "Military base of the Brotherhood of Steel in Appalachia."
+    facts:
+      - "It was a pre-war military base, then Brotherhood of Steel."
+
+  - subject: "Fort Defiance"
+    kind: location
+    era: "2287"
+    priority: 70
+    summary: "Pre-war military fort."
+    facts:
+      - "Pre-war military installation."
+      - "Later role unverified: do not invent."
+
+  - subject: "Fort Atlas"
+    kind: location
+    era: "2287"
+    priority: 75
+    summary: >-
+      Base built by the settlers on the land where Spruce Knob used to be. Then it
+      became the base of the Brotherhood First Expeditionary Force.
+    facts:
+      - "Settlers' base, built on the land of the Spruce Knob area of the same name."
+      - "After the return it became the base of the Brotherhood First Expeditionary Force."
+
+  - subject: "The Wayward"
+    kind: location
+    era: "2287"
+    priority: 80
+    summary: "Shelter built into the cliff, run by a family, open to travellers."
+    facts:
+      - "Shelter in the cliff of Appalachia, reachable by survivors."
+      - "It has lodging and a canteen for travellers."
+
+  - subject: "Abbie's Bunker"
+    kind: location
+    era: "2287"
+    priority: 70
+    summary: "The Free States bunker at Harpers Ferry."
+    facts:
+      - "Free States bunker, hidden near Harpers Ferry."
+
+  - subject: "Riverside Manor"
+    kind: location
+    era: "2287"
+    priority: 65
+    summary: "House by the river, base of the Order of Mysteries."
+    facts:
+      - "Riverside mansion, seat of the Order of Mysteries."
+
+  - subject: "Mothman Museum"
+    kind: location
+    era: "2287"
+    priority: 60
+    summary: "Museum of the Cult of the Mothman, built long before the war."
+    facts:
+      - "Museum dedicated to the Mothman, existing already before 2077."
+      - "It is the place where the cult receives whoever asks about the Mothman."
+
+  - subject: "Kanawha County Cemetery"
+    kind: location
+    era: "2287"
+    priority: 60
+    summary: "Cemetery of Kanawha county, linked to the cult."
+    facts:
+      - "Cemetery of Kanawha county."
+      - "Linked to the Cult of the Mothman."
+
+  - subject: "Landview Lighthouse"
+    kind: location
+    era: "2287"
+    priority: 55
+    summary: "Lighthouse on the coast, one of the places linked to the cult."
+    facts:
+      - "Lighthouse on the coast, another place of the Cult of the Mothman."
+
+  - subject: "Top of the World"
+    kind: location
+    era: "2287"
+    priority: 70
+    summary: "Fortified mountain pass, last known base of the Raiders."
+    facts:
+      - "Mountain fort, last known base of the Raiders."
+      - "Today it is abandoned."
+
+  - subject: "Spruce Knob Lake"
+    kind: location
+    era: "2287"
+    priority: 60
+    summary: "Highland lake, near which Fort Atlas stands today."
+    facts:
+      - "Highland lake of Appalachia."
+      - "Today its territory hosts Fort Atlas."
+
+  - subject: "Harpers Ferry"
+    kind: location
+    era: "2287"
+    priority: 75
+    summary: "City of western Appalachia, cradle of the Free States."
+    facts:
+      - "City of western Appalachia."
+      - "The Free States founded their first shelter there."
+
+  - subject: "Beckley"
+    kind: location
+    era: "2287"
+    priority: 70
+    summary: "City in the south of Appalachia, important commercial hub."
+    facts:
+      - "Mining town in the south of the region."
+      - "One of the most active centres for survivors' trade."
+
+  - subject: "Lewisburg"
+    kind: location
+    era: "2287"
+    priority: 65
+    summary: "Small town in the south of Appalachia."
+    facts:
+      - "Small town in the south of the region, with a railway station."
+
+  - subject: "Philippi"
+    kind: location
+    era: "2287"
+    priority: 60
+    summary: "City in the north of Appalachia, with a civil war battlefield."
+    facts:
+      - "City in the north of the region."
+      - "Nearby there is the Philippi Battlefield Cemetery."
+
+  - subject: "Clarksburg"
+    kind: location
+    era: "2287"
+    priority: 65
+    summary: "Industrial city of Appalachia, linked to coal mining."
+    facts:
+      - "Industrial city of the region, known for coal."
+      - "It hosts the Carleton Mine."
+
+  - subject: "Berkeley Springs"
+    kind: location
+    era: "2287"
+    priority: 60
+    summary: "Historic spa town of Appalachia, much frequented."
+    facts:
+      - "Historic spa town of the region."
+      - "It is one of the most visited places by survivors."
+
+  - subject: "Grafton"
+    kind: location
+    era: "2287"
+    priority: 60
+    summary: "Industrial city of Appalachia, linked to the Responders."
+    facts:
+      - "Industrial city of the region."
+      - "Garrisons and local roles unverified: do not invent."
+
+  - subject: "Summersville"
+    kind: location
+    era: "2287"
+    priority: 55
+    summary: "Small town on the lake, in southern Appalachia."
+    facts:
+      - "Small town on the lake in southern Appalachia."
+      - "Nearby there are the Summersville Dam and the Summersville Docks."
+
+  - subject: "Seneca Rocks"
+    kind: location
+    era: "2287"
+    priority: 55
+    summary: "Mountain town in the north of Appalachia."
+    facts:
+      - "Mountain town in the north of the region."
+      - "It is the starting point of the Sunnytop ski slopes."
+
+  - subject: "Sunnytop Station"
+    kind: location
+    era: "2287"
+    priority: 55
+    summary: "Railway station at the foot of the ski resort."
+    facts:
+      - "Railway station at the foot of the slopes."
+      - "From here you go up to the Sunnytop Ski Lanes."
+
+  - subject: "Morganthown Airport Terminal"
+    kind: location
+    era: "2287"
+    priority: 75
+    aliases: ["Morganthown Airport"]
+    summary: >-
+      Airport of Appalachia. It is the place of the Responders crisis: here the
+      city was broken.
+    facts:
+      - "Morganthown airport."
+      - "Scene of the crisis that broke the Responders."
+
+  - subject: "Flatwoods Lookout"
+    kind: location
+    era: "2287"
+    priority: 60
+    summary: "Fire lookout tower, Responders outpost."
+    facts:
+      - "Post of the firefighters reorganised into Responders."
+      - "It watches the valley from above."
+
+  - subject: "Kanawha National Park"
+    kind: location
+    era: "2287"
+    priority: 55
+    summary: "National park on a river, linked to the Kanawha valley."
+    facts:
+      - "National park on the Kanawha river."
+      - "In the valley there are the remains of the Mothman cult."
+
+  - subject: "The Deep"
+    kind: location
+    era: "2287"
+    priority: 60
+    summary: "Underground FEV complex, seat of a forced labour camp."
+    facts:
+      - "Underground FEV plant."
+      - "Here the forced labour of the People's Liberation Army is active."
+
+  - subject: "Mama Dolce's Food Processing"
+    kind: location
+    era: "2287"
+    priority: 55
+    summary: "Abandoned food canning plant, one of the People's Liberation Army bases."
+    facts:
+      - "Abandoned food processing plant."
+      - "One of the People's Liberation Army bases."
+
+  - subject: "Fujiniya Intelligence Base"
+    kind: location
+    era: "2287"
+    priority: 50
+    summary: "Pre-war Japanese military base, command point of the People's Liberation Army."
+    facts:
+      - "Pre-war Japanese military base."
+      - "Command point of the Responders."
+
+  - subject: "Secret Service Office"
+    kind: location
+    era: "2287"
+    priority: 50
+    summary: "The Secret Service office, the armed force of the Free States."
+    facts:
+      - "Seat of the Secret Service, the militia of the Free States."
+
+  - subject: "Ammo Dump"
+    kind: location
+    era: "2287"
+    priority: 45
+    summary: "Pre-war military ammunition depot."
+    facts:
+      - "Pre-war army ammunition depot."
+      - "Who garrisons it is unverified: do not invent."
+
+  - subject: "Abandoned Bunker"
+    kind: location
+    era: "2287"
+    priority: 45
+    summary: "Abandoned county bunker, a typical survivors' shelter."
+    facts:
+      - "One of the typical underground shelters of Appalachia."
+      - "There are many of them, all abandoned after the war."
+
+  - subject: "Red Rocket Filling Station"
+    kind: location
+    era: "2287"
+    priority: 50
+    aliases: ["Red Rocket"]
+    summary: >-
+      Chain of filling stations spread across all of Appalachia. The name is the
+      same for all of them: they are not different locations to name.
+    facts:
+      - "The Red Rocket stations are many and scattered all over the region."
+      - "They are not to be told apart with different names: they are all 'Red Rocket'."
+
+  - subject: "Enclave Research Facility"
+    kind: location
+    era: "2287"
+    priority: 55
+    summary: "Enclave laboratory, built underground on top of a missile."
+    facts:
+      - "Underground structure of the Enclave."
+      - "Built inside the tip of an old crashed missile."
+
+  - subject: "Camp McClintock"
+    kind: location
+    era: "2287"
+    priority: 55
+    summary: "Military base of the Enclave."
+    facts:
+      - "Military installation of the Enclave."
+      - "One of the few remaining structures of the Continuity government."
+
+  - subject: "West Tek Research Center"
+    kind: location
+    era: "2287"
+    priority: 60
+    summary: "West Tek research centre, an arms company."
+    facts:
+      - "West Tek laboratory, an arms company."
+      - "Seat of heavy armour and of military technologies."
+
+  - subject: "RobCo Research Center"
+    kind: location
+    era: "2287"
+    priority: 50
+    summary: "RobCo research centre, makers of robots."
+    facts:
+      - "RobCo research centre."
+      - "It designed the robots now found abandoned all over the region."
+
+  - subject: "Poseidon Energy Plant"
+    kind: location
+    era: "2287"
+    priority: 60
+    summary: "Pre-war hydroelectric plant, heart of the dispute over the power grid."
+    facts:
+      - "Poseidon power plant."
+      - "Its grid is at the centre of the clashes between the Brotherhood of Steel and the Free States."
+
+  - subject: "Thunder Mountain Power Plant"
+    kind: location
+    era: "2287"
+    priority: 60
+    summary: >-
+      Power plant in the mountains, conquered by the Free States and then retaken
+      by the Brotherhood of Steel.
+    facts:
+      - "Mountain power plant of Appalachia."
+      - "Occupied by the Free States, then retaken by the Brotherhood of Steel."
+
+  - subject: "Spruce Knob"
+    kind: location
+    era: "2287"
+    priority: 45
+    summary: "Highland area, one of the coldest places in the region."
+    facts:
+      - "Highland area of Appalachia, very cold."
+      - "Fort Atlas stands on its territory today."
+
+  - subject: "Kanawha River"
+    kind: location
+    era: "2287"
+    priority: 50
+    summary: "River of the Kanawha valley, land of the Cult of the Mothman."
+    facts:
+      - "River that crosses the Kanawha valley."
+      - "The valley is the historical home of the Mothman."

@@ -1,0 +1,10 @@
+# Adams Storage Facility
+
+- type: location
+- game: fallout-3
+- variants: "Broken Steel locations", "Adams Air Force Base"
+- categories: Broken Steel locations; Adams Air Force Base
+
+## Summary from the source
+
+Adams Storage Facility is a building at Adams Air Force Base in the Fallout 3 DLC Broken Steel. It is located in the south-southeast corner of the runway.

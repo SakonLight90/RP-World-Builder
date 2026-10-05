@@ -1,0 +1,11 @@
+# Troy (location)
+
+- type: location
+- game: fallout-76
+- variants: "Troy", "Fallout 76 mentioned-only locations"
+- categories: Fallout 76 mentioned-only locations
+- in this game: mentioned only, it has no entry of its own
+
+## Summary from the source
+
+Troy is a mentioned only location.
