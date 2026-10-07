@@ -1,6 +1,6 @@
 import type { LoreDescriptor } from "../layout.js";
 import type { LoreProvider } from "../provider.js";
-import { legacyWikiDescriptor, wikiRecordList } from "./wiki-record-list.js";
+import { legacyDescriptor, recordList } from "./record-list.js";
 import { yamlRecords } from "./yaml-records.js";
 
 /**
@@ -12,10 +12,10 @@ import { yamlRecords } from "./yaml-records.js";
  */
 
 /** Format used when the library declares no `layout`. */
-export const DEFAULT_ADAPTER = "wiki-record-list";
+export const DEFAULT_ADAPTER = "record-list";
 
 const ADAPTERS: Record<string, (layout: LoreDescriptor) => LoreProvider> = {
-  [DEFAULT_ADAPTER]: wikiRecordList,
+  [DEFAULT_ADAPTER]: recordList,
   "yaml-records": yamlRecords,
 };
 
@@ -46,7 +46,7 @@ function unreadable(layout: LoreDescriptor): LoreProvider {
 export function providerFor(layout: LoreDescriptor | null): LoreProvider {
   // Without `layout` it is read with the historical format: its declaration carries
   // `DEFAULT_ADAPTER`, so it lands in the right row of the table.
-  const descriptor = layout ?? legacyWikiDescriptor();
+  const descriptor = layout ?? legacyDescriptor();
   const build = ADAPTERS[descriptor.adapter];
   if (build === undefined) return unreadable(descriptor);
   return build(descriptor);

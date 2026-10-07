@@ -6,10 +6,9 @@ hash means, how to write a second one — see [CANON.md](CANON.md).
 
 ## What it is
 
-A corpus of verified entries across the Fallout games: characters, locations, factions and
-events, each checked against the Fallout Wiki title by title. Entries belonging to the
-television series, to a novel or to a tabletop game were removed, so what is left came out
-of a game.
+A corpus of entries across the Fallout games: characters, locations, factions and events.
+Entries belonging to the television series, to a novel or to a tabletop game were removed,
+so what is left came out of a game.
 
 It lives in `lore/fallout/`, read-only, and is shared. A campaign requires it rather than
 containing it.
@@ -26,8 +25,8 @@ older than the library, and [CANON.md](CANON.md) says what to do about it.
 
 ## Adding an entry
 
-Add a file under `lore/fallout/entries/<game>/<kind>/`, quote the wiki lead, then rebuild
-the index and the hash as [CANON.md](CANON.md) describes.
+Add a file under `lore/fallout/entries/<game>/<kind>/`, then rebuild the index and the hash
+as [CANON.md](CANON.md) describes.
 
-Two rules for the entry itself: never invent when the source is silent, and never rewrite a
-quoted body to read better — corrections go in the categories.
+Two rules for the entry itself: never invent what is not established, and keep the text to
+what is there — corrections go in the categories.

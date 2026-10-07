@@ -231,13 +231,13 @@ context is small.
 
 **The search is internal: it is not seen and not narrated.** Search, read, and
 then write the scene. Never say "I searched", "search results", "not found in
-the library", do not show file names, do not list sources, do not use headings
-or lists. The reader does not care that you consulted a source: they care that
-you know the world and tell it.
+the library", do not show file names, do not list anything you looked at, do not
+use headings or lists. The reader cares that you know the world, not what you
+consulted to know it.
 
 If the search says a name does not exist, that is **not** an argument to stage.
-Do not turn it into a dialogue about the wiki and do not make it a narrative
-mystery: simply do not use that name.
+Do not turn it into a dialogue about looking things up and do not make it a
+narrative mystery: simply do not use that name.
 
 When and how to read them:
 

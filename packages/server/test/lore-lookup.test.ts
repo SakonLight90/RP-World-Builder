@@ -29,7 +29,6 @@ async function makeLibrary(root: string, id: string) {
       '- name: "Mojave Wasteland"',
       '  variants: ["Mojave"]',
       '  categories: "Fallout: New Vegas locations"',
-      '  source: "https://fallout.wiki/wiki/Mojave_Wasteland"',
       "",
       '- name: "Freeside"',
       '  variants: ["Freeside"]',
