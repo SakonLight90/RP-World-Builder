@@ -102,10 +102,9 @@ API is on `3311`.
 
 ## Licence
 
-The project carries no licence, by decision: there is no `LICENSE` file, because a licence
-is a grant of rights and this one was not chosen yet. Nothing in the repository asserts
-ownership of the works it contains, and no file in it claims one.
+The project carries no licence, by decision. A licence is a grant of rights over a work,
+and no such grant has been chosen here, so there is no `LICENSE` file and nothing in the
+repository asserts ownership over the works it contains.
 
-The libraries under `lore/` are plain text, readable and editable by hand. They were
-assembled by checking a public wiki title by title, and they are subject to whatever terms
-that wiki publishes. The campaign templates under `corpus/` were written for this project.
+That is a statement about this repository only. If you take the code, the documentation or
+the data in it and use it, no permission is being asked of you and none is being given.
