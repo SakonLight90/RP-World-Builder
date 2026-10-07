@@ -24,7 +24,7 @@ activeEras:
 libraries:
   - id: fallout
     version: "1.0.0"
-    hash: "sha256:2ec0986925e16b461ab69260b71672f9a896f50bfc0becc50699bb2c3ec6ff6e"
+    hash: "sha256:fa32d54d3d671d64463c5f60a55ac6ab6455c5c81095fc7d17f73b77f38e8070"
 
 eras:
   - key: pre-war
@@ -126,9 +126,9 @@ starts:
     playable: true
     location: "Flatwoods"
     narration: >-
-      Flatwoods, 2287. The saloon is quiet this morning. You sit at the bar,
-      a room key in your hand, and the proprietress is watching you from
-      behind the counter. She has something to say.
+      Flatwoods, 2287. The saloon is quiet this morning. The proprietress is
+      behind the counter, wiping a glass that has been clean for an hour, and
+      the door has not moved in a while. Something is about to happen in here.
 
   - id: fallout-3
     name: Fallout 3
@@ -136,9 +136,10 @@ starts:
     playable: true
     location: "Vault 101"
     narration: >-
-      Vault 101. The air tastes recycled and the lights never change. You are
-      going about your day when the loudspeaker crackles to life, and the
-      Overseer wants to see you. Now.
+      Vault 101, the same afternoon as always. The lights never change and the
+      air has been recycled so long it tastes of itself. In the corridor outside
+      the Overseer's office a man is waiting, and he has been waiting long enough
+      to be annoyed about it.
 
   - id: new-vegas
     name: "Fallout: New Vegas"
@@ -146,9 +147,10 @@ starts:
     playable: true
     location: "Goodsprings"
     narration: >-
-      Goodsprings. You wake on the floor of a small house, a hole in your
-      head and a man standing over you with a shovel. He says your name. He
-      says you were shot. He says you should lie still.
+      Goodsprings, the sun already high and the dust not yet settled. A courier
+      is tying a horse to the rail outside the Prospector Saloon, and from
+      somewhere behind the buildings a shot goes off. The street empties faster
+      than it filled.
 
   - id: fallout-4
     name: Fallout 4
@@ -156,6 +158,6 @@ starts:
     playable: true
     location: "Sanctuary"
     narration: >-
-      Sanctuary Hills, 2287. The bombs fell this morning. You are in the
-      vault door, your family behind you, and the world you knew is ending.
-      The vault is sealed. What happens next is up to you.
+      Sanctuary Hills, 2287, the sirens not stopping. A vault door is open on the
+      hill and nobody has come back through it. Below, the road out is blocked,
+      and the people standing on the porches are deciding what to do about that.

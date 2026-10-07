@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type { Dirent } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
-import { isAbsolute, join, resolve, sep } from "node:path";
+import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { isSafeRelative, type LoreDescriptor, readDescriptor } from "./layout.js";
 
@@ -102,6 +102,11 @@ export function libraryPath(root: string, relative: string): string {
   return path;
 }
 
+/** Names compared by code point, so the order is the same on every machine. */
+function byCodepoint(a: { name: string }, b: { name: string }): number {
+  return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+}
+
 async function walkFiles(dir: string, base = dir): Promise<string[]> {
   let entries: Dirent[];
   try {
@@ -110,31 +115,38 @@ async function walkFiles(dir: string, base = dir): Promise<string[]> {
     return [];
   }
   const files: string[] = [];
-  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+  for (const entry of [...entries].sort(byCodepoint)) {
     if (IGNORED.has(entry.name)) continue;
     const full = join(dir, entry.name);
     if (entry.isDirectory()) {
       files.push(...(await walkFiles(full, base)));
     } else if (entry.isFile()) {
-      files.push(full.slice(base.length + 1));
+      files.push(relative(base, full).replace(/\\/g, "/"));
     }
   }
   return files;
 }
 
+/** CRLF folded to LF, so the fingerprint does not depend on the checkout. */
+function normalizeNewlines(content: Buffer): Buffer {
+  if (!content.includes(13)) return content;
+  return Buffer.from(content.toString("binary").replace(/\r\n/g, "\n"), "binary");
+}
+
 /**
  * Hash of the library's content.
  *
- * Covers the path and the bytes of every file in a stable order, so it changes on a
- * content change and not on a reformat.
+ * Covers the path and the bytes of every file, in code point order and with line endings
+ * folded, so the same library gives the same hash wherever it is checked out and whatever
+ * the platform's line endings are.
  */
 export async function hashLibrary(dir: string): Promise<{ hash: string; fileCount: number }> {
   const files = await walkFiles(dir);
   const digest = createHash("sha256");
   for (const rel of files) {
-    digest.update(rel.replace(/\\/g, "/"));
+    digest.update(rel);
     digest.update("\0");
-    digest.update(await readFile(join(dir, rel)));
+    digest.update(normalizeNewlines(await readFile(join(dir, rel))));
     digest.update("\0");
   }
   return { hash: `sha256:${digest.digest("hex")}`, fileCount: files.length };

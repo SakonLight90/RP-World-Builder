@@ -221,7 +221,7 @@ starts:
     name: "Fallout: New Vegas"
     game: "new-vegas"
     playable: true
-    narration: "Goodsprings. You wake on the floor with a hole in your head."
+    narration: "Goodsprings. A shot goes off behind the buildings."
   - id: "fallout-1"
     name: "Fallout"
     game: "fallout-1"

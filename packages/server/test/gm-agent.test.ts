@@ -229,7 +229,7 @@ describe("the opening of the campaign", () => {
 
     expect(content).toContain("THE OPENING OF THIS CAMPAIGN");
     expect(content).toContain("Fallout: New Vegas");
-    expect(content).toContain("Goodsprings. You wake on the floor with a hole in your head.");
+    expect(content).toContain("Goodsprings. A shot goes off behind the buildings and the street");
   });
 
   it("the narrator is told the player is not the protagonist", async () => {

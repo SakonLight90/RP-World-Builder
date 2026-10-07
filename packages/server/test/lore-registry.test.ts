@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -14,6 +16,18 @@ __BIBLE__
 
 __LIBRERIE__
 `;
+
+/** The hash the code must produce for the given files in the given order. */
+function shuffledHash(dir: string, order: string[]): string {
+  const digest = createHash("sha256");
+  for (const rel of order) {
+    digest.update(rel);
+    digest.update("\0");
+    digest.update(readFileSync(join(dir, rel)).toString("binary").replace(/\r\n/g, "\n"), "binary");
+    digest.update("\0");
+  }
+  return `sha256:${digest.digest("hex")}`;
+}
 
 async function makeLibrary(root: string, id: string, files: Record<string, string>) {
   const dir = join(root, id);
@@ -54,6 +68,31 @@ describe("library registry", () => {
     await writeFile(join(a.dir, "a.md"), "due\n", "utf8");
     const changed = await hashLibrary(a.dir);
     expect(changed.hash).not.toBe(a.hash);
+  });
+
+  it("the hash does not depend on line endings", async () => {
+    const root = await mkdtemp(join(tmpdir(), "lore-"));
+    const lf = await makeLibrary(root, "fallout", { "a.md": "uno\ndue\n" });
+    const crlfRoot = await mkdtemp(join(tmpdir(), "lore-"));
+    const crlf = await makeLibrary(crlfRoot, "fallout", { "a.md": "uno\r\ndue\r\n" });
+
+    expect(crlf.hash).toBe(lf.hash);
+  });
+
+  it("the hash does not depend on how names are compared", async () => {
+    const root = await mkdtemp(join(tmpdir(), "lore-"));
+    // Names that code point and locale order differently: an accent, a case and a digit.
+    const lib = await makeLibrary(root, "fallout", {
+      "Zeta.md": "uno\n",
+      "alpha.md": "uno\n",
+      "Åre.md": "uno\n",
+      "2due.md": "uno\n",
+    });
+
+    const byCodePoint = ["2due.md", "Zeta.md", "alpha.md", "library.yaml", "Åre.md"];
+    const { hash, fileCount } = await hashLibrary(lib.dir);
+    expect(fileCount).toBe(5);
+    expect(hash).toBe(shuffledHash(lib.dir, byCodePoint));
   });
 
   it("reports a missing library without throwing", async () => {

@@ -58,14 +58,15 @@ export function makeStarts(patch: Partial<StartsState> = {}): StartsState {
         name: "Fallout: New Vegas",
         game: "new-vegas",
         playable: true,
-        narration: "Goodsprings. You wake on the floor with a hole in your head.",
+        narration: "Goodsprings. A shot goes off behind the buildings and the street empties.",
       },
       {
         id: "fallout-76",
         name: "Fallout 76",
         game: "fallout-76",
         playable: true,
-        narration: "Flatwoods. The saloon is quiet and the proprietress is watching you.",
+        narration:
+          "Flatwoods. The saloon is quiet and the proprietress has stopped wiping the glass.",
       },
       {
         id: "fallout-1",
