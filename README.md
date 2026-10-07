@@ -92,8 +92,6 @@ folder, writes a generated agent into `.opencode/agents/gm.md` with that campaig
 inlined, and streams turns to it. The interface is a separate Next.js process on `3310`; the
 API is on `3311`.
 
-The libraries are plain text under `lore/`, readable and editable by hand.
-
 ## What it will not do
 
 - No account, and nothing mandatory to sign up for
@@ -104,4 +102,10 @@ The libraries are plain text under `lore/`, readable and editable by hand.
 
 ## Licence
 
-None, by decision. See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#licence).
+The project carries no licence, by decision: there is no `LICENSE` file, because a licence
+is a grant of rights and this one was not chosen yet. Nothing in the repository asserts
+ownership of the works it contains, and no file in it claims one.
+
+The libraries under `lore/` are plain text, readable and editable by hand. They were
+assembled by checking a public wiki title by title, and they are subject to whatever terms
+that wiki publishes. The campaign templates under `corpus/` were written for this project.

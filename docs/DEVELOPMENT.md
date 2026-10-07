@@ -106,8 +106,3 @@ See [CANON.md](CANON.md) for the mechanism and [LIBRARY-FALLOUT.md](LIBRARY-FALL
 the library that ships. In short: add a file under `lore/<library>/entries/<game>/<kind>/`,
 rebuild the index, and update the hash in the campaign's `world.yaml` with the value
 `npm run corpus:validate` prints.
-
-## Licence
-
-None, by decision. No attribution file, no telemetry. The libraries are plain text under
-`lore/`, readable and editable by hand.
