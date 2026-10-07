@@ -1,20 +1,19 @@
 import type { CanonEntry, Era } from "@rpwb/shared";
 
-/**
+/*
  * Injection tiers, from most binding to most accessory.
  *
- * The order is not decorative: a model's attention is not uniform, and if the
- * background lands in front of the rules the turn rests on canon the narrator
- * has not read yet. So rules first, then situation, then detail.
+ * The order is not decorative: attention is not uniform, and background in front of the rules
+ * means the turn rests on canon the narrator has not read yet.
  */
 export const CANON_TIERS = ["rules", "eras", "present", "location", "mentioned", "search"] as const;
 
 export type CanonTier = (typeof CANON_TIERS)[number];
 
 /**
- * Tiers that cannot be dropped: they are the guarantee of canonicity. If the
- * budget is not enough, going over it is preferred to removing a rule, and the
- * overrun is reported in `overBudget`.
+ * Tiers that cannot be dropped: they are the guarantee of canonicity. If the budget is not
+ * enough, going over it is preferred to removing a rule, and the overrun is reported in
+ * `overBudget`.
  */
 export const MANDATORY_TIERS: readonly CanonTier[] = ["rules", "eras", "present", "location"];
 
@@ -103,16 +102,12 @@ export function eraEntry(era: Era): CanonEntry {
   };
 }
 
-/**
- * Gives each entry the highest tier it belongs to, so a rule quoted by the
- * player stays in the `rules` tier and is not repeated further down.
- */
+/** Gives each entry the highest tier it belongs to, so an entry is never repeated. */
 function assignTiers(input: SliceInput): Map<CanonTier, CanonEntry[]> {
   const includeDisputed = input.includeDisputed ?? false;
 
-  // Deduplication happens here and not during assignment: the caller passes the
-  // full list plus the search results, so the same entry arrives twice, and
-  // without this the slice repeats it in the injected text.
+  // Deduplicated here: the caller passes the full list plus the search results, so the same
+  // entry arrives twice.
   const seen = new Set<string>();
   const usable = input.entries
     .filter((entry) =>
@@ -155,8 +150,7 @@ function assignTiers(input: SliceInput): Map<CanonTier, CanonEntry[]> {
     }
   }
 
-  // `search` is the catch-all channel: it receives everything else, including
-  // the full-text search results the caller merged into `entries`.
+  // The catch-all channel: everything else, including the search results the caller merged in.
   buckets.search = usable.filter((entry) => !taken.has(identity(entry)));
 
   return new Map(Object.entries(buckets) as [CanonTier, CanonEntry[]][]);
@@ -165,9 +159,8 @@ function assignTiers(input: SliceInput): Map<CanonTier, CanonEntry[]> {
 /**
  * Builds the turn's canon slice.
  *
- * `entries` arrives already filtered by era and carrying the full-text search
- * results: only selection and ordering happen here, so the same function also
- * serves the debug preview without touching the database.
+ * `entries` arrives already filtered by era and carrying the search results: only selection and
+ * ordering happen here, so the same function serves the debug preview without the database.
  */
 export function buildCanonSlice(input: SliceInput): CanonSlice {
   const searchLimit = input.searchLimit ?? SEARCH_LIMIT;
@@ -195,8 +188,8 @@ export function buildCanonSlice(input: SliceInput): CanonSlice {
         truncated = true;
         continue;
       }
-      // A mandatory tier goes in even if it overruns: dropping a rule to respect
-      // the budget would mean hiding canon.
+      // A mandatory tier goes in even if it overruns: dropping a rule to respect the budget would
+      // mean hiding canon.
       if (!mandatory && tokens + entry.tokens > input.budgetTokens) {
         report.dropped += 1;
         report.reason = "budget";

@@ -1,20 +1,14 @@
-/**
+/*
  * Which compiler can run here, and how to find out.
  *
- * The starting point is an uncomfortable observation: the interface is compiled
- * by Next with a native binary prebuilt in Rust, and that binary asks the CPU for
- * instructions not every machine has. On a 2011 processor it simply does not
- * load: it is not a broken install, no file is missing, it is the compiler's own
- * code using instructions that do not exist, and Windows says so with an error
- * that has nothing to do with the real cause.
+ * Next compiles the interface with a native Rust binary that asks the CPU for instructions
+ * not every machine has; on an old processor it does not load, and Windows reports it as
+ * something unrelated to the real cause.
  *
- * The lesson is that **it must not be guessed**. No lists of CPU names, no
- * `os.cpus()` that does not expose the supported instructions: the only thing
- * that counts is whether the binary starts. So it is tried to be loaded, and the
- * answer is used.
+ * So it must not be guessed: no CPU name lists, and `os.cpus()` does not expose the supported
+ * instructions. Only whether the binary starts counts, so it is tried and the answer used.
  *
- * The probe is injected so it can be tested without depending on the machine
- * running the test.
+ * The probe is injected, so the tests do not depend on the machine running them.
  */
 
 import { spawnSync } from "node:child_process";
@@ -51,11 +45,8 @@ export interface Toolchain {
 }
 
 /**
- * Searches for `node_modules` walking up from the given directory, until it finds
- * the one containing the native binaries.
- *
- * It is needed because packages can be installed at the project root or nested
- * in a workspace, and the two places cannot be known in advance.
+ * Searches for `node_modules` walking up from `start`, until it finds the one holding the
+ * native binaries: packages can be installed at the root or nested in a workspace.
  */
 export function findNodeModules(start: string): string[] {
   const found: string[] = [];
@@ -74,11 +65,8 @@ export function findNodeModules(start: string): string[] {
 /**
  * Tries to load a binary in a child process, not in this one.
  *
- * It is not fussiness. A binary that does not load leaves the process in a broken
- * state: it has been seen here that after the error Node dies with an access
- * violation as soon as it exits. If the test happened inside the process that is
- * compiling, the build would finish and then the command would still return an
- * error. In a child process the failure is a normal exit code.
+ * A binary that does not load leaves the process broken: Node has been seen dying with an
+ * access violation on exit, which would finish the build and still return an error.
  */
 function tryLoadIsolated(file: string): { ok: boolean; problem: string } {
   const child = spawnSync(
@@ -100,7 +88,7 @@ function tryLoadIsolated(file: string): { ok: boolean; problem: string } {
     return { ok: false, problem: stdout.slice(4).split("\n")[0] ?? "load refused" };
   }
 
-  // no output: the process died. That is the worst case, and it has to be said.
+  // No output: the process died, which has to be said as such.
   return {
     ok: false,
     problem: `the process died while loading (code ${String(child.status)})`,
@@ -110,9 +98,8 @@ function tryLoadIsolated(file: string): { ok: boolean; problem: string } {
 /**
  * Finds the installed native SWC binaries and tries to load them.
  *
- * A package is not chosen from a list of platforms: what is really there is
- * looked at and tried. A package for the wrong platform simply does not exist, so
- * there is nothing to guess.
+ * Not chosen from a list of platforms: what is there is looked at and tried, since a package
+ * for the wrong platform simply does not exist.
  */
 export function probeNativeCompiler(...nodeModulesPaths: string[]): Probe {
   const failures: string[] = [];
@@ -128,7 +115,7 @@ export function probeNativeCompiler(...nodeModulesPaths: string[]): Probe {
     }
 
     for (const name of names) {
-      // `swc-wasm` is the compiler in WebAssembly: it is the answer, not the attempt.
+      // `swc-wasm` is the answer, not the attempt.
       if (!name.startsWith("swc-") || name.includes("wasm")) continue;
 
       let files: string[];

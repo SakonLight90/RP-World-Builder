@@ -75,6 +75,22 @@ export async function readModelCatalog(client: OpencodeClient): Promise<ModelCat
         contextLimit: num(limit["context"], 0),
         inputCost,
         outputCost,
+        /*
+         * The cache price, when the provider declares one.
+         *
+         * It is read and not assumed to equal the input price, because the providers
+         * that bill a cache read do so at a discount and the discount is the whole
+         * reason a long context is affordable on them. Reading a cache write as if it
+         * were plain input overstates the cost of a turn by a large factor, and
+         * reading a cache read at full price is the same error in the direction that
+         * makes the platform look expensive.
+         *
+         * `null` when it declares none, which is most providers: a model without a
+         * cache price is a model whose cache is not billed separately, and that is a
+         * different statement from a model with a cache price of zero.
+         */
+        cacheReadCost: num(cost["cache_read"], 0),
+        cacheWriteCost: num(cost["cache_write"], 0),
         free: isFreeModel(inputCost, outputCost),
         trainsOnPrompts: policy.trainsOnPrompts,
         zeroRetention: policy.zeroRetention,

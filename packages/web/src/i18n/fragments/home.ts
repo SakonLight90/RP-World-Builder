@@ -49,6 +49,31 @@ export const homeEn = {
   "home.templates.tagEras": "eras",
   "home.templates.tagCharacters": "characters",
   "home.templates.play": "Play",
+
+  /*
+   * The first-run panel.
+   *
+   * Each step says what it is for and not just what it is. "Connect a narrator"
+   * is an instruction that leaves the reader to work out why; "the narrator is what
+   * writes the campaign" is the reason to do it, and it is the reason a new user
+   * needs before the instruction means anything.
+   */
+  "onboarding.title": "To get going",
+  "onboarding.progress": "{{done}} of {{total}} ready",
+  "onboarding.intro":
+    "Three things before the first campaign can be played. Each step explains what it is for.",
+  "onboarding.step.world.title": "Create a campaign",
+  "onboarding.step.world.body":
+    "A campaign is the setting plus the canon the narrator uses. Start from a ready world, or from an empty one.",
+  "onboarding.step.world.cta": "Load the canon",
+  "onboarding.step.narrator.title": "Connect a narrator",
+  "onboarding.step.narrator.body":
+    "The narrator is what writes the campaign. It runs on your machine through opencode, and no text leaves your computer.",
+  "onboarding.step.narrator.cta": "Check it",
+  "onboarding.step.model.title": "Choose a narrator model",
+  "onboarding.step.model.body":
+    "Which model writes is your decision, and it decides both the cost and how long the context can be. A free model is the right start.",
+  "onboarding.step.model.cta": "Choose",
 };
 
 export const homeIt = {
@@ -82,6 +107,23 @@ export const homeIt = {
   "home.templates.tagEras": "epoche",
   "home.templates.tagCharacters": "personaggi",
   "home.templates.play": "Gioca",
+
+  "onboarding.title": "Per cominciare",
+  "onboarding.progress": "{{done}} di {{total}} pronti",
+  "onboarding.intro":
+    "Tre cose servono prima di poter giocare la prima campagna. Ogni passo spiega a cosa serve.",
+  "onboarding.step.world.title": "Crea una campagna",
+  "onboarding.step.world.body":
+    "Una campagna è l'ambientazione più il canon che il narratore usa. Parti da un mondo pronto, o da uno vuoto.",
+  "onboarding.step.world.cta": "Carica il canon",
+  "onboarding.step.narrator.title": "Collega un narratore",
+  "onboarding.step.narrator.body":
+    "Il narratore è ciò che scrive la campagna. Gira sulla tua macchina tramite opencode, e nessun testo esce dal tuo computer.",
+  "onboarding.step.narrator.cta": "Verificalo",
+  "onboarding.step.model.title": "Scegli il modello del narratore",
+  "onboarding.step.model.body":
+    "Quale modello scriva è una decisione tua, e decide sia il costo sia quanto contesto può tenere. Un modello gratuito è un buon inizio.",
+  "onboarding.step.model.cta": "Scegli",
 };
 
 export const homeEs = {
@@ -115,6 +157,23 @@ export const homeEs = {
   "home.templates.tagEras": "épocas",
   "home.templates.tagCharacters": "personajes",
   "home.templates.play": "Jugar",
+
+  "onboarding.title": "Para empezar",
+  "onboarding.progress": "{{done}} de {{total}} listos",
+  "onboarding.intro":
+    "Hacen falta tres cosas antes de poder jugar la primera campaña. Cada paso explica para qué sirve.",
+  "onboarding.step.world.title": "Crea una campaña",
+  "onboarding.step.world.body":
+    "Una campaña es el escenario más el canon que usa el narrador. Empieza por un mundo listo, o por uno vacío.",
+  "onboarding.step.world.cta": "Cargar el canon",
+  "onboarding.step.narrator.title": "Conecta un narrador",
+  "onboarding.step.narrator.body":
+    "El narrador es lo que escribe la campaña. Funciona en tu máquina mediante opencode, y ningún texto sale de tu ordenador.",
+  "onboarding.step.narrator.cta": "Comprobarlo",
+  "onboarding.step.model.title": "Elige el modelo del narrador",
+  "onboarding.step.model.body":
+    "Qué modelo escribe es tu decisión, y decide tanto el coste como cuánta contexto puede guardar. Un modelo gratuito es un buen comienzo.",
+  "onboarding.step.model.cta": "Elegir",
 };
 
 export const homeFr = {
@@ -148,6 +207,23 @@ export const homeFr = {
   "home.templates.tagEras": "ères",
   "home.templates.tagCharacters": "personnages",
   "home.templates.play": "Jouer",
+
+  "onboarding.title": "Pour démarrer",
+  "onboarding.progress": "{{done}} sur {{total}} prêts",
+  "onboarding.intro":
+    "Trois choses sont nécessaires avant de pouvoir jouer la première campagne. Chaque étape explique à quoi elle sert.",
+  "onboarding.step.world.title": "Créez une campagne",
+  "onboarding.step.world.body":
+    "Une campagne est le décor plus le canon que le narrateur utilise. Partez d'un monde prêt, ou d'un monde vide.",
+  "onboarding.step.world.cta": "Charger le canon",
+  "onboarding.step.narrator.title": "Connectez un narrateur",
+  "onboarding.step.narrator.body":
+    "Le narrateur est ce qui écrit la campagne. Il tourne sur votre machine via opencode, et aucun texte ne quitte votre ordinateur.",
+  "onboarding.step.narrator.cta": "Vérifier",
+  "onboarding.step.model.title": "Choisissez le modèle du narrateur",
+  "onboarding.step.model.body":
+    "Le modèle qui écrit est votre décision, et il détermine à la fois le coût et la quantité de contexte possible. Un modèle gratuit est un bon début.",
+  "onboarding.step.model.cta": "Choisir",
 };
 
 export const homeDe = {
@@ -181,4 +257,21 @@ export const homeDe = {
   "home.templates.tagEras": "Epochen",
   "home.templates.tagCharacters": "Figuren",
   "home.templates.play": "Spielen",
+
+  "onboarding.title": "Für den Einstieg",
+  "onboarding.progress": "{{done}} von {{total}} bereit",
+  "onboarding.intro":
+    "Drei Dinge fehlen, bevor die erste Kampagne gespielt werden kann. Jeder Schritt erklärt, wozu er da ist.",
+  "onboarding.step.world.title": "Kampagne erstellen",
+  "onboarding.step.world.body":
+    "Eine Kampagne ist die Umgebung plus den Kanon, den der Erzähler nutzt. Beginne mit einer fertigen Welt oder mit einer leeren.",
+  "onboarding.step.world.cta": "Kanon laden",
+  "onboarding.step.narrator.title": "Erzähler verbinden",
+  "onboarding.step.narrator.body":
+    "Der Erzähler schreibt die Kampagne. Er läuft über opencode auf deinem Rechner, und kein Text verlässt deinen Computer.",
+  "onboarding.step.narrator.cta": "Prüfen",
+  "onboarding.step.model.title": "Erzählermodell wählen",
+  "onboarding.step.model.body":
+    "Welches Modell schreibt, entscheidest du: es bestimmt die Kosten und wie viel Kontext möglich ist. Ein kostenloses Modell ist ein guter Anfang.",
+  "onboarding.step.model.cta": "Wählen",
 };

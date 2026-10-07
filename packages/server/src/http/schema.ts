@@ -12,9 +12,9 @@ import { PROMOTE_KINDS } from "../canon/lexicon.js";
 /**
  * Request schemas, in a single place.
  *
- * Validating at the edge means below nobody ever checks whether a field
- * exists, and an error reaches the client with a useful message instead of
- * becoming an `undefined` propagating through three functions.
+ * Validating at the edge: below nobody checks whether a field exists, and an error
+ * reaches the client with a useful message instead of an `undefined` travelling through
+ * three functions.
  */
 
 export const CreateWorldBody = z.object({
@@ -44,28 +44,21 @@ export const UpdateWorldBody = z.object({
   activeLocale: z.string().min(2).max(16).optional(),
   /**
    * The player's context window in tokens, or null to ask the provider.
-   * Capped at ten million: past that the chapter closes before the first turn
-   * and the number is a typo rather than a plan.
+   * Capped at ten million: past that the chapter closes before the first turn, so the
+   * number is a typo rather than a plan.
    */
   contextLimit: z.number().int().min(1_000).max(10_000_000).nullable().optional(),
   chapterThresholdRatio: z.number().min(0.1).max(0.95).optional(),
   canonBudgetRatio: z.number().min(0.05).max(0.6).optional(),
-  /**
-   * The player's character. It belongs to the same update route because
-   * it is a property of the world like the name or the model: forcing a separate
-   * route for data set once only makes the
-   * way to change it harder to remember.
-   */
+  /** The player's character, on the same update route: it is a property of the world. */
   player: PlayerBody.optional(),
 });
 
 /**
  * The choice of how the campaign begins.
  *
- * `null` is a real value and not "not given": unselecting a start is something the
- * player can do, and it puts the world back to waiting for a choice. It is written
- * as an explicit `null` in the body, and the schema distinguishes it from an absent
- * field, which leaves the selection alone.
+ * `null` is a real value: unselecting puts the world back to waiting for a choice, and
+ * an absent field leaves the selection alone.
  */
 export const SelectStartBody = z.object({
   startId: z.string().min(1).nullable(),
@@ -142,11 +135,7 @@ export const TurnBody = z.object({
   text: z.string().min(1).max(20_000),
   locale: z.string().min(2).max(16).default("it"),
   locationId: z.string().nullable().default(null),
-  /**
-   * The turn is a narrator request, not a player line: it does not
-   * enter the chat. It serves the "Continue" button, which is not the player
-   * speaking and must not look like it.
-   */
+  /** A narrator request, not a player line: it does not enter the chat. */
   silent: z.boolean().default(false),
 });
 
@@ -155,12 +144,9 @@ export const PromoteBody = z.object({
   /**
    * Required, with no default.
    *
-   * The default was "character", and the consequence was that the narrator
-   * mentioned together "Flatwoods" (a place) and "Michael" (a person) and the UI
-   * promoted both as characters. A default choosing for the player
-   * fails in a way nobody can notice: the row goes in and looks right.
-   * Here the kind is declared by whoever promotes; if missing, the route rejects it and says so,
-   * instead of guessing.
+   * A default chooses for the player, and a wrong guess fails invisibly: the row
+   * goes in and looks right. Whoever promotes declares the kind, and a missing one is
+   * rejected instead.
    */
   kind: z.enum(PROMOTE_KINDS),
   role: z.string().max(200).default(""),
@@ -178,11 +164,10 @@ export const VerifyBody = z.object({
 /*
  * Editing a canon entry.
  *
- * All fields are optional with no defaults: a correction zeroing a
- * field does not know what to put there, and a `default` here would write an empty string
- * into the entry every time a single field is saved. The route completes the existing
- * entry with what arrives, so "not sent" and "deliberately emptied"
- * stay two distinct things.
+ * All fields optional with no defaults: a correction zeroing a field does not know what
+ * to put there, and a default would write an empty string on every single-field save.
+ * The route completes the existing entry with what arrives, so "not sent" and
+ * "deliberately emptied" stay two things.
  */
 export const CanonEditBody = z.object({
   subject: z.string().min(1).max(200).optional(),
@@ -204,11 +189,8 @@ export const CanonDeleteBody = z.object({
 /*
  * Settings editable at runtime.
  *
- * Only these four, and not by chance: port, host and data folder are read
- * at startup and the server already opened ports with the old values, so
- * changing them from a route without a restart would be a lie. `uiLocale` and preferred
- * models instead are re-read on every use, and `setupCompleted` is just a
- * bookmark. Everything else goes through the config file by hand.
+ * Only these: port, host and data folder are read at startup and the server has
+ * already bound the old values, so changing them without a restart would be a lie.
  */
 export const SettingsBody = z
   .object({
@@ -217,11 +199,8 @@ export const SettingsBody = z
     preferredSmallModel: z.string().max(200).nullable().optional(),
     setupCompleted: z.boolean().optional(),
   })
-  /*
-   * Strict, not permissive: a silently ignored key would suggest
-   * having saved something that was not saved, which is the same flaw as
-   * before in different clothes.
-   */
+  // Strict, not permissive: a silently ignored key suggests something was saved that
+  // was not.
   .strict();
 
 /*

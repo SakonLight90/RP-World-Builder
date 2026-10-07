@@ -1,14 +1,12 @@
-/**
+/*
  * The platform's principles, as code.
  *
- * A local project that asks for no money, shows no ads and does no tracking is
- * not a matter of good intentions: it is a matter of dependencies. An analytics
- * package, an API key for a paid service, a banner would end up in the project
- * without anyone noticing, and the user would have no way of noticing.
+ * A local project that asks for no money, shows no ads and does no tracking is not a matter
+ * of good intentions: it is a matter of dependencies, and an analytics package or an API key
+ * for a paid service would end up in the project without anyone noticing.
  *
- * So here the principles are **verifiable**: `principles.test.ts` reads the source
- * and fails if something that contradicts them shows up. Bring in a telemetry
- * module and the suite breaks and you see it immediately.
+ * So the principles are **verifiable**: `principles.test.ts` reads the source and fails on
+ * a contradiction.
  */
 
 export const PRINCIPLES = [
@@ -38,14 +36,7 @@ export const PRINCIPLES = [
   },
 ] as const;
 
-/**
- * Allowed dependencies. Every entry here is a choice, not an inheritance: a
- * telemetry or analytics package cannot come in.
- *
- * Runtime: `@opencode-ai/sdk` is the integrator, `better-sqlite3` the database,
- * `fastify` the server, `yaml` corpus loading, `zod` validation. Development:
- * `typescript`, `vitest`, `biome`, `tsx` and the types.
- */
+/** Allowed dependencies. Every entry is a choice, not an inheritance: telemetry cannot come in. */
 export const ALLOWED_DEPENDENCIES = new Set([
   // runtime
   "@opencode-ai/sdk",
@@ -53,13 +44,13 @@ export const ALLOWED_DEPENDENCIES = new Set([
   "fastify",
   "yaml",
   "zod",
-  // interface. Next and React do not contact any external service on their own:
-  // they have no active telemetry, and Next's is disabled in `next.config`.
+  // interface. Next and React contact no external service on their own, and Next's telemetry
+  // is disabled in `next.config`.
   "next",
   "react",
   "react-dom",
-  // Next's compiler in WebAssembly: it runs on any processor, and it is what the
-  // project uses when the native binary does not load
+  // Next's compiler in WebAssembly: runs on any processor, used when the native binary does
+  // not load
   "@next/swc-wasm-nodejs",
   // development
   "@biomejs/biome",
@@ -73,9 +64,8 @@ export const ALLOWED_DEPENDENCIES = new Set([
 ]);
 
 /**
- * Words that must not appear in application source. Every entry carries the
- * reason it is forbidden, because a ban without an explanation gets removed at
- * the first useful opportunity.
+ * Words that must not appear in application source. Each carries its reason: a ban without an
+ * explanation gets removed at the first useful opportunity.
  */
 export const FORBIDDEN_IN_SOURCE = [
   { pattern: /google-analytics/i, why: "usage analytics" },

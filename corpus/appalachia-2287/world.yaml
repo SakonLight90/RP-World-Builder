@@ -124,6 +124,7 @@ starts:
     name: Fallout 76
     game: fallout-76
     playable: true
+    location: "Flatwoods"
     narration: >-
       Flatwoods, 2287. The saloon is quiet this morning. You sit at the bar,
       a room key in your hand, and the proprietress is watching you from
@@ -133,6 +134,7 @@ starts:
     name: Fallout 3
     game: fallout-3
     playable: true
+    location: "Vault 101"
     narration: >-
       Vault 101. The air tastes recycled and the lights never change. You are
       going about your day when the loudspeaker crackles to life, and the
@@ -142,6 +144,7 @@ starts:
     name: "Fallout: New Vegas"
     game: new-vegas
     playable: true
+    location: "Goodsprings"
     narration: >-
       Goodsprings. You wake on the floor of a small house, a hole in your
       head and a man standing over you with a shovel. He says your name. He
@@ -151,6 +154,7 @@ starts:
     name: Fallout 4
     game: fallout-4
     playable: true
+    location: "Sanctuary"
     narration: >-
       Sanctuary Hills, 2287. The bombs fell this morning. You are in the
       vault door, your family behind you, and the world you knew is ending.

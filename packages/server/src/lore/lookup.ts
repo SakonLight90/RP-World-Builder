@@ -5,27 +5,15 @@ import type { LoreLibrary, LoreProvider, LoreRecord } from "./provider.js";
 import { libraryPath, type ResolvedLibrary, readableRoots } from "./registry.js";
 
 /**
- * Search in the library **before** the turn, injected into the context.
+ * Search in the library before the turn, injected into the context.
  *
- * It exists because the agent does not search. With only reading allowed, the
- * narrator gets to a turn in which the player names the Mojave, understands the
- * premise and then discards it: it writes some arrival, maybe one it remembers,
- * without ever opening a file. The logs show `read`/`grep`/`glob` used only when
- * the instruction explicitly asks for it.
+ * The agent has no search of its own, so the engine does it: the player's text is
+ * matched against the index, the matching entries are read, and they are injected
+ * where the narrator finds them without deciding to look. Nothing is deduced here —
+ * entries are reread, and the library stays the only source.
  *
- * So the search is done by the engine, not by the narrator: the player's text is
- * searched, the names the library knows are found, those entries are read, and
- * they are injected where the narrator finds them by force. The library stays the
- * only source: nothing is deduced here, it is reread.
- *
- * The narrator keeps reading for the details the engine cannot know (it has to
- * ask, it does not have the text) and for the names that emerge mid-scene.
- *
- * There is no library's name in here. The engine does not know what entry types
- * exist, does not know how to read an index, does not know what an entry's file is
- * called, does not know which words distinguish nothing and does not know what
- * "mentioned" means. All of those come from a `LoreProvider`, and that provider
- * is chosen by the descriptor the library declares for itself.
+ * What an entry type is, how its file is named and what a useful name is all come from
+ * a `LoreProvider`, chosen by the library's own descriptor.
  */
 
 export interface LibraryIndexEntry {
@@ -44,22 +32,17 @@ export interface LibraryIndexEntry {
   /** Aliases and variants, for recognition. */
   variants: string[];
   /**
-   * Entry owned by the sub-index, or only mentioned in a note.
+   * Owned by the sub-index, or only mentioned in a note.
    *
-   * The library says it, not the engine: with a single word in common a library
-   * can contain both "Mojave Wasteland" (the region) and "Mojave House" (a house
-   * mentioned in passing), and choosing at random loses the name the player was
-   * using.
+   * The library says which: one word in common can cover both a region and a house,
+   * and choosing at random loses the name the player used.
    */
   primary: boolean;
   /**
-   * How many sub-indexes list this entry.
+   * How many sub-indexes list it.
    *
-   * A name that appears in three games is a region or an institution that all the
-   * others quote; a name that appears in only one is a building of that game. It
-   * is the only importance signal the data has, and it is needed to stop
-   * "Mojave Outpost" from beating "Mojave Wasteland" when the only match is the
-   * word "Mojave".
+   * The only importance signal the data has: a name in three games is a region or an
+   * institution, one in a single game is a building of that game.
    */
   sources: number;
   /** Number of characters of the name: used to pick the more important ones. */
@@ -77,9 +60,8 @@ export interface LibraryLookup {
 /**
  * A name's boundaries, tolerant.
  *
- * `\b` after a name ending in a non-letter does not work, and many canon names
- * end in parentheses or digits: without these boundaries, "Vault 12" would also
- * hook onto "Vault 123".
+ * `\b` fails after a name ending in a non-letter, and canon names end in digits or
+ * parentheses: without these boundaries a name also matches every longer one sharing it.
  */
 function namePattern(name: string): RegExp {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -88,10 +70,8 @@ function namePattern(name: string): RegExp {
 
 /** Builds the index from the libraries' index files, not from the entries one by one. */
 async function buildIndex(libraries: ResolvedLibrary[]): Promise<LibraryLookup> {
-  // A name lives in more sub-indexes: only one entry is kept, the one a
-  // sub-index really owns, and it is counted in how many it is quoted. Without
-  // this union the same name goes into the context more than once and the weight
-  // of a region quoted by three games is diluted like that of a house.
+  // One entry per name: a name in several sub-indexes is counted once and the
+  // owned one wins, so a widely quoted entry is not diluted by the quotations.
   const byKey = new Map<string, LibraryIndexEntry>();
   const providers = new Map<string, LoreProvider>();
 
@@ -110,21 +90,18 @@ async function buildIndex(libraries: ResolvedLibrary[]): Promise<LibraryLookup> 
       }
 
       for (const record of records) {
-        // An entry with no name is not an entry: it goes into the index and nobody
-        // finds it, so looking for it only wastes time.
+        // No name is not an entry.
         if (record.subject.trim() === "") continue;
-        // The path comes from the library, so it is an input like any other and has
-        // to be checked before it ends up in a `readFile` and in a permission. An
-        // entry pointing outside the library is not guessed: it is discarded.
+        // The path comes from the library, so it is checked before it reaches a
+        // `readFile` and a permission. One pointing outside the library is discarded.
         try {
           libraryPath(library.dir, record.file);
         } catch {
           continue;
         }
 
-        // The id goes into the key because two different libraries can have an
-        // entry with the same name: they are two things, and merging them would make
-        // one disappear.
+        // The library id is in the key: two libraries can hold an entry with the
+        // same name, and merging them would lose one.
         const key = `${library.id} ${record.kind} ${record.subject}`;
         const candidate: LibraryIndexEntry = {
           subject: record.subject,
@@ -143,14 +120,12 @@ async function buildIndex(libraries: ResolvedLibrary[]): Promise<LibraryLookup> 
           byKey.set(key, candidate);
           continue;
         }
-        // The count is updated on the entry kept in the index even when the entry
-        // that just arrived is not the one being kept: otherwise a name quoted by
-        // four sub-indexes would count one, and the weight that depends on it would
-        // say the opposite of the data.
+        // The count goes on the kept entry even when it is not the one kept:
+        // otherwise a name in four sub-indexes would count one.
         const seen = existing.sources + 1;
         existing.sources = seen;
-        // An entry owned by a sub-index replaces a quotation: that way the file
-        // opened is the one that really describes the place.
+        // An owned entry replaces a mention, so the file opened is the one that
+        // describes it.
         if (existing.primary === false && candidate.primary === true) {
           candidate.sources = seen;
           byKey.set(key, candidate);
@@ -164,15 +139,7 @@ async function buildIndex(libraries: ResolvedLibrary[]): Promise<LibraryLookup> 
 
 const cache = new Map<string, LibraryLookup>();
 
-/**
- * The library's index, cached per hash.
- *
- * The cache is in memory and is valid for a single version of the library: if the
- * hash changes — because the library was enriched or the requirement was updated
- * — the index is rebuilt. A per-hash cache avoids the worst case of an index
- * built once and never updated again, which makes names be looked for in a
- * library that no longer exists.
- */
+/** The index, cached per library hash: a changed hash rebuilds it. */
 export async function libraryIndexFor(libraries: ResolvedLibrary[]): Promise<LibraryLookup> {
   const roots = readableRoots(libraries).join("|");
   if (roots === "") return { entries: [], providers: new Map(), hash: "" };
@@ -182,8 +149,7 @@ export async function libraryIndexFor(libraries: ResolvedLibrary[]): Promise<Lib
   if (hit) return hit;
 
   const built = await buildIndex(libraries);
-  // Only one version in memory: the next one would not invalidate the previous, so
-  // only the last built one is kept.
+  // One version at a time: a second entry would not invalidate the first.
   cache.clear();
   cache.set(key, built);
   return built;
@@ -205,9 +171,7 @@ const MAX_CHARS_PER_ENTRY = 900;
 /**
  * Finds and reads the entries the player's text names.
  *
- * The order is by importance: the longer names first, because they are more
- * specific and not confusable; on a tie, the shorter ones in the text are the most
- * likely to be meant and therefore the most useful to quote.
+ * Longer names first: they are the more specific ones and not confusable.
  */
 export async function findInLibrary(
   libraries: ResolvedLibrary[],
@@ -218,17 +182,14 @@ export async function findInLibrary(
 
   const haystack = normalize(playerText);
 
-  // Two levels of signal, and the distinction matters more than the quantity.
-  //
-  // Strong: the text contains the canonical name in full, or a declared variant.
-  // "Freeside" arrives that way, and it is a precise request.
-  //
-  // Weak: the text contains a word of the name. It is needed, because nobody
-  // writes "Mojave Wasteland" by writing "Mojave", but the single word does not
-  // distinguish: "Vegas" hooks onto "South Vegas Ruins West Entrance", "New Vegas
-  // Conurbation Interior" and three other entries. Without separating the two
-  // levels, six slots fill with shortcuts and the name the player was using
-  // disappears.
+  /*
+   * Two levels of match.
+   *
+   * Strong: the full canonical name or a declared variant, which is a precise request.
+   * Weak: one word of the name, which nobody would otherwise match — a single word
+   * does not distinguish, so without keeping the two apart the six slots fill with
+   * near-misses and the name the player used disappears.
+   */
   const strong: Array<{ entry: LibraryIndexEntry; matched: string }> = [];
   const weak = new Map<string, { entry: LibraryIndexEntry; matched: string }>();
 
@@ -249,10 +210,8 @@ export async function findInLibrary(
     for (const head of provider.searchKeys(entry.subject)) {
       if (!provider.isUsefulName(head)) continue;
       if (!namePattern(head).test(haystack)) continue;
-      // One entry per word, and for the same word the more important entry wins:
-      // first one the sub-index really owns, then one quoted by more sub-indexes,
-      // finally the shortest name. For "Mojave" it keeps "Mojave Wasteland" and not
-      // "Mojave Outpost", which is a patrol point quoted by a single game.
+      // One entry per word, and for the same word the more important one wins:
+      // owned first, then the most quoted, then the shortest name.
       const current = weak.get(head);
       const words = (e: LibraryIndexEntry): number =>
         normalize(e.subject)
@@ -284,7 +243,7 @@ export async function findInLibrary(
     try {
       text = await provider.readEntry({ id: entry.library, dir: entry.root }, entry);
     } catch {
-      // The index points at an entry that is not there: skip, do not guess.
+      // The index points at an entry that is not there: skipped, not guessed.
       continue;
     }
     const body = text.replace(/^#.*\n/, "");
@@ -305,9 +264,8 @@ export async function findInLibrary(
 /**
  * The block to inject.
  *
- * It goes into the context like the canon, and for the same reason: the narrator
- * has to find them without deciding to look for them. It also says where they
- * come from, so the narrator tells a reference apart from its own voice.
+ * Injected like the canon, and it names its source so the narrator tells reference
+ * material from its own voice.
  */
 export function renderLibraryHits(hits: LibraryHit[]): string {
   if (hits.length === 0) return "";

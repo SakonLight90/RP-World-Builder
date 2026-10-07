@@ -88,6 +88,12 @@ export function makeModel(patch: Partial<ModelInfo> & Pick<ModelInfo, "ref">): M
     contextLimit: 32_000,
     inputCost: 0,
     outputCost: 0,
+    // A free fixture model bills nothing for its cache either, and it says so with
+    // a zero rather than leaving them out: a turn priced by this fixture costs 0.00
+    // and is counted in the money total, which is the case a real free model
+    // produces and the one worth having a fixture for.
+    cacheReadCost: 0,
+    cacheWriteCost: 0,
     free: true,
     trainsOnPrompts: false,
     zeroRetention: true,

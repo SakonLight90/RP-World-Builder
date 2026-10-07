@@ -25,6 +25,7 @@ import { worldsDir } from "../config/paths.js";
 import { loadCorpus } from "../corpus/load.js";
 import type { ArcRepository } from "../db/repo/arcs.js";
 import { newId } from "../db/repo/common.js";
+import { errorDetail, log } from "../logging.js";
 import { defaultNarratorModel, readModelCatalog } from "../opencode/models.js";
 import { BibleBody, CreateWorldBody, EraBody, SelectStartBody, UpdateWorldBody } from "./schema.js";
 import type { RouteScope } from "./scope.js";
@@ -32,27 +33,21 @@ import type { RouteScope } from "./scope.js";
 /**
  * What happened to a world's folder.
  *
- * The three cases are separate because they need opposite answers. `outside` is
- * the path check doing its job: the folder is not ours to delete, and refusing
- * to delete the world because of it would leave a world that can never be
- * removed from the interface. `blocked` is a folder inside our own data
- * directory that Windows would not let go of, and that has to stop the delete:
- * going ahead leaves an invisible folder that no list will ever show again.
+ * `outside` is the path check refusing a folder that is not ours: the world is still
+ * deleted, because refusing it would leave one that can never be removed. `blocked`
+ * is a folder of ours that Windows still holds: the delete stops, because going
+ * ahead leaves a folder no list will show again.
  */
 export type WorldDirOutcome = "removed" | "outside" | "blocked";
 
 /**
- * Deletes a world's folder, without touching anything else.
+ * Deletes a world's folder, nothing else.
  *
- * The path check is not optional: `opencodeDir` comes from the database and here
- * `rm` is called recursively. Without the check, a world with a stale
- * directory pointing elsewhere would delete that one; without the special case
- * for the root, a world with `opencodeDir` set to the data dir would wipe
- * every other world's library.
+ * The path check is required: `opencodeDir` comes from the database and `rm` is
+ * recursive, and the root itself is refused so a world pointing at the data folder
+ * cannot wipe every other world.
  *
- * Retries exist for Windows: the world's server has been stopped, but the
- * system may not have released the files yet, and a single attempt would return
- * a folder that deletes itself a second later.
+ * Retried: on Windows the server is stopped but the files may not be released yet.
  */
 export async function removeWorldDir(dir: string, dataDir: string): Promise<WorldDirOutcome> {
   const base = resolve(worldsDir(dataDir));
@@ -152,17 +147,11 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
     return { world };
   });
 
-  /**
+  /*
    * Chooses how the campaign begins.
    *
-   * Inside the chat, not at creation: the world is the setting and the start is the
-   * way into it, so the choice belongs to the moment the player starts playing.
-   * By then they can see the names of the scenarios, which is more than a creation
-   * form could have shown them.
-   *
-   * The repository refuses a lore-only start and an id that is not in the list. Here
-   * those become 400s with a code the interface can name, instead of a 500 with a
-   * message that says what an exception said.
+   * The two refusals become 400s with a code the interface can name: a lore-only start
+   * and a start the world does not have are different sentences.
    */
   app.post("/api/worlds/:id/start", async (request, reply) => {
     const { id } = request.params as { id: string };
@@ -180,9 +169,7 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
       return { world };
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
-      // The two refusals are separated because they are different mistakes: one is a
-      // start the world does not have, the other is a start the player is not allowed
-      // to begin. The interface names them differently.
+      // The two refusals are different mistakes and get different codes.
       const lore = reason.includes("lore only");
       return reply
         .code(400)
@@ -195,32 +182,24 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
     const world = scope.worlds.get(id);
     if (!world) return reply.code(404).send(apiProblem("world.notFound"));
 
-    // The server stops **before** touching disk. On Windows a process
-    // holding open files inside the folder keeps them, and deletion
-    // fails with an error that looks like permissions but is a still-open file.
+    // Stopped before touching disk: on Windows a process holding a file in the
+    // folder keeps it, and the delete fails looking like a permissions problem.
     await scope.bridge?.stopServer(world.opencodeDir).catch(() => undefined);
 
     /*
-     * The folder goes first, and the row second.
+     * Folder first, row second.
      *
-     * The other order is what this used to do, and it produced a world that
-     * could not be deleted twice: the row went away, the folder survived because
-     * Windows still had a file open, the route answered `ok` without mentioning
-     * it, and every later attempt came back "World not found" — while an
-     * invisible folder kept taking up space in the data directory.
-     *
-     * Failing here instead is the better half-written state: the world is still
-     * listed, still deletable, and the message says which folder is in the way
-     * so the file holding it can be closed and the attempt repeated.
+     * The other order deletes the row while Windows still holds a file, and the world
+     * can then never be deleted twice: every later attempt answers "not found" while
+     * an invisible folder stays on disk. Failing here leaves the world listed and
+     * deletable, and names the folder in the way.
      */
     const outcome = await removeWorldDir(world.opencodeDir, scope.dataDir);
     if (outcome === "blocked") {
       return reply.code(409).send(apiProblem("world.deleteBlocked", { path: world.opencodeDir }));
     }
 
-    // `delete` cascades in the database. A folder that was "outside" was never
-    // ours to remove, so it must not stop the delete; "removed" means there is
-    // nothing left on disk to point at.
+    // `outside` was never ours to remove, so it does not stop the delete.
     if (!scope.worlds.delete(id)) return reply.code(404).send(apiProblem("world.notFound"));
 
     return { ok: true, directoryRemoved: outcome === "removed" };
@@ -252,22 +231,13 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
     return { eras: scope.worlds.listEras(id) };
   });
 
-  /**
-   * Campaign export: everything that makes it reproducible.
-   * No account, no upload to a service: it is a file the user
-   * keeps wherever they want, and it stays theirs.
-   */
+  /** Campaign export: everything that makes it reproducible. A file the user keeps. */
   app.get("/api/worlds/:id/export", async (request, reply) => {
     const { id } = request.params as { id: string };
     const world = scope.worlds.get(id);
     if (!world) return reply.code(404).send(apiProblem("world.notFound"));
-    /*
-     * The section list is the same thing import knows how to bring back, and it is the
-     * spot where a backup stayed wrong for months: export
-     * wrote nine sections and import read five. A file exported from an older
-     * version still imports, because missing fields are
-     * treated as absent.
-     */
+    /* Every section import can bring back, so a file from an older version
+       still imports: a missing field is read as absent. */
     return {
       format: "rpwb-campaign",
       version: 1,
@@ -280,12 +250,8 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
       characters: scope.cast.listCharacters(id),
       locations: scope.cast.listLocations(id),
       relationships: scope.cast.listRelationships(id),
-      /*
-       * `listAll` and not `list`: `list` keeps only the active era's entries, and
-       * exporting those would make the copy lose part of the canon with nothing
-       * reporting it. Including `disputed` and `non_canon`: they are the player's choices, and
-       * a copy that drops them works with a different canon.
-       */
+      /* `listAll`, not `list`, which keeps only the active era. `disputed` and
+       `non_canon` are included: they are the player's choices. */
       canon: scope.canon.listAll(id),
       canonEdits: scope.canon.listEdits(id, 200),
     };
@@ -306,24 +272,9 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
       .replace(/^-+|-+$/g, "")}-${Date.now().toString(36)}`;
 
     /*
-     * All of the world's settings are carried over, not just model and name.
-     * The previous version copied three of them and left the rest at default
-     * values: an imported campaign could then write in a different language
-     * than the one it was played in, with different reasoning power,
-     * and above all **without the required libraries**. The copy's narrator
-     * would have worked with a different canon than the original's, and nobody
-     * would have had a reason to notice.
-     *
-     * The model is the creator's, and the creator's is the player's: whoever
-     * brought the campaign in is the one who chose the model that wrote it, and
-     * that choice travels with the file. There is no fallback here on purpose.
-     * There was `opencode/space-bunny-free`, and it was worse than a default
-     * because it was a *silent* one: a campaign came in, the narrator was
-     * already a different model from the one the file was written with, the
-     * chapter checks ran on a different one again, and the only visible trace
-     * was a line of explanatory text in a settings panel. A missing field falls
-     * back to what the importer prefers and stays visible; a made-up model
-     * quietly changes who is writing.
+     * Every setting is carried over, and the model above all: the file was written
+     * with it, and substituting another changes who is writing without saying so. A
+     * missing model is refused rather than defaulted.
      */
     const inherited = String(source["model"] ?? "");
     if (inherited === "") {
@@ -342,9 +293,8 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
       libraries: Array.isArray(source["libraries"]) ? (source["libraries"] as never[]) : [],
     });
 
-    // Settings that `create` does not take are carried over right after: the world
-    // must immediately have the original's values, not defaults until the first
-    // save.
+    // Settings `create` does not take are applied right after, so the world
+    // starts with the original's values.
     scope.worlds.update(world.id, {
       player: (source["player"] as World["player"]) ?? undefined,
       activeLocale: String(source["activeLocale"] ?? source["baseLocale"] ?? "it"),
@@ -365,8 +315,7 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
       }
     }
 
-    // Eras before cast: places and characters carry the era's name,
-    // and without the row to hook onto the link is not recreated.
+    // Eras before cast: places and characters carry the era's key.
     const eras = (body["eras"] as Era[] | undefined) ?? [];
     if (eras.length > 0) {
       scope.worlds.replaceEras(
@@ -382,11 +331,9 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
     }
 
     /*
-     * Places and characters have their own ids, and relationships point at them by id.
-     * Copying without accounting for that would produce relationships pointing to
-     * nonexistent characters, which the database constraint rejects: import would fail for
-     * a file that is perfectly valid. So an
-     * old id -> new id map is kept and every reference is rewritten.
+     * Places and characters get new ids and every reference is rewritten:
+     * relationships point at character ids, and an id reused in the copy would make a
+     * correction on one of the two touch the other.
      */
     const newPlaces = new Map<string, string>();
     for (const location of (body["locations"] as Location[] | undefined) ?? []) {
@@ -399,8 +346,8 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
       });
       if (typeof location["id"] === "string") newPlaces.set(location["id"], createdPlace.id);
     }
-    // The place-to-parent-place link is restored later, once all new ids
-    // exist: reading it during insertion would give a not-yet-valid `parentId`.
+    // The parent link is restored once all ids exist: reading it during
+    // insertion would give a not-yet-valid `parentId`.
     for (const location of (body["locations"] as Location[] | undefined) ?? []) {
       const createdPlaceId = newPlaces.get(location["id"]);
       const parent = location["parentId"];
@@ -432,8 +379,8 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
     for (const relationship of (body["relationships"] as Relationship[] | undefined) ?? []) {
       const from = newPeople.get(relationship["fromCharacterId"]);
       const to = newPeople.get(relationship["toCharacterId"]);
-      // A relationship without both characters is skipped, not failed: if
-      // a file lost a character, importing everything else is better.
+      // A relationship missing a character is skipped: importing the rest
+      // is better than failing on a file that lost one.
       if (!from || !to) continue;
       try {
         scope.cast.setRelationship(world.id, {
@@ -445,18 +392,16 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
           note: String(relationship["note"] ?? ""),
         });
       } catch {
-        // Same reason as above: the canon is imported anyway.
+        // Same: the canon is imported anyway.
       }
     }
 
     const entries = (body["canon"] as CanonEntry[] | undefined) ?? [];
     if (entries.length > 0) {
       /*
-       * Every entry gets a new id. `upsertMany` does not generate them and uses the
-       * received value: passing the original's id would reuse the same id in the
-       * copy, and a correction made on one of the two would touch the other with
-       * nothing reporting it. With an empty string, instead, the second entry
-       * would collide with the first and the whole import would fail on a valid file.
+       * Every entry gets a new id: `upsertMany` uses the received value, so reusing
+       * the original's would tie the two copies together, and an empty string would
+       * make the second entry collide with the first.
        */
       scope.canon.upsertMany(
         entries.map((entry) => ({ ...entry, worldId: world.id, id: newId() })),
@@ -516,9 +461,12 @@ export function registerWorldRoutes(app: FastifyInstance, scope: RouteScope): vo
       });
       return { loaded: loaded.map((entry) => ({ slug: entry.slug, entries: entry.entries })) };
     } catch (error) {
+      // The usual failure is a blocking problem in a template file, and it names no
+      // world: the log does, or "validation failed" is not actionable.
+      log.error("corpus.load.failed", { reason: errorDetail(error) });
       return reply.code(400).send(
         apiProblem("server.unexpected", {
-          reason: error instanceof Error ? error.message : String(error),
+          reason: errorDetail(error) ?? "unknown error",
         }),
       );
     }

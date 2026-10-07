@@ -1,7 +1,7 @@
 "use client";
 
 import { CANON_KINDS, CANON_STATUSES, type CanonEntry } from "@rpwb/shared";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { MessageKey } from "../i18n";
 import { useI18n } from "../i18n/provider";
 import { api, explainError } from "../lib/api";
@@ -325,27 +325,96 @@ function EntryEditor({
   );
 }
 
-/** Correction history, shown under the list. */
+/**
+ * Correction history, with a way back.
+ *
+ * The undo is here and not in the entry's own editor for one reason: a correction
+ * you regret is usually noticed here, where the whole trail is, and not while
+ * editing the entry again. And it has to work on an entry whose editor you cannot
+ * reach — an entry that was removed has no editor left to open.
+ *
+ * It appears only where it can do something. Undo reads the most recent record for
+ * that entry and writes back what it held, so an entry that was never corrected has
+ * nothing to reverse and the button would be decoration. "Most recent" is the
+ * server's decision: the list comes back newest first and the button is offered on
+ * the first row that names this entry, which is the one undo would reverse.
+ */
 export function CanonEditLog({ worldId }: { worldId: string }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [edits, setEdits] = useState<Awaited<ReturnType<typeof api.canonEdits>>["edits"]>([]);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
 
-  useEffect(() => {
+  const read = useCallback(() => {
     api
       .canonEdits(worldId)
       .then((d) => setEdits(d.edits))
       .catch(() => setEdits([]));
   }, [worldId]);
 
+  useEffect(read, [read]);
+
+  /**
+   * The first record for each entry, which is the one an undo reverses.
+   *
+   * A map keyed by entry id, not a filter: an entry corrected five times has five
+   * rows and only the newest is reversible. Without taking the first per key, every
+   * row would offer an undo that restores a version two corrections out of date.
+   */
+  const undoable = useMemo(() => {
+    const seen = new Set<string>();
+    const map = new Map<string, (typeof edits)[number]>();
+    for (const edit of edits) {
+      // A removal records `afterValue: "null"`: there is nothing left on disk to
+      // write back into, so it is not offered as reversible.
+      if (edit.afterValue === "null" || seen.has(edit.entryId)) continue;
+      seen.add(edit.entryId);
+      map.set(edit.entryId, edit);
+    }
+    return map;
+  }, [edits]);
+
+  async function undo(entryId: string): Promise<void> {
+    setBusyId(entryId);
+    setProblem(null);
+    try {
+      await api.undoCanon(worldId, entryId);
+      // Read the trail again rather than guessing what the server wrote: the undo is
+      // itself a recorded correction, so the list on screen would be one row short of
+      // what happened.
+      read();
+    } catch (error) {
+      setProblem(explainError(error, locale));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   if (edits.length === 0) return null;
 
   return (
     <div className="stack" style={{ marginTop: 18 }}>
       <h2>{t("world.canon.logHeading")}</h2>
+      {problem !== null && <div className="note note-bad">{problem}</div>}
       {edits.map((e) => (
-        <div className="muted" key={e.id}>
-          <b>{e.subject}</b>, {e.fields}
-          {e.reason ? `: ${e.reason}` : ""}
+        <div className="muted" key={e.id} style={{ display: "flex", gap: 10 }}>
+          <span style={{ minWidth: 0 }}>
+            <b>{e.subject}</b>, {e.fields}
+            {e.reason ? `: ${e.reason}` : ""}
+          </span>
+          {undoable.has(e.entryId) && (
+            <>
+              <span className="spacer" />
+              <button
+                type="button"
+                className="btn btn-sm btn-outline"
+                disabled={busyId !== null}
+                onClick={() => void undo(e.entryId)}
+              >
+                {t("world.canon.undo")}
+              </button>
+            </>
+          )}
         </div>
       ))}
     </div>

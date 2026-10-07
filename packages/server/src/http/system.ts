@@ -9,12 +9,7 @@
 import { apiProblem } from "@rpwb/shared";
 import type { FastifyInstance } from "fastify";
 import { loadSettings, saveSettings } from "../config/settings.js";
-import {
-  defaultNarratorModel,
-  narratorCandidates,
-  readModelCatalog,
-  restrictedModels,
-} from "../opencode/models.js";
+import { defaultNarratorModel, narratorCandidates, restrictedModels } from "../opencode/models.js";
 import { SettingsBody } from "./schema.js";
 import type { RouteScope } from "./scope.js";
 
@@ -22,8 +17,19 @@ export function registerSystemRoutes(app: FastifyInstance, scope: RouteScope): v
   // --- models, settings, sharing ---------------------------------
 
   app.get("/api/models", async () => {
+    /*
+     * No bridge, no catalogue — and an empty answer rather than a failure.
+     *
+     * The wizard has to be able to show "no models yet" while opencode is starting: a
+     * 500 there leaves a blank screen with no explanation, which is the state the
+     * interface is supposed to be guiding somebody out of. The catalogue cache is built
+     * around a bridge and cannot answer without one, so the check is here.
+     */
     if (!scope.bridge) return { free: [], narrator: [], restricted: [], default: null };
-    const catalog = await readModelCatalog(scope.bridge.clientFor(scope.dataDir));
+    // Shared with the health report, so a page asking for both costs one call to
+    // opencode and not two. The scope owns the cache, which is what keeps the two
+    // routes on the same answer rather than merely the same function.
+    const catalog = await scope.catalog.get();
     const narrators = narratorCandidates(catalog);
     /*
      * The preferred model wins over the catalog default, if it really exists:

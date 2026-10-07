@@ -123,7 +123,12 @@ describeIfLive("a complete turn", () => {
     });
 
     expect(result.text.length).toBeGreaterThan(40);
-    expect(result.usage.input).toBeGreaterThan(0);
+    // Not `result.usage?.input`: a live test that passes on a provider reporting
+    // nothing is not testing the provider's accounting, it is testing that the
+    // plumbing did not throw. The whole point of asking for the usage here is to
+    // see it arrive.
+    expect(result.usage, "the provider reported no usage for the turn").not.toBeNull();
+    expect(result.usage?.input ?? 0).toBeGreaterThan(0);
 
     // the canon was injected, and the absolute rules always come through
     expect(result.debug.canon.entries).toBeGreaterThan(0);

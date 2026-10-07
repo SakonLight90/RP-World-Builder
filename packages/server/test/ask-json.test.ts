@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { askJson } from "../src/opencode/ask.js";
+import type { ModelCatalog } from "../src/opencode/models.js";
 import type {
   EventSubscription,
   Narrator,
@@ -28,6 +29,11 @@ class FakeNarrator implements Narrator {
 
   async contextLimit(): Promise<number | null> {
     return null;
+  }
+
+  /** Nothing to price with: `askJson` asks for structured output, not for costs. */
+  async models(): Promise<ModelCatalog> {
+    return { all: [], free: [], connectedProviders: [], problem: null };
   }
 
   async createSession(_title: string): Promise<string> {

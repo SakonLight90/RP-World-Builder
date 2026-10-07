@@ -3,8 +3,10 @@ import { DEFAULT_NARRATOR_MODEL, REASONING_EFFORTS, type ReasoningEffort } from 
 import { dbPath, ensureDir, resolveRoots } from "../config/paths.js";
 import { loadCorpus, validateCorpus } from "../corpus/load.js";
 import { openDatabase } from "../db/connection.js";
+import { configureLogLevel, log } from "../logging.js";
 
 const MODE = process.argv[2] ?? "validate";
+configureLogLevel();
 
 function pickReasoning(): ReasoningEffort {
   const asked = process.env.RPWB_REASONING;
@@ -53,6 +55,7 @@ process.stdout.write(
   `\n${problems.length === 0 ? "No problems." : `${errors.length} errors, ${warnings.length} warnings.`}\n`,
 );
 
+let loadedCount = 0;
 if (MODE === "load") {
   const db = openDatabase({ path: dbPath(dataDir), now: () => new Date().toISOString() });
   try {
@@ -66,6 +69,7 @@ if (MODE === "load") {
       recreate: process.argv.includes("--recreate"),
       log: (message) => process.stdout.write(`${message}\n`),
     });
+    loadedCount = loaded.length;
     process.stdout.write(`\nWorlds loaded: ${loaded.length}\n`);
   } finally {
     db.close();
@@ -73,3 +77,19 @@ if (MODE === "load") {
 }
 
 process.exitCode = errors.length === 0 ? 0 : 1;
+
+/*
+ * The outcome on the log, for the same reason as `doctor`: the exit code is not a
+ * record, and a corpus that failed to load is the kind of thing somebody wants to
+ * read about later rather than rediscover.
+ *
+ * The counts are the line. "3 errors" is a number; "3 errors, 2 warnings, 1 world
+ * loaded" is what happened, and the difference between a corpus that loaded and one
+ * that refused is exactly that second half.
+ */
+log[errors.length === 0 ? "info" : "error"]("corpus.finished", {
+  mode: MODE,
+  errors: errors.length,
+  warnings: warnings.length,
+  worlds: MODE === "load" ? loadedCount : null,
+});

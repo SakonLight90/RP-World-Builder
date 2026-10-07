@@ -2,20 +2,10 @@ import { createHash } from "node:crypto";
 import { readdir } from "node:fs/promises";
 import { normalize } from "../canon/inject.js";
 
-/**
- * How a library describes itself.
- *
- * There is no library's name in here: only the levers the engine knows how to
- * work. A library declares in its manifest what format its index has, what an
- * entry's file is called, which words distinguish nothing and what "this entry
- * belongs to the game, it is not just quoted" means. The engine reads the
- * description and knows nothing about Fallout, New Vegas or any other corpus: if
- * another rule is needed, whoever owns the library writes it.
- *
- * The underlying reason is that the engine was not written for one library and
- * was not supposed to be. As long as knowledge of a corpus lived in the code,
- * every other corpus required rewriting the engine, and the engine was therefore
- * the thing that made having two of them impossible.
+/*
+ * A library declares its index format, how an entry's file is named, which words
+ * distinguish nothing and what "owned rather than quoted" means. The engine reads the
+ * descriptor and holds no knowledge of any particular corpus.
  */
 
 /** A section of the index: a type of entry, with its index files. */
@@ -25,22 +15,13 @@ export interface LoreSection {
   /**
    * What a sub-index's index file is called, for example `{group}.md`.
    *
-   * The sub-index's name is the file's name without the extension this string
-   * declares: that is how the engine does not have to know how it is derived. Only
-   * the shape of the name is read from the string, not its folder: the files live
-   * in the `dir` folder.
+   * The sub-index's name is the file's name without this extension; the files live in
+   * `dir`, not in the folder the string names.
    */
   index: string;
 }
 
-/**
- * How an entry's file name is built.
- *
- * It lives in the library and not in the engine because it is a convention of
- * whoever wrote the files: if the generator and the engine computed it in two
- * places, one day the first would rename and the second would keep looking for the
- * old name, and the entry would be there but would not open.
- */
+/** How an entry's file name is built. Computed in one place: the generator's convention. */
 export interface LoreSlugRule {
   /** `slug` = only the normalised name. `slug-hash` = name plus a tag of the title. */
   strategy: "slug" | "slug-hash";
@@ -116,15 +97,7 @@ export function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/**
- * A relative path that does not escape the library containing it.
- *
- * It is needed in three different places and for the same reason: a path that
- * escapes the library's folder ends up in a permission and in a `readFile`, so it
- * becomes a read the narrator should not be able to do. It is not enough for the
- * path to look relative: `..` inside a string that looks harmless is exactly what
- * is needed, and on Windows also `C:` and a leading slash.
- */
+/** A relative path that cannot escape the library: `..`, a leading slash and `C:` all look relative. */
 export function isSafeRelative(value: string): boolean {
   if (value === "" || value.includes("\0")) return false;
   if (/^[a-zA-Z]:/.test(value)) return false;
@@ -199,12 +172,7 @@ function readPrimary(raw: unknown): LorePrimaryRule | null {
   return { sectionSuffix, excludePatterns };
 }
 
-/**
- * The vocabulary of records.
- *
- * `name` is mandatory because without a name there is no entry: a descriptor
- * that omits it is broken, not minimal.
- */
+/** The vocabulary of records. `name` is mandatory: without it there is no entry. */
 function readFields(raw: unknown): LoreFields | null {
   if (!isRecord(raw)) return null;
   const name = text(raw.name);
@@ -224,9 +192,7 @@ function readSections(raw: unknown): Record<string, LoreSection> | null {
     if (kind === "" || !isRecord(value)) return null;
     const dir = text(value.dir) ?? kind;
     const index = text(value.index);
-    // `dir` and `index` end up in a `join` and in a `readdir`: if they contained
-    // `..`, the library would read outside itself without anyone having written
-    // it.
+    // Both end up in a `join` and a `readdir`.
     if (!isSafeRelative(dir) || index === null || !isSafeRelative(index)) return null;
     sections[kind] = { dir, index };
   }
@@ -237,10 +203,8 @@ function readSections(raw: unknown): Record<string, LoreSection> | null {
 /**
  * Reads the `layout` block of a manifest.
  *
- * It returns `null` when there is none or when it is wrong, and does not throw: a
- * library with a broken descriptor must stay openable as a folder to read,
- * simply with no entries to look for. Throwing here would make the world
- * unreachable exactly when the problem is the library.
+ * `null` when missing or wrong, never a throw: a library with a broken descriptor stays
+ * readable as a folder with no entries.
  */
 export function readDescriptor(raw: unknown): LoreDescriptor | null {
   if (!isRecord(raw)) return null;
@@ -259,12 +223,11 @@ export function readDescriptor(raw: unknown): LoreDescriptor | null {
 }
 
 /**
- * An entry's file name, derived from the record that lists it.
+ * An entry's file name.
  *
- * If the record carries the path, that is the path: that is the case where the
- * naming criterion is not reconstructible and the library has to say it entry by
- * entry. Otherwise the declared template is expanded, and that is the only place
- * the naming convention is written down.
+ * The record's own path wins when it carries one, because the naming criterion is then not
+ * reconstructible; otherwise the declared template is expanded here, the only place the
+ * convention is written down.
  */
 export function entryFileFor(
   layout: LoreDescriptor,
@@ -285,9 +248,8 @@ export function entryFileFor(
 /**
  * Expands the declared placeholders.
  *
- * A placeholder the engine cannot fill makes the path unreliable, and an
- * unreliable path means an entry that does not go into the index: no entry is
- * better than an entry read from the wrong file.
+ * A placeholder the engine cannot fill makes the path unreliable, and an unreliable
+ * path keeps the entry out of the index.
  */
 export function expandPath(template: string, values: Record<string, string>): string | null {
   let unknown = false;
@@ -317,12 +279,7 @@ export function slugFor(subject: string, rule: LoreSlugRule): string {
   return `${base}-${tag}`;
 }
 
-/**
- * The index files' extension, taken from the declared template.
- *
- * It is needed to list the right files and to derive the sub-index's name: the
- * engine must not know that that library's indexes end in `.md`.
- */
+/** The index files' extension, from the declared template: the engine must not assume `.md`. */
 export function indexExtension(template: string): string {
   const base = template.slice(template.lastIndexOf("/") + 1);
   const dot = base.lastIndexOf(".");
@@ -346,13 +303,8 @@ export async function listIndexFiles(dir: string, extension: string): Promise<st
 }
 
 /**
- * The first useful word of the name is a search key too.
- *
- * Without it, a name like "Mojave Wasteland" is only found if the player writes it
- * in full, and nobody writes it in full: the text says "Mojave", the library says
- * "Mojave Wasteland", and the right name does not go into the context exactly when
- * the player is using it. Which words are useless is a choice of the library, so
- * the list comes from `ignoreWords`.
+ * The first useful word of the name, as a search key: nobody writes a two-word name in full.
+ * Which words are useless comes from the library's `ignoreWords`.
  */
 export function headKeysFor(subject: string, rule: LoreMatchingRule): string[] {
   const words = normalize(subject)
@@ -382,12 +334,10 @@ function sectionPattern(kind: string): RegExp {
 }
 
 /**
- * Does the entry really belong to this type, or is it only mentioned?
+ * Owned by this entry type, or only mentioned.
  *
- * The answer is given by the categories the library wrote next to the name: they
- * are a datum, not the engine's opinion. Which categories count as a quotation
- * and which do not is a choice of that library, so it comes from `primary` and
- * not from here.
+ * Decided by the categories the library wrote; which of them count as a quotation is the
+ * library's choice, from `primary`.
  */
 export function isPrimaryFor(
   categories: readonly string[],
@@ -405,13 +355,7 @@ export function isPrimaryFor(
   return false;
 }
 
-/**
- * A record's weight: the longer the name, the more specific it is.
- *
- * It is here because it is not a property of any particular library, but it is
- * still a choice declared by the engine and not a fact about the data: a long
- * name is usually more precise than a short one.
- */
+/** A record's weight: the longer the name, the more specific it is. */
 export function weightFor(subject: string): number {
   return subject.length;
 }

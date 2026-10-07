@@ -251,8 +251,8 @@ describe("lexicon and proper names", () => {
   });
 
   it("a function word doesn't end up inside the name", () => {
-    // The regex joins consecutive capitals: without trimming, "Poi Brennan"
-    // and "Brennan" become two different candidates and recurrence never fires.
+    // The regex joins consecutive capitals: without trimming, the name with and
+    // without a leading function word become two candidates and recurrence never fires.
     const found = detectNames("Poi Brennan dice qualcosa.", lexicon);
     expect(found.map((n) => n.surface)).toContain("Brennan");
     expect(found.map((n) => n.surface)).not.toContain("Poi Brennan");
@@ -346,11 +346,10 @@ describe("lexicon and proper names", () => {
 /**
  * The base place is a property of the world, not a player choice.
  *
- * The state card used to say "an unidentified place" when there was no current
- * location: the narrator was free to pick a territory nobody had decided on and
- * the canon didn't contain, and 2287 Appalachia was no longer the starting
- * point. Below are the two halves of the fix: the value derives from the world,
- * and no request can change it.
+ * The state card used to say "an unidentified place" when there was no current location: the
+ * narrator was free to pick a territory nobody had decided on and the canon did not contain.
+ * Below are the two halves of the fix: the value derives from the world, and no request can
+ * change it.
  */
 describe("the world's base place", () => {
   it("derives from the world's name with the year removed", () => {

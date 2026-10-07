@@ -1,9 +1,7 @@
-/**
+/*
  * A world's story: arcs and chapters.
  *
- * Arcs are the containers, chapters the content: closing, opening and
- * removing them lives here, with the helpers that keep files inside the world's
- * folder.
+ * Arcs are the containers, chapters the content.
  */
 
 import { readFile, rm } from "node:fs/promises";
@@ -17,9 +15,8 @@ export function registerStoryRoutes(app: FastifyInstance, scope: RouteScope): vo
   /**
    * A chapter file's path, only inside the world's folder.
    *
-   * Same reason as the check in `removeWorldDir`: the path lives in the database
-   * and here it is read or deleted from disk. Without the check, a row with a
-   * stale path would lead outside the world's folder.
+   * The path lives in the database and is read from disk here: a stale one would lead
+   * outside the folder.
    */
   function chapterFile(worldDir: string, relative: string): string | null {
     const base = resolve(worldDir);

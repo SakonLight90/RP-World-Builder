@@ -5,18 +5,14 @@ import type { Narrator } from "../opencode/narrator.js";
 import { asString, jsonInstruction } from "../opencode/structured.js";
 import { chapterFileName, legacyChapterFileName } from "./chapterer.js";
 
-/**
- * Canon check: did the narrator say something the canon does not
- * support?
+/*
+ * Canon check: did the narrator say something the canon does not support?
  *
- * It is not part of the turn and does not fix it. It is a check the player
- * asks for when convenient, answering with a list of claims to
- * review. It exists because fidelity to a world with pre-existing lore is a
- * promise: here it becomes something displayable.
+ * Not part of the turn and it does not fix anything: a check the player asks for when convenient,
+ * answering with a list of claims to review.
  *
- * Judgment always comes from a model, so it is a reasoned opinion, not a
- * formal check. The player must be told, which is why each entry carries the
- * canon entry it rests on.
+ * Judgment always comes from a model, so it is a reasoned opinion rather than a formal check,
+ * which is why each finding carries the canon entry it rests on.
  */
 
 const VerdictSchema = z.object({
@@ -98,9 +94,7 @@ export async function verifyCanon(input: VerifyInput): Promise<CanonFinding[]> {
 }
 
 async function judge(input: VerifyInput, chapter: Chapter, text: string): Promise<CanonFinding[]> {
-  // A failing check must not stop the game: return
-  // what could be judged. That is why an `askJson` returning `null`
-  // and a `catch` swallowing an error are the same thing from here.
+  // A failing check must not stop the game: return what could be judged.
   const parsed = await askJson(input.narrator, {
     sessionTitle: `verify ${chapter.n}`,
     modelRef: input.world.model,
@@ -129,11 +123,9 @@ async function judge(input: VerifyInput, chapter: Chapter, text: string): Promis
 /**
  * The chapter's text, falling back to the summary when the file is not there.
  *
- * The declared path comes first, because it is the one the chapter was written
- * with. The two names by number come next, so a campaign written before the file
- * pattern became English is still judged on its chapters and not on the summary:
- * the fallback to the summary is silent, and judging a summary produces findings
- * that have nothing to do with what was narrated.
+ * The declared path comes first, then the two names by number, so a campaign written before the
+ * file pattern became English is judged on its chapters. The fallback to the summary is silent,
+ * and judging a summary produces findings that have nothing to do with what was narrated.
  */
 async function readChapter(input: VerifyInput, chapter: Chapter): Promise<string> {
   const { readFile } = await import("node:fs/promises");

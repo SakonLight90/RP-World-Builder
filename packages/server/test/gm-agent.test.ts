@@ -205,12 +205,10 @@ describe("the narrator language", () => {
 /**
  * The chosen start, inside the prompt.
  *
- * It belongs here and not only in the transcript for the reason the Bible is in the
- * system prompt: the opening is the first thing the player reads and the first thing
- * the narrator has to continue from, and by the time a session is compacted that
- * message is far behind. A narrator asked to continue a story it cannot see the
- * beginning of will invent a different one — which is how a campaign set in
- * Goodsprings ends up somewhere the player never chose.
+ * It belongs here and not only in the transcript for the reason the Bible is in the system
+ * prompt: the opening is the first thing the narrator has to continue from, and by the time a
+ * session is compacted that message is far behind. A narrator asked to continue a story it
+ * cannot see the beginning of invents a different one.
  */
 describe("the opening of the campaign", () => {
   const starts = makeStarts();

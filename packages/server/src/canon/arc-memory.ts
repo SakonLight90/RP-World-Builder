@@ -2,37 +2,23 @@ import { type Arc, BEATS_IN_CARRYOVER, CLOSED_ARCS_IN_CARRYOVER } from "@rpwb/sh
 import type { ChapterSummary } from "./chapterer.js";
 
 /**
- * Memory carryover, rewritten around arcs.
- *
- * The earlier shape listed every chapter and injected the last five in full.
- * On a long campaign the permanent memory grew with the chapters — that is,
- * quickly — and the cost was paid on every turn.
- *
- * Here closed arcs enter as the **spine**: an arc, however many chapters it
- * holds, is worth one line in the context. Only the open arc keeps recent
- * chapters in full, and only the last ones. The total depends on the arcs,
- * not on the chapters.
+ * Closed arcs enter as their spine, one line each; only the open arc keeps recent chapters in
+ * full. Cost scales with arcs, not chapters.
  */
-
 export interface ArcMemory {
   arc: Arc;
   /** Chapters of the arc, oldest first. */
   chapters: ChapterSummary[];
 }
 
-/**
- * `locale` is no longer read: the memory is written in English for every world.
- * It stays in the signature because the caller passes the world's language and
- * removing it would mean touching code outside this module.
- */
 export function renderArcMemory(memories: ArcMemory[], _locale: string): string {
   if (memories.length === 0) return "";
 
   const open = memories.find((memory) => memory.arc.status === "open");
   const closed = memories.filter((memory) => memory.arc.status === "closed");
 
-  // The oldest closed arcs shrink to one line each: after six arcs their exact
-  // shape stops mattering, only that they are there.
+  // The oldest closed arcs shrink to one line each: their exact shape stops mattering, only that
+  // they are there.
   const condensed = closed.slice(0, Math.max(0, closed.length - CLOSED_ARCS_IN_CARRYOVER));
   const full = closed.slice(Math.max(0, closed.length - CLOSED_ARCS_IN_CARRYOVER));
 
@@ -69,17 +55,14 @@ export function renderArcMemory(memories: ArcMemory[], _locale: string): string 
   return lines.join("\n");
 }
 
-/**
- * Cost of the arc-based carryover, in tokens.
- */
+/** Cost of the arc-based carryover, in tokens. */
 export function carryoverTokens(memories: ArcMemory[]): number {
   return Math.ceil(renderArcMemory(memories, "en").length / 4);
 }
 
 /**
- * What the cost would be **without arcs**, that is, injecting every chapter in
- * full. It is the comparison that turns the saving into a number instead of a
- * claim, and it feeds the debug panel.
+ * What the cost would be **without arcs**, that is, injecting every chapter in full: the
+ * comparison that turns the saving into a number instead of a claim.
  */
 export function flatCarryoverTokens(chapters: ChapterSummary[]): number {
   return chapters.reduce(
@@ -101,8 +84,8 @@ export interface CarryoverCost {
 }
 
 /**
- * The saving is permanent: memory is paid for on every turn, so the difference
- * is not a one-off but a per-turn cost avoided for the rest of the campaign.
+ * The saving is permanent: memory is paid for on every turn, so the difference is a per-turn
+ * cost avoided for the rest of the campaign.
  */
 export function carryoverCost(memories: ArcMemory[]): CarryoverCost {
   const chapters = memories.flatMap((memory) => memory.chapters);

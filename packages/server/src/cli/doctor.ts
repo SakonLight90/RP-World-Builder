@@ -2,12 +2,14 @@
 import { defaultDataDir } from "../config/paths.js";
 import { loadSettings } from "../config/settings.js";
 import { inspect } from "../diagnostics.js";
+import { configureLogLevel, errorDetail, log } from "../logging.js";
 
 function line(label: string, value: string): void {
   process.stdout.write(`${label.padEnd(26)}${value}\n`);
 }
 
 async function main(): Promise<void> {
+  configureLogLevel();
   const dataDir = process.argv[2] ?? defaultDataDir();
   const settings = await loadSettings(dataDir);
 
@@ -43,9 +45,25 @@ async function main(): Promise<void> {
 
   process.stdout.write(report.healthy ? "\nReady.\n" : "\nNot ready: follow the message above.\n");
   process.exitCode = report.healthy ? 0 : 1;
+
+  /*
+   * The same outcome on the log, because the exit code is not a log.
+   *
+   * A script that fails leaves a code and nothing else, and the person reading the
+   * output has already closed the terminal by the time they want to know what
+   * happened. The line says the same thing the table says, in the shape the rest of
+   * the project logs in.
+   */
+  log[report.healthy ? "info" : "warn"]("doctor.finished", {
+    healthy: report.healthy,
+    problem: report.problem,
+    binary: report.binary.path ?? null,
+    server: report.baseUrl,
+  });
 }
 
 main().catch((error: unknown) => {
+  log.error("doctor.failed", { reason: errorDetail(error) });
   process.stderr.write(
     `${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`,
   );

@@ -1,6 +1,7 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import { createOpencodeClient, type OpencodeClient } from "@opencode-ai/sdk";
 import type { BridgeStatus } from "@rpwb/shared";
+import { log } from "../logging.js";
 import { basicAuthHeader, makeFetch, readServerCredentials } from "./auth.js";
 import { buildCommand, type OpencodeBinary } from "./binary.js";
 import { type WorldServerStatus, WorldServers } from "./world-server.js";
@@ -13,17 +14,11 @@ export interface BridgeOptions {
   startupTimeoutMs: number;
   binary: OpencodeBinary;
   /**
-   * Directory of the primary server. It is the one `opencode serve` was started
-   * from, and it is the only one in which an agent is visible without starting a
-   * dedicated server.
+   * Directory of the primary server: the one `opencode serve` was started from, and the only
+   * one in which an agent is visible without a dedicated server.
    *
-   * If there is none, the bridge **does not guess it**. There used to be
-   * `process.cwd()` as a fallback, that is "the folder the process was started
-   * from": the primary server ended up somewhere that depends on whoever ran the
-   * command and the clients for that directory came back wrong with nothing
-   * saying so. Whoever knows their directory passes it, and whoever does not has
-   * no primary server to attach to: every client goes through `ensureServer`,
-   * which is the explicit behaviour.
+   * Not guessed when absent. Every client then goes through `ensureServer`, which is the
+   * explicit behaviour.
    */
   primaryDirectory?: string;
 }
@@ -37,36 +32,25 @@ export interface HealthResult {
 const HEALTH_POLL_INTERVAL_MS = 250;
 
 /**
- * The bridge to opencode.
+ * The bridge to opencode. Two things, kept apart.
  *
- * Two things, and they have to be kept apart.
+ * The **primary server** handles health, models and settings: agent lists, providers,
+ * configuration. It sits on the directory it was started from.
  *
- * The **primary server** handles health, models and settings: agent lists,
- * providers, configuration. It sits on the directory it was started from, and
- * that is all.
- *
- * **One server per world.** opencode does not load agents from a directory given
- * per request: it reads them from the *project* directory, that is the one the
- * server was started from, and there is no way of telling it another one via
- * `directory` or a header (it has been tried: the agent list does not change).
- * Since a world's narrator agent lives in that world's folder, together with its
- * Bible, the only way for opencode to read it is for a server to have been
+ * **One server per world.** opencode reads agents from the *project* directory, the one the
+ * server was started from, and no per-request parameter or header can change that. A world's
+ * narrator agent lives in that world's folder with its Bible, so the server must have been
  * started from there.
  *
- * One server per world, then. It is the price of isolation, and it is
- * proportionate: a local machine handles few campaigns.
- *
- * Note: the v1 SDK does not expose `global.health`, so the health check has to be
- * done with a direct fetch against `GET /global/health`.
+ * The v1 SDK does not expose `global.health`, so health is a direct fetch of `GET
+ * /global/health`.
  */
 export class OpencodeBridge {
   readonly #options: BridgeOptions;
   /**
    * Server of the primary directory: models, health, agent list.
    *
-   * `null` means there is no attachable one, not "let's go looking": every client
-   * then goes through `WorldServers`, which starts a server for the requested
-   * directory.
+   * `null` means there is no attachable one, and every client goes through `WorldServers`.
    */
   readonly #primaryDirectory: string | null;
   /** One server per world, with its directory as root. */
@@ -103,18 +87,14 @@ export class OpencodeBridge {
   }
 
   /**
-   * Client for a world directory, after that directory's server has been
-   * started.
-   *
-   * It always has to be called after `ensureServer`. It returns the client of
-   * *that* directory's server: it is the only one that has read the narrator
-   * agent with the world's Bible inside it.
+   * Client for a world directory, always after `ensureServer`: it must be that directory's
+   * server, the only one that has read the narrator agent with the world's Bible inside it.
    */
   clientFor(directory: string): OpencodeClient {
     const cached = this.#clients.get(directory);
     if (cached) return cached;
 
-    // The primary directory is the one of the server already started by `start`.
+    // The primary directory is the server `start` already started.
     if (directory === this.#primaryDirectory) {
       const client = this.#makeClient(this.#status.baseUrl, directory);
       this.#clients.set(directory, client);
@@ -123,20 +103,16 @@ export class OpencodeBridge {
 
     const running = this.#worlds.status(directory);
     if (running.baseUrl === "") {
-      // With no declared primary directory the only server this bridge has
-      // started is `start`'s one, and returning it is the explicit answer instead
-      // of a guess. This path did not exist before: the primary directory was
-      // `process.cwd()`, so the client came back only if the requested folder
-      // matched the one the process was started from.
+      // With no declared primary directory the only server started is `start`'s, and returning
+      // it is the explicit answer instead of a guess.
       if (this.#primaryDirectory === null) {
         const client = this.#makeClient(this.#status.baseUrl, directory);
         this.#clients.set(directory, client);
         return client;
       }
-      // Better a clear error than a wrong answer: the resulting client would
-      // point at the primary directory's server, which does not know this
-      // world's agent, and the failure would arrive much later, as an unnamed
-      // error from the narrator.
+      // A clear error rather than a wrong answer: the client would point at the primary
+      // directory's server, which does not know this world's agent, and the failure would
+      // arrive much later.
       throw new Error(
         `No opencode server for ${directory}: ensureServer() is missing before clientFor().`,
       );
@@ -154,11 +130,7 @@ export class OpencodeBridge {
     });
   }
 
-  /**
-   * Makes sure an opencode server exists with the project root on that
-   * directory, and returns the client. It has to be called before any use of a
-   * world's client.
-   */
+  /** Makes sure a server exists with its project root on that directory, and returns the client. */
   async ensureServer(directory: string): Promise<OpencodeClient> {
     if (directory === this.#primaryDirectory) {
       const started = this.#status.state === "ready" ? true : await this.start();
@@ -178,12 +150,11 @@ export class OpencodeBridge {
   }
 
   /**
-   * Stops a directory's opencode server, if it is up.
+   * Stops a directory's server, if it is up.
    *
-   * It is needed when the directory has to be removed: on Windows a process that
-   * has files open inside the folder holds them, and deleting it by hand fails
-   * with an error that looks like a permissions problem and is instead a file
-   * still open.
+   * Needed when the directory has to be removed: on Windows a process with files open inside
+   * the folder holds them, and deleting it by hand fails with an error that looks like a
+   * permissions problem.
    */
   async stopServer(directory: string): Promise<void> {
     await this.#worlds.stop(directory);
@@ -205,6 +176,7 @@ export class OpencodeBridge {
           mode: "attached",
           version: health.version,
         };
+        log.info("narrator.attached", { url: target, version: health.version });
         return true;
       }
       this.#fail(
@@ -212,6 +184,7 @@ export class OpencodeBridge {
           ? `No opencode reachable at ${target}: ${health.error ?? "health check failed"}`
           : "",
       );
+      log.warn("narrator.attach.failed", { url: target, reason: health.error });
       return false;
     }
 
@@ -224,26 +197,34 @@ export class OpencodeBridge {
           mode: "spawned",
           version: health.version,
         };
+        log.info("narrator.started", { url: target, version: health.version });
         return true;
       }
-      // The real error has to be kept: a generic message here would hide both a
-      // 401 and a process that dies at startup.
+      // The real error is kept: a generic message would hide both a 401 and a process that dies
+      // at startup.
       const reason = health.error ?? "health check failed";
       await this.stop();
       this.#fail(
         `opencode serve did not answer within ${this.#options.startupTimeoutMs}ms: ${reason}`,
       );
+      log.error("narrator.start.failed", {
+        url: target,
+        timeoutMs: this.#options.startupTimeoutMs,
+        reason,
+      });
       return false;
     }
 
+    log.error("narrator.start.failed", { url: target, reason: "could not spawn the process" });
     return false;
   }
 
   async stop(): Promise<void> {
     this.#closing = true;
     this.#clients.clear();
-    // The world servers have a different project root: without this they would
-    // stay open and keep the campaign in memory.
+    log.info("narrator.stopping", { state: this.#status.state });
+    // The world servers have a different project root: without this they would stay open and
+    // keep the campaign in memory.
     await this.#worlds.stopAll();
     const child = this.#child;
     this.#child = null;
@@ -290,18 +271,14 @@ export class OpencodeBridge {
     let child: ChildProcess;
     try {
       child = spawn(file, args, {
-        // No declared directory means "I don't know", and `opencode` starts from
-        // the process's folder: that is the behaviour from before and it does not
-        // concern the project roots, which cannot be inferred from here. Where
-        // the directory is known, that is the one used.
+        // No declared directory means the process's own folder; project roots cannot be inferred
+        // here.
         cwd: this.#primaryDirectory ?? undefined,
         shell: this.#options.binary.needsShell,
         windowsHide: true,
-        // No pipe when it is not needed. A pipe left open on a child keeps the
-        // parent's event loop alive: in development, on every save, `tsx watch`
-        // restarts and the old process stays hanging until it gets killed,
-        // killing the request in flight. The browser reads it as a dropped
-        // connection. opencode's output is in its logs anyway, on disk.
+        // No pipe when it is not needed: a pipe left open on a child keeps the parent's event loop
+        // alive, so a `tsx watch` restart leaves the old process hanging and the request in
+        // flight killed. opencode's output is on disk anyway.
         stdio: process.env.RPWB_DEBUG_OPENCODE === "1" ? ["ignore", "pipe", "pipe"] : "ignore",
       });
     } catch (error) {
@@ -309,8 +286,7 @@ export class OpencodeBridge {
       return false;
     }
 
-    // The child must not stop the parent from exiting: it is detached and closed
-    // by hand in `stop`.
+    // Detached and closed by hand in `stop`.
     child.unref();
 
     let spawnError: string | null = null;
@@ -321,10 +297,8 @@ export class OpencodeBridge {
       }
     });
 
-    // The child process must not inherit our stdout: if it did, any shell reading
-    // from us would stay hanging even after the process is done. By default the
-    // stream is drained into memory, and it is written only when explicitly
-    // asked for.
+    // Not inherited: a shell reading from us would stay hanging after the process is done. By
+    // default the stream is drained into memory and written only when asked for.
     const verbose = process.env.RPWB_DEBUG_OPENCODE === "1";
     child.stdout?.on("data", (chunk: Buffer) => {
       if (verbose) process.stdout.write(`[opencode] ${chunk.toString()}`);

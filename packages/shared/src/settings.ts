@@ -104,6 +104,19 @@ export interface ModelInfo {
   contextLimit: number;
   inputCost: number;
   outputCost: number;
+  /**
+   * Price of a cached token, when the provider declares one.
+   *
+   * Not assumed to be the input price: the providers that bill the cache do so at a
+   * discount, and that discount is why a long context is affordable on them. It is
+   * what a turn's cost has to be computed with, and `input` alone overstates it.
+   *
+   * Zero when there is no separate cache price, which means the provider does not
+   * bill the cache separately. That is not the same as a provider with a cache at
+   * zero cost, and the two are not distinguished here because they cost the same.
+   */
+  cacheReadCost: number;
+  cacheWriteCost: number;
   free: boolean;
   /** Trains future models on prompts and responses. */
   trainsOnPrompts: boolean;

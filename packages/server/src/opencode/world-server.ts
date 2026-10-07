@@ -2,6 +2,7 @@ import { type ChildProcess, spawn } from "node:child_process";
 import { mkdirSync, readFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { join } from "node:path";
+import { log } from "../logging.js";
 import { basicAuthHeader, readServerCredentials } from "./auth.js";
 import { buildCommand, type OpencodeBinary } from "./binary.js";
 
@@ -208,6 +209,7 @@ export class WorldServers {
       const health = await this.#waitForHealth(baseUrl, child);
       if (health.healthy && spawnError === null) {
         this.#running.set(directory, { child, port, baseUrl, agentSignature: signature });
+        log.info("world-server.started", { directory, port });
         return;
       }
 
@@ -215,6 +217,10 @@ export class WorldServers {
       child.kill();
     }
 
+    log.error("world-server.start.failed", {
+      directory,
+      reason: lastError,
+    });
     throw new Error(`Could not start opencode for ${directory}: ${lastError}`);
   }
 
@@ -273,6 +279,7 @@ export class WorldServers {
     const entry = this.#running.get(directory);
     if (!entry) return;
     this.#running.delete(directory);
+    log.info("world-server.stopped", { directory });
     await kill(entry.child);
   }
 

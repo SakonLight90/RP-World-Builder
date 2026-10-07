@@ -315,6 +315,35 @@ export interface WorldStart {
   game: string;
   playable: boolean;
   narration: string;
+  /**
+   * A canon place name the scenario begins in, or absent when it names none.
+   *
+   * It is a name and not an id: the corpus is written by hand and the ids are made
+   * when a place is created. The name is matched against the world's places, and a name
+   * that matches nothing sends no location rather than a wrong one.
+   */
+  location?: string;
+}
+
+/**
+ * The context, piece by piece.
+ *
+ * `known` and `reported` are shown side by side and are not expected to match: the
+ * parts are counted at four characters per token while the provider counts its own
+ * formatting. The gap is where the session's injected context and its markers live,
+ * and showing a single number would either hide that or look like a bug.
+ */
+export interface ContextBreakdown {
+  slices: {
+    /** Machine name, so a row is labelled by a key and not by parsing a sentence. */
+    key: string;
+    tokens: number;
+    detail: string;
+  }[];
+  /** Sum of the slices. */
+  known: number;
+  /** What the model reports as used. */
+  reported: number;
 }
 
 /**
@@ -464,6 +493,42 @@ export interface TurnRecord {
   createdAt: string;
   finishedAt: string | null;
   locale: string;
+  /**
+   * What the turn consumed, or `null` when the provider reported nothing.
+   *
+   * The distinction is not pedantry: a turn that reported nothing is not a turn that
+   * cost nothing, and a summary built by adding these up would present the second as
+   * the first. So the whole figure is optional and the interface counts what it has.
+   */
+  usage: {
+    input: number;
+    output: number;
+    reasoning: number;
+    cache: { read: number; write: number };
+  } | null;
+  /** What the turn cost, `null` for a model the catalogue does not price. */
+  cost: number | null;
+}
+
+/**
+ * What a campaign has cost.
+ *
+ * `cost` sums only the turns that have a price, and `costCovered` says how many that
+ * is. The two travel together on purpose: a total over the priced turns is worth
+ * showing, and presenting it as the whole is how a bill gets misread.
+ */
+export interface SpendSummary {
+  turns: number;
+  /** How many turns the provider gave a usage for. */
+  reported: number;
+  tokens: {
+    input: number;
+    output: number;
+    reasoning: number;
+    cache: { read: number; write: number };
+  };
+  cost: number | null;
+  costCovered: number;
 }
 
 export const api = {
@@ -715,6 +780,24 @@ export const api = {
     }>(`/api/worlds/${id}/canon/search?q=${encodeURIComponent(q)}`),
 
   /**
+   * Everything a name could refer to, in one answer.
+   *
+   * `canonSearch` stays for the places that genuinely want canon and nothing else. The four
+   * parts come back separately because they are four different kinds of thing, and merging
+   * them would mean one line shape for a fact to read and a name to click.
+   *
+   * Campaigns are searched too and are not scoped to `id`: "which of my campaigns is set
+   * there" is a question about the world list.
+   */
+  searchWorld: (id: string, q: string) =>
+    request<{
+      canon: { subject: string; kind: string; summary: string; status: string }[];
+      characters: { id: string; name: string; role: string; description: string }[];
+      locations: { id: string; name: string; description: string; aliases: string[] }[];
+      campaigns: { id: string; name: string }[];
+    }>(`/api/worlds/${id}/search?q=${encodeURIComponent(q)}`),
+
+  /**
    * Corrects an entry. Unsent fields stay as they are: the server completes
    * the existing entry, so sending a single field doesn't blank the others.
    */
@@ -723,6 +806,21 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify({ ...changes, reason: reason }),
     }),
+
+  /**
+   * Puts an entry back as the last correction found it.
+   *
+   * `undone: false` is a real answer and not a failure: the entry was never
+   * corrected, or it has already been rolled back, and either way there is nothing
+   * to reverse. The caller must not treat it as an error.
+   *
+   * The trail is re-read afterwards, because the undo writes a record too.
+   */
+  undoCanon: (id: string, entryId: string) =>
+    request<{ undone: boolean; entry: CanonEntry | null }>(
+      `/api/worlds/${id}/canon/${entryId}/undo`,
+      { method: "POST" },
+    ),
 
   deleteCanon: (id: string, entryId: string, reason = "") =>
     request<{ removed: boolean }>(`/api/worlds/${id}/canon/${entryId}`, {
@@ -739,9 +837,28 @@ export const api = {
         subject: string;
         fields: string;
         reason: string;
+        /**
+         * The entry as it was and as it became.
+         *
+         * Sent to the interface so it can tell a removable correction from a
+         * removal: `afterValue` is the literal string `"null"` when the entry was
+         * deleted, and an entry that is gone has nothing to write back into.
+         */
+        beforeValue: string;
+        afterValue: string;
         createdAt: string;
       }[];
     }>(`/api/worlds/${id}/canon/edits`),
+
+  /**
+   * What the campaign has cost, in tokens and in money.
+   *
+   * The two are asked for separately and shown separately because they are not the
+   * same figure: on a turn where the provider read its cache the money is far below
+   * what the token count suggests, and a reader given one number concludes either
+   * that a large context is expensive or that an expensive model is cheap.
+   */
+  spend: (id: string) => request<{ spend: SpendSummary }>(`/api/worlds/${id}/spend`),
 
   context: (id: string) =>
     request<{
@@ -762,6 +879,7 @@ export const api = {
       };
       model: string;
       reasoningEffort: string;
+      breakdown: ContextBreakdown;
     }>(`/api/worlds/${id}/context`),
 
   /**

@@ -2,6 +2,8 @@ import type { OpencodeClient, SessionPromptData } from "@opencode-ai/sdk";
 import { isRecord } from "./bridge.js";
 import { call } from "./client.js";
 import { splitRef } from "./context.js";
+import type { ModelCatalog } from "./models.js";
+import { readModelCatalog } from "./models.js";
 import type { EventSubscription, Narrator, NarratorPrompt, StoredMessage } from "./narrator.js";
 import {
   createSession,
@@ -54,6 +56,19 @@ export class OpencodeNarrator implements Narrator {
     }
 
     return null;
+  }
+
+  /**
+   * The catalogue, read through the same client and the same helpers the settings
+   * screen uses.
+   *
+   * Delegated rather than reimplemented: a second reader of `config.providers()`
+   * would be a second answer to the same question, and the two would disagree the
+   * day the parsing was changed in one place. It costs one local file read per turn,
+   * which is nothing next to the model call.
+   */
+  async models(): Promise<ModelCatalog> {
+    return readModelCatalog(this.#client);
   }
 
   createSession(title: string): Promise<string> {

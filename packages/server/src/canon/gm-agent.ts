@@ -4,17 +4,13 @@ import type { World } from "@rpwb/shared";
 import { BIBLE_SECTIONS, DEFAULT_REASONING_EFFORT, localeName } from "@rpwb/shared";
 
 /**
- * The narrator is an opencode agent, but an agent to which everything is
- * **denied**.
+ * The narrator is an opencode agent with everything **denied**.
  *
- * It does not need tools: the canon and the state already arrive injected on
- * every turn. That is not a simplification, it is a guarantee: no permission, no
- * filesystem access, no possibility, real or perceived, of altering the canon or
- * the context of the campaign.
+ * It needs no tools: the canon and the state arrive injected on every turn, so no
+ * permission means no way to alter the canon or the campaign's context.
  *
- * The frontmatter is generated and not written by hand: it is code producing
- * YAML, and YAML inside a template string is the classic source of escaping bugs
- * when a world name contains a colon or an apostrophe.
+ * The frontmatter is generated as YAML rather than hand-written: a world name with a
+ * colon or an apostrophe is an escaping bug in a template string.
  */
 
 export interface GeneratedAgent {
@@ -35,76 +31,28 @@ function yamlString(value: string): string {
 /**
  * The narrator's permissions.
  *
- * The default stays **everything denied**: no writing, no shell, no network. It
- * is the base guarantee, and it is not weakened to make something work.
+ * Everything denied by default. Reading the declared library folders is the only
+ * exception, and `external_directory` is what confines it.
  *
- * On the lore library exactly one thing is opened, and read-only: `read`, `glob`
- * and `grep` inside the folders the world has declared as a requirement. The
- * rules are in worst-to-best order because opencode applies **the last matching
- * rule**: the generic `"*": deny` has to come first, otherwise it is never
- * beaten.
+ * Two things opencode does that are not obvious and that the rules here depend on:
  *
- * `edit` stays denied even inside the library, for two reasons. The first is that
- * the library is a requirement declared with a hash: if the narrator could write
- * to it, the hash would no longer match and validation would start reporting
- * drift caused by it. The second is that opencode's docs warn that an allowed
- * `external_directory` *inherits the workspace defaults, and `read` is `allow` by
- * default: without an explicit `edit`, opening reading would also open writing.
- * That is the kind of flaw you do not notice until something has already been
- * ruined.
- */
-/**
- * The forms a path has to be written in for opencode to recognise it.
+ * * `grep` and `glob` are matched against the searched string and the pattern, never
+ *   against a path, so they cannot be scoped per folder. They are allowed outright and
+ *   `external_directory` decides which files are reachable.
+ * * A path is compared in several forms: with the drive letter by
+ *   `external_directory`, without it by the tools that normalise the path, and with
+ *   both separators. One wrong form means the library looks granted and is not
+ *   reachable, so each folder is declared in all of them.
  *
- * This is not fussiness: it is the result of reading the logs of permission
- * decisions. opencode evaluates `read`, `glob` and `grep` against the path
- * **without the drive letter** and with **backslashes**, while
- * `external_directory` compares it with the full path. A pattern written only in
- * the "absolute with slashes" form is evaluated, finds no match, and falls through
- * to `"*": deny`: the log shows `action.pattern=* action.action=deny` and the
- * agent gets a refusal before it even starts.
- *
- * So every folder is declared in all the forms opencode compares. They are
- * redundant strings, but each one covers a real comparison, and a single wrong
- * one means the narrator can read nothing while seeming able to.
- */
-/**
- * The narrator's permissions.
- *
- * The default stays **everything denied** for whatever can cause damage: no
- * writing, no shell, no network, no subagent. Reading is the only exception, and
- * it is confined by `external_directory`.
- *
- * `external_directory` is the real gate on paths, and it is where the obvious
- * mistake is the other one. opencode evaluates:
- *
- * - `read` against the file's path, without the drive letter;
- * - `grep` against **the searched string** ("Mojave"), not against a path;
- * - `glob` against **the pattern** ("**\/*"), not against a path.
- *
- * So `grep` and `glob` cannot be scoped per folder: no path pattern will ever let
- * them through. Writing ".../lore/fallout/**: allow" under `grep` is a rule that
- * cannot match, and the call falls through to "*": deny. The documentation says so
- * ("grep - content search (matches the regex pattern)") and the logs confirm it
- * line by line.
- *
- * But the same documentation says that `external_directory` "applies to any tool
- * that takes a path as input (for example read, edit, glob, grep)". So that is
- * where *which files* are reachable is confined, and `grep`/`glob` only decide
- * *whether the call goes out*. The two things combine: call allowed, but only
- * inside the requirement's folders.
- *
- * `edit` stays denied even inside the library because it is a requirement with a
- * hash: if the narrator could write to it, the hash would stop meaning anything.
- * It also holds because an allowed `external_directory` inherits the workspace
- * defaults, where `read` is `allow` by default: without an explicit `edit`,
- * opening reading would also open writing.
+ * `edit` stays denied inside the library too: it is a requirement with a hash, and
+ * writing to it would invalidate that hash. An allowed `external_directory` also
+ * inherits the workspace defaults, where `read` is allowed, so `edit` must be denied
+ * explicitly.
  */
 function permissionBlock(readableRoots: string[]): string[] {
   const lines = ["permission:", '  "*": deny'];
 
-  // With no library nothing is opened, not even for reading: the narrator stays
-  // with what reaches it in the context.
+  // With no library nothing is opened, not even reading.
   if (readableRoots.length === 0) {
     lines.push("  # no library required: everything stays denied");
     lines.push("  read: deny");
@@ -118,10 +66,7 @@ function permissionBlock(readableRoots: string[]): string[] {
     return lines;
   }
 
-  // The path has to be declared in the forms opencode compares: with the drive
-  // letter for `external_directory`, without it for the tools that normalise the
-  // path, and with both separators. A single wrong form means the library looks
-  // granted and is not reachable.
+  // Every comparison form, sorted so the file does not change for nothing.
   const patterns = readableRoots.flatMap((dir) => {
     const posix = dir.replace(/\\/g, "/").replace(/\/+$/, "");
     const stripped = posix.replace(/^[A-Za-z]:/, "");
@@ -130,8 +75,7 @@ function permissionBlock(readableRoots: string[]): string[] {
       .map((p) => `    ${yamlString(p)}: allow`);
   });
 
-  // Allowed without a scope: `external_directory` below decides what is really
-  // reachable, and they cannot be scoped by path.
+  // Cannot be scoped by path: `external_directory` below does that.
   lines.push("  read: allow");
   lines.push("  glob: allow");
   lines.push("  grep: allow");
@@ -156,20 +100,14 @@ function frontmatter(world: World, readableRoots: string[]): string {
     "mode: primary",
     `model: ${yamlString(world.model)}`,
     "temperature: 0.85",
-    // Steps count for **everything**, not just the writing: every `grep` and every
-    // `read` consumes one. With the low ceiling we had, a turn in which the
-    // narrator has to consult the library ends halfway through the search and
-    // answers "step limit reached" instead of narrating. The number is the safety
-    // ceiling behind the chapterer, not a writing budget: raising it does not make
-    // stories longer, it only lets the searches the narrator has to do before
-    // writing finish.
+    // Steps count for every tool call, not only the writing. Raising this does not
+    // make stories longer; it lets the searches the narrator does before writing
+    // finish.
     "steps: 24",
   ];
 
-  // "default" means asking for nothing: the model is left at its base behaviour.
-  // Writing `reasoningEffort: default` would be different, because some providers
-  // read it as the lowest explicit level instead of as "no request". Reasoning
-  // power is only asked for when it was chosen, and it is paid for.
+  // "default" means asking for nothing: some providers read
+  // `reasoningEffort: default` as the lowest explicit level.
   if (world.reasoningEffort !== DEFAULT_REASONING_EFFORT) {
     lines.push(`reasoningEffort: ${yamlString(world.reasoningEffort)}`);
   }
@@ -179,11 +117,7 @@ function frontmatter(world: World, readableRoots: string[]): string {
   return lines.join("\n");
 }
 
-/**
- * The world's Bible goes into the agent, not into the turn's context: it is the
- * "initial context that must never be lost", and it is in the system prompt so it
- * survives any session compaction.
- */
+/** The Bible in the agent, so it survives compaction. */
 function bibleBlock(bible: Record<string, string>): string {
   return BIBLE_SECTIONS.map((section) => {
     const body = bible[section]?.trim() ?? "";
@@ -197,27 +131,16 @@ function bibleBlock(bible: Record<string, string>): string {
 /**
  * The chosen start, told to the narrator.
  *
- * It goes in the agent and not only in the transcript for the reason the Bible is
- * there: the opening narration is the first thing the player reads and the first
- * thing the narrator has to continue, and by the time the session is compacted
- * that first message is far away. Without this block the narrator would be asked
- * to continue a story it can no longer see the beginning of, and it would invent
- * a different one — which is how a campaign set in Goodsprings ends up somewhere
- * the player never chose.
- *
- * The last line is the one that matters most. The starts are openings into
- * somebody else's story, and a narrator that assumes its player is the Courier
- * will write around them: the player's own decisions get treated as a rewrite of
- * canon the narrator already knows how it goes. They are nobody in particular until
- * they say who they are.
+ * In the agent and not only in the transcript, for the reason the Bible is here: once
+ * the session is compacted the opening message is far away, and a narrator asked to
+ * continue a story it cannot see the beginning of invents a different one.
  */
 function startBlock(world: World): string {
   const starts = world.starts;
   if (starts.selectedId === null) return "";
   const selected = starts.list.find((entry) => entry.id === starts.selectedId);
-  // A selection pointing at nothing, or at a start with no narration, is a state
-  // `toStarts` already refuses to produce. Returning "" here is not a second
-  // policy: it is the same one, in the one place that renders.
+  // A selection naming nothing, or a start with no narration, is a state `toStarts`
+  // already refuses to produce.
   if (selected === undefined || selected.narration.trim() === "") return "";
   return [
     "## THE OPENING OF THIS CAMPAIGN",
@@ -237,29 +160,14 @@ function startBlock(world: World): string {
 /**
  * The narrator's writing language, stated in words.
  *
- * It has to be stated, not deduced. The prompt is written in Italian and the
- * model has one strong language: `it` sent as such arrives as a code, not as a
- * direction, and the narrator ends up choosing on its own. There used to be no
- * declaration at all and the language was guessed from the player's text: the
- * player wrote Italian and the narrator wrote Italian, but with the library's
- * words inside, and the library is in English (`spunte` for `spinte`, `maneggia`
- * for `maneggi`).
- *
- * It is in the agent and not only in the turn's context because it is in the
- * system prompt, and therefore survives any session compaction.
+ * It has to be stated: a language code sent as such arrives as a code, not as a
+ * direction. In the agent, so it survives compaction.
  */
 function languageName(world: World): string {
   return localeName(world.activeLocale);
 }
 
-/**
- * The same declaration, for a template that has no placeholder.
- *
- * Better at the end of the prompt than absent: it is less effective than an
- * instruction in the middle, and the difference is the same as between a
- * narrator that knows which language to write in and one that picks at random
- * every turn.
- */
+/** The same declaration, for a template that has no placeholder. */
 function languageParagraph(language: string): string {
   return [
     "## The language",
@@ -295,46 +203,34 @@ export function renderAgent(
 
   const language = languageName(world);
 
-  // Computed once: `startBlock` walks the starts to find the selected one, and
-  // calling it twice to ask "is it empty" and then to print it would do that walk
-  // twice on every single agent render.
+  // Once: `startBlock` walks the starts, and calling it twice would walk them twice.
   const opening = startBlock(world);
 
   let rendered = template
     .replace(FRONTMATTER_MARKER, () => frontmatter(world, libraries.readableRoots))
     .replace(BIBLE_MARKER, () => bibleBlock(bible))
-    // Appended and not put in place of anything: the template has no placeholder
-    // for it, and adding one would make every template written before this feature
-    // fail the check above for a missing placeholder — the narrator would stop
-    // loading altogether instead of getting one extra section.
+    // Appended rather than a placeholder: requiring one would make every template
+    // written before this feature fail the check above.
     .concat(opening === "" ? "" : `\n\n${opening}\n`);
 
-  // The presence of the placeholders is read **before** replacing them: afterwards
-  // there is nothing left to ask, and the right question is "did the template have
-  // them", because it is the template that is old, not the world.
+  // Read before replacing: afterwards there is nothing left to ask.
   const hasLibraries = rendered.includes(LIBRARIES_MARKER);
   const hasLanguage = rendered.includes(LANGUAGE_MARKER);
 
-  // Every occurrence, not just the first: the spelling rule mentions the language
-  // more than once, and a placeholder left inside the prompt is a string the model
-  // can copy to the reader. With a function and not a string, because the language
-  // name comes from the database and in a replacement string `$` means something.
+  // Every occurrence: the spelling rule mentions the language more than once. A
+  // function and not a string, because `$` in the language name would mean something.
   rendered = rendered.replaceAll(LANGUAGE_MARKER, () => language);
 
   const extra: string[] = [];
 
-  // If the template has the placeholder, the index goes in its place. If it does
-  // not, the index must not be lost: it is appended at the end. A template written
-  // before this mechanism must not simply stop passing the library to the
-  // narrator.
+  // Appended when the template has no placeholder, so a template written before
+  // this mechanism does not stop passing the library to the narrator.
   if (hasLibraries) {
     rendered = rendered.replace(LIBRARIES_MARKER, () => libraries.index);
   } else {
     extra.push(libraries.index);
   }
 
-  // Same thing for the language, and for a more serious reason: without this
-  // sentence the narrator does not know which language to write in.
   if (!hasLanguage) extra.push(languageParagraph(language));
 
   const tail = extra.filter((block) => block.trim() !== "").join("\n\n");
@@ -342,17 +238,12 @@ export function renderAgent(
 }
 
 /**
- * Writes the agent's file only if it has changed.
+ * Writes the agent's file only if it changed.
  *
- * It has to be called **before** starting that world's opencode server, not
- * after. opencode registers the agents at boot by reading `.opencode/agents/`: if
- * the file is not there yet when it starts, `gm` is not registered and every
- * `prompt` with `agent: "gm"` fails. The symptom is a generic error that says
- * nothing useful, and the case only comes up on the first run of a new world,
- * which makes it look like a session problem.
- *
- * The comparison before writing serves not to touch the file while opencode is
- * reading it.
+ * Must be called before starting that world's opencode server: opencode registers
+ * agents at boot by reading `.opencode/agents/`, and a server started without the
+ * file does not know `gm`, so every prompt with `agent: "gm"` fails with a generic
+ * error. Comparing before writing avoids touching the file while opencode reads it.
  */
 export async function ensureAgentFile(
   worldDir: string,
@@ -387,10 +278,7 @@ export async function writeAgentFile(
   return { path, content };
 }
 
-/**
- * The prompt lives as a file in the package, so it stays readable and diffable
- * instead of being a long string inside the code.
- */
+/** The prompt as a file, so it stays readable and diffable. */
 export function promptSourcePath(): string {
   const override = process.env.RPWB_PROMPTS_DIR;
   if (override !== undefined && override !== "") return join(override, "gm.md");

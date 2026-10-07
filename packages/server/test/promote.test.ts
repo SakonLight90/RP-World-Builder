@@ -15,18 +15,17 @@ import { registerRoutes } from "../src/http/routes.js";
 /**
  * A location isn't a character, even when the player asks for it.
  *
- * The defect really happened: the narrator cited "Flatwoods" (a location)
- * alongside "Michael" (a person), the interface offered to add both, and with
- * `kind` defaulting to "character" they both landed among the characters. From
- * then on a location the state card looks for among people is a location the
- * narrator keeps citing as if it were a person.
+ * The defect: a name the narrator cited as a place and one it cited as a person were both
+ * offered, and with `kind` defaulting to "character" they both landed among the characters.
+ * A location the state card looks for among people is a location the narrator keeps citing as
+ * a person.
  *
- * Here classification is proven in two places: the pure decision and the route.
- * The route is the one that matters, because a schema with a default always
- * accepts: the wrong default does the damage first and then corrects itself.
+ * Proven in two places: the pure decision and the route. The route matters more, because a
+ * schema with a default always accepts — the wrong default does the damage first and then
+ * corrects itself.
  */
 
-/** The real case: "Flatwoods" is a canon entry of kind `location`. */
+/** A canon entry of kind `location`, with a shorter alias. */
 const FLATWOODS: CanonEntry = {
   id: "canon-flatwoods",
   worldId: "w1",
@@ -67,9 +66,8 @@ describe("promotion: the decision", () => {
   });
 
   it("a canon location can't become a character even before it's among the locations", () => {
-    // The reported case: "Flatwoods" comes from the corpus, so it's a canon
-    // entry and not a `locations` row. Without the entry's kind, classification
-    // would only say "it's in the canon" and couldn't refuse anything.
+    // A canon entry and not a `locations` row: without the entry's kind, classification
+    // would only say "it's in the canon" and could refuse nothing.
     const verdict = decidePromotion("Flatwoods", "character", lexicon);
     expect(verdict.ok).toBe(false);
     expect(verdict.expected).toBe("location");

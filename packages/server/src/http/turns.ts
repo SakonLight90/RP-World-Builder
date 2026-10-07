@@ -1,11 +1,9 @@
-/**
- * Turns and everything around them: starting, following, listing, deleting,
- * history, context, verification, and conversation reset.
+/*
+ * Turns and everything around them: starting, following, listing, deleting, history,
+ * context, verification, and conversation reset.
  *
- * The progress registry lives here because it only serves streams: it is
- * preview memory, not truth, and when the turn ends truth lives in the
- * database. Keeping it in the turns module stops anything else from starting
- * to depend on it.
+ * The progress registry lives here because it only serves streams: it is preview memory,
+ * not truth, and when the turn ends the truth is the `turns` row.
  */
 
 import type { OpencodeClient } from "@opencode-ai/sdk";
@@ -14,6 +12,7 @@ import type { FastifyInstance } from "fastify";
 import { type ArcMemory, carryoverCost } from "../canon/arc-memory.js";
 import { verifyCanon } from "../canon/verify.js";
 import { CastRepository } from "../db/repo/cast.js";
+import { errorDetail, log } from "../logging.js";
 import { contextLimitFor } from "../opencode/context.js";
 import { cleanNarration } from "../opencode/markers.js";
 import type { Narrator } from "../opencode/narrator.js";
@@ -34,20 +33,7 @@ import {
 import { runTurnWithDeadline, type TurnWork } from "./turn-coordinator.js";
 
 export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): void {
-  /**
-   * A turn's progress, held in memory and only for the turn's duration.
-   *
-   * Before, the streaming text was the same response that started the turn: one
-   * connection did two jobs, and closing the tab cut it mid-sentence.
-   * Now the command is a JSON response arriving at once, the narrator writes
-   * with nobody watching, and this registry is what remains: **a preview**
-   * for those still connected, plus the chunks already arrived for anyone joining a started
-   * turn.
-   *
-   * It is not the truth: truth is the row in `turns`, and when the turn ends
-   * the UI re-reads that. If this buffer is lost a preview is lost,
-   * nothing more, which is why there is nothing here to depend on.
-   */
+  /** A preview of a running turn, in memory and only for its duration. Not the truth. */
   interface TurnProgress {
     /** Chunks already arrived, for anyone joining a started turn. */
     chunks: string[];
@@ -83,14 +69,7 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
     releaseProgress(turnId);
   }
 
-  /**
-   * Drops a finished turn's preview.
-   *
-   * It must be done: every turn passing through here leaves a piece of text in memory, and
-   * without this it grows forever. It is kept only while someone watches, because
-   * past that point nobody reads the preview and the answer is already in the
-   * database.
-   */
+  /* Drops a finished turn's preview once nobody is watching it. */
   function releaseProgress(turnId: string): void {
     const entry = progress.get(turnId);
     if (entry === undefined) return;
@@ -98,14 +77,7 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
   }
 
   /**
-   * The real turn, awaited by no HTTP request.
-   *
-   * It lives here, and not inside the route starting it, for a single reason: when the
-   * tab closes the narrator must not die too. The turn's row is already
-   * created, so from this moment everything happening has a place to
-   * go: the answer on success, the error on failure, and in both cases closing
-   * the row. There is no longer any response to write to, and none is needed: what
-   * the player must see is already saved.
+   * The turn, awaited by no HTTP request: closing the tab must not stop the narrator.
    */
   async function runTurn(
     scope: RouteScope,
@@ -115,20 +87,23 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
     pipeline: TurnPipeline,
     input: TurnInput,
   ): Promise<void> {
-    // The registry is created here and not when someone connects: if nobody watches,
-    // the turn still runs, and when someone opens the stream halfway they want to see
-    // what was already written and not a three-seconds-ago spinner.
+    // Created here and not on connect: someone joining halfway sees the chunks already written.
     progressFor(turnId);
+
+    log.info("turn.started", {
+      turnId,
+      worldId: world.id,
+      model: world.model,
+      locale: input.locale,
+      silent: input.silent === true,
+    });
 
     const work: TurnWork = {
       play: async () => {
-        // How many visible messages exist **before** the turn, to move the
-        // deletion bookmark forward without losing deletions.
+        // Visible messages before the turn, to move the deletion bookmark forward.
         const before = await visibleCount(scope, world);
         const result = await pipeline.play(input, (delta) => {
-          // The preview goes through clean markers, chunk by chunk as before. The
-          // text staying in the database is cleaned on the whole text, which is what
-          // the UI shows at the end.
+          // The preview is cleaned chunk by chunk; the stored text is cleaned whole.
           const chunk = cleanNarration(delta);
           if (chunk !== "") publish(turnId, chunk);
         });
@@ -136,8 +111,7 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
         return result;
       },
       abort: async () => {
-        // The session is re-read from the world: if the work expired the result
-        // is missing, and the session to close is the last one the world saved.
+        // Re-read: the turn's own result is gone when it expired.
         const sessionId = scope.worlds.get(world.id)?.opencodeSessionId ?? null;
         if (sessionId === null || sessionId === "") return;
         await narrator.abort(sessionId).catch(() => undefined);
@@ -145,22 +119,29 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
     };
 
     await runTurnWithDeadline(turnId, scope.turns, work, closeTurn);
+
+    // Logged whichever way the turn went: a failed turn is the expensive one.
+    const finished = scope.turns.get(world.id, turnId);
+    log.info("turn.finished", {
+      turnId,
+      worldId: world.id,
+      state: finished?.state ?? "unknown",
+      inputTokens: finished?.usage?.input ?? null,
+      outputTokens: finished?.usage?.output ?? null,
+      cost: finished?.cost ?? null,
+      reported: finished?.usage !== null && finished?.usage !== undefined,
+      reason: finished?.error ?? undefined,
+    });
   }
 
   app.get("/api/worlds/:id/transcript", async (request, reply) => {
     const { id } = request.params as { id: string };
-    // Both conditions must stay distinct: "this world does not exist" and "opencode is
-    // not on" are not the same error, and answering 404 to the second
-    // convinced users the campaign was gone while it was intact and
-    // restarting opencode was enough.
+    // "no such world" and "opencode is off" are different answers: 404 on the second reads as
+    // a lost campaign.
     const world = scope.worlds.get(id);
     if (!world) return reply.code(404).send(apiProblem("world.notFound"));
     if (!scope.bridge) return reply.code(503).send(apiProblem("opencode.unavailable"));
 
-    // The world's prologue is message 1, and history puts it ahead of
-    // everything. What follows are the real messages: no injected canon and
-    // no automatic requests, which would otherwise read as lines
-    // written by the player.
     const kept = scope.worlds.keptMessages(id);
     const messages = await conversation(scope, world, world.opencodeSessionId ?? "");
     const shown = kept < 0 ? messages : messages.slice(0, kept);
@@ -202,9 +183,11 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
         ),
       };
     } catch (error) {
+      // The client gets the sentence, the log gets the cause.
+      log.error("context.read.failed", { worldId: id, reason: errorDetail(error) });
       return reply.code(500).send(
         apiProblem("server.unexpected", {
-          reason: error instanceof Error ? error.message : String(error),
+          reason: errorDetail(error) ?? "unknown error",
         }),
       );
     }
@@ -222,15 +205,8 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
     const world = scope.worlds.get(id);
     if (!world) return reply.code(404).send(apiProblem("world.notFound"));
 
-    // The world's server starts **before** answering, and its possible
-    // failure is still an HTTP error.
-    //
-    // Two things can go wrong before the turn exists, and
-    // they stay distinct: a malformed request and a world that is missing are caller
-    // errors, answered as before. The opencode server not
-    // starting is a machine matter, and until it starts it cannot even be said
-    // that the turn began: answering "started" here would lie, because
-    // the narrator will never be there.
+    // The world's server starts before answering, and its failure is still an HTTP error: a
+    // turn that cannot reach the narrator has not begun.
     let client: OpencodeClient;
     try {
       client = await clientForWorld(scope, id);
@@ -243,13 +219,10 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
     }
     const narrator = narratorFor(client);
 
-    // The row is born before narration starts: from here on the UI
-    // knows the narrator is working even when it sees nothing more.
+    // Born before narration starts, so the UI knows the narrator is working.
     const turn = scope.turns.start(id, body.data.text, body.data.locale);
 
-    // And the work starts **without being awaited**. It is not a hidden `await`: if it
-    // were, the answer would arrive after the text and we would have rebuilt exactly
-    // the earlier problem, with the very same flaw.
+    // Not awaited: the answer must not wait for the text.
     void runTurn(
       scope,
       turn.id,
@@ -264,29 +237,19 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
         silent: body.data.silent,
       },
     ).catch(() => {
-      // Nothing should arrive here: `runTurn` closes the row even when the
-      // narrator fails, and even when the work never returns. If anything
-      // still arrived, the row would stay `running`: better a row that will age
-      // into `stale` than a rejected promise killing the process.
+      // `runTurn` closes the row however the turn goes; anything reaching here would leave it
+      // running, and a rejected promise kills the process.
     });
 
-    // 202 and not 200: acknowledged and running, not done. The answer carries the turn's
-    // id and nothing else, because the text does not come back from here.
+    // 202: acknowledged and running, not done.
     return reply.code(202).send({ turnId: turn.id });
   });
 
   /**
-   * The world's turns, from the database.
+   * The turns and the running one.
    *
-   * The UI draws from here: the text there is what the backend
-   * wrote, so reopening the tab, switching tabs or restarting the server
-   * changes nothing on display.
-   *
-   * `active` lives in the same response and not in a separate route for a single
-   * reason: the UI must know whether the narrator is writing on every read, and with two
-   * requests both facts can come from two different moments, that is saying "it is
-   * writing" and "no, it finished" on the same screen. With a field next to
-   * the list the answer is a single snapshot.
+   * `active` is in the same response so the two facts come from one moment: with two requests
+   * the page can read "writing" and "finished" on the same screen.
    */
   app.get("/api/worlds/:id/turns", async (request) => {
     const { id } = request.params as { id: string };
@@ -295,26 +258,35 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
     return { turns: scope.turns.list(id, limit), active: scope.turns.active(id)?.id ?? null };
   });
 
+  /**
+   * What the campaign has cost.
+   *
+   * Tokens and money are separate because they are not the same figure: a turn that read its
+   * cache is billed far below its token count. `costCovered` says how many turns the money
+   * total covers.
+   */
+  app.get("/api/worlds/:id/spend", async (request, reply) => {
+    const { id } = request.params as { id: string };
+    if (!scope.worlds.get(id)) return reply.code(404).send(apiProblem("world.notFound"));
+    return { spend: scope.turns.spendSummary(id) };
+  });
+
   app.delete("/api/worlds/:id/turns/:turnId", async (request, reply) => {
     const { id, turnId } = request.params as { id: string; turnId: string };
     const turn = scope.turns.get(id, turnId);
     if (!turn) return reply.code(404).send(apiProblem("turn.notFound"));
 
-    /*
-     * A running turn must be stopped before removing its row: without abort the
-     * narrator would keep writing and the coordinator would close a row
-     * that is gone. Abort must not block deletion though: if
-     * opencode does not answer, the row still goes away and the orphaned work ages
-     * into `stale` with nobody watching it anymore.
-     */
-    if (turn.state === "running" && scope.bridge) {
+    // Aborted before the row goes, and the abort must not block the delete: an orphaned turn
+    // ages into `stale` on its own.
+    const wasRunning = turn.state === "running";
+    if (wasRunning && scope.bridge) {
       try {
         const sessionId = scope.worlds.get(id)?.opencodeSessionId ?? null;
         if (sessionId !== null && sessionId !== "") {
           await (await narratorForWorld(scope, id)).abort(sessionId).catch(() => undefined);
         }
       } catch {
-        // It is deleted anyway: see above.
+        // Deleted anyway.
       }
     }
 
@@ -322,16 +294,11 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
   });
 
   /**
-   * A turn's progress, for those still connected.
+   * The flowing text of a running turn.
    *
-   * A separate route and not inside the one starting the turn, because a route cannot
-   * do two things: start work lasting minutes and keep the answer open for
-   * all that time. Only the flowing text is kept here, closing when the
-   * turn is closed **in the database**: the row is the truth, so an event that never
-   * arrives cannot leave the connection hanging forever.
-   *
-   * Anyone joining an already-started turn first receives what was already
-   * written, then what follows.
+   * Separate from the route that starts it: a route cannot hold a response open for work
+   * lasting minutes. Closes when the turn closes in the database, so an event that never
+   * arrives cannot hang the connection.
    */
   app.get("/api/worlds/:id/turns/:turnId/stream", async (request, reply) => {
     const { id, turnId } = request.params as { id: string; turnId: string };
@@ -339,15 +306,11 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
     const turn = scope.turns.get(id, turnId);
     if (!turn) return reply.code(404).send(apiProblem("turn.notFound"));
 
-    // From here the response is ours: Fastify must send nothing more.
+    // From here the response is ours: Fastify sends nothing more.
     reply.hijack();
 
-    // CORS headers must be written **here**, with the rest, because from this
-    // moment `writeHead` sends headers and Fastify no longer does. If they
-    // were left to Fastify alone, preflight would pass and this answer
-    // would arrive without `Access-Control-Allow-Origin`: the browser blocks it, and the
-    // message shown ("origin match policy") does not reveal
-    // that a header was written in the wrong place.
+    // Written here too: after the hijack Fastify no longer does it, and the browser blocks an
+    // answer that arrived without them.
     const cors = corsHeaders(request.headers.origin, wantsPrivateNetwork(request.headers)) ?? {};
 
     reply.raw.writeHead(200, {
@@ -358,10 +321,8 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
       "x-accel-buffering": "no",
     });
 
-    // If the browser closes the tab while the narrator writes, writing
-    // fails. That is no campaign error: without this guard, the
-    // failure would land in the `catch` trying to send an event on a dead
-    // stream, and that would break the connection too.
+    // A closed tab makes writing fail, and without this guard the failure lands in the `catch`
+    // of a dead stream and breaks the connection too.
     let open = true;
     const send = (event: string, data: unknown): void => {
       if (!open) return;
@@ -390,9 +351,8 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
       releaseProgress(turnId);
     };
 
-    // A text chunk moves forward, the outcome closes. The `done` and `error`
-    // coming from the backend are the outcome's preview: the UI does nothing
-    // with them, because it re-reads the true outcome from the row.
+    // A chunk moves forward, the outcome closes. `done` and `error` are a preview:
+    // the UI re-reads the outcome from the row.
     const listen = (chunk: string | null): void => {
       if (chunk === null) {
         const fine = entry.fine;
@@ -412,15 +372,11 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
       releaseProgress(turnId);
     });
 
-    // The turn was already over when the stream was opened: nobody is waited
-    // for, the outcome is said right away and the stream is closed. The outcome
-    // comes from the row, which is the only source, and not from an event that
-    // by now would never arrive.
+    // Already over: the outcome comes from the row, since the event that would have announced
+    // it will never arrive.
     if (turn.state !== "running") {
-      // A stored error is the reason the turn really failed; a row closed
-      // without one says only that the narrator never finished it. The two stay
-      // distinct, because a player who sees "did not finish" for a turn that
-      // timed out is sent looking in the wrong place.
+      // A stored error is the real reason; no error means it never finished, and the two stay
+      // distinct so a timed-out turn is not read as a rejected one.
       const failure =
         turn.error === null
           ? apiProblem("turn.notFinished")
@@ -433,9 +389,7 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
       return reply;
     }
 
-    // Safety net, not a mechanism: the backend closes the stream on its own. If
-    // for any reason the notice never arrives, the database check closes the
-    // stream anyway, because the row is what says the turn is over.
+    // Safety net: the row is what says the turn is over.
     watchdog = setInterval(() => {
       const fresh = scope.turns.get(id, turnId);
       if (fresh === null || fresh.state !== "running") close("end", { turnId });
@@ -464,13 +418,10 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
   });
 
   /**
-   * Deletes **one single** message, the last one. One only, never two.
+   * Deletes the last message, one only.
    *
-   * This is not a cosmetic deletion: the count of how many messages are left
-   * is saved in the database, so reopening the chat shows exactly what you
-   * left behind. Leaning on `session.revert` looked like the right way and it
-   * is not: it answers that it went fine and deletes nothing, so the message
-   * vanished and came back on the first refresh.
+   * The count left is stored, so reopening shows what was left behind. `session.revert` is not
+   * the way: it reports success, deletes nothing, and the message returns on the next refresh.
    */
   app.post("/api/worlds/:id/message/drop", async (request, reply) => {
     const { id } = request.params as { id: string };
@@ -488,7 +439,7 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
       const before = scope.worlds.keptMessages(id);
       const current = before < 0 ? messages.length : Math.min(before, messages.length);
 
-      // Below the prologue there is no world and no campaign left.
+      // Below the prologue there is no campaign left.
       if (current <= 1) {
         return reply.code(400).send(apiProblem("conversation.prologueProtected"));
       }
@@ -503,26 +454,26 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
 
       return { kept: outcome.kept, removed: 1 };
     } catch (error) {
+      // Logged at `error` even though the answer is a 400: a deletion is the one edit that loses
+      // something, and the failure may be about the message count rather than a malformed
+      // request.
+      log.error("message.drop.failed", { worldId: id, reason: errorDetail(error) });
       return reply.code(400).send(
         apiProblem("server.unexpected", {
-          reason: error instanceof Error ? error.message : String(error),
+          reason: errorDetail(error) ?? "unknown error",
         }),
       );
     }
   });
 
   /**
-   * Restarts the conversation.
+   * Restarts the conversation: a new session, the old one closed.
    *
-   * It does not delete the messages one by one: it opens a new session and leaves the
-   * old one behind. It exists because "Delete" cannot go below the first
-   * message — without that one the campaign has nowhere to start from — and that first
-   * message may be something that is not yours, or that is simply from two
-   * weeks ago and is of no use anymore.
+   * Exists because "Delete" cannot go below the first message, and that first message may be
+   * from another session and of no use.
    *
-   * Deleting **the characters too**, which is the requested choice: they are
-   * the cast of the previous session, not of the campaign. Canon, eras,
-   * Bible, arcs and chapters stay: the campaign continues, the conversation changes.
+   * Canon, eras, Bible, arcs and chapters stay: the campaign continues, the conversation
+   * changes.
    */
   app.post("/api/worlds/:id/conversation/reset", async (request, reply) => {
     const { id } = request.params as { id: string };
@@ -534,15 +485,12 @@ export function registerTurnRoutes(app: FastifyInstance, scope: RouteScope): voi
     scope.worlds.update(id, { opencodeSessionId: null });
     scope.worlds.setKeptMessages(id, -1);
 
-    // The cast goes away too: the characters belong to **this** campaign.
-    // Without this, a name or a place promoted by mistake in the previous
-    // session stays in the new campaign's character list, invisible from the
-    // chat and impossible to remove from there.
+    // The characters belong to the conversation: one promoted by mistake in the previous one
+    // would stay in the list with no way to remove it from the chat.
     const removedCharacters = new CastRepository(scope.db).deleteAllCharacters(id);
 
     if (previous !== "") {
-      // The old session is closed, not deleted: if for any reason it were
-      // still needed, having it is better than not being able to get it back.
+      // Closed, not deleted, so a wrongly reset conversation is recoverable.
       await (await narratorForWorld(scope, id)).closeSession(previous).catch(() => undefined);
     }
 

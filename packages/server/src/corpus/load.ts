@@ -7,6 +7,7 @@ import { parse as parseYaml } from "yaml";
 import { slugify } from "../config/paths.js";
 import { CanonRepository } from "../db/repo/canon.js";
 import { WorldRepository } from "../db/repo/worlds.js";
+import { log } from "../logging.js";
 import { resolveLibraries } from "../lore/registry.js";
 import {
   type CorpusFile,
@@ -34,11 +35,8 @@ export interface LoadOptions {
   /** Corpus root, that is the folder containing one directory per world. */
   root: string;
   /**
-   * Root of the lore libraries.
-   *
-   * It is received and not deduced: a world's requirements are declared in
-   * `world.yaml` and checked against disk, so validation has to know where the
-   * libraries are. The caller is `config/paths.ts`.
+   * Root of the lore libraries, received and not deduced: a world's requirements are declared
+   * in `world.yaml` and checked against disk, so validation has to know where they are.
    */
   loreRoot: string;
   /** Model to use for the worlds created from the corpus. */
@@ -57,13 +55,8 @@ const WORLD_FILE = "world.yaml";
 const ENTRIES_DIR = "entries";
 
 /**
- * Validates a corpus without writing it: it is for CI, where failing on the
- * first broken world is preferable to loading half a corpus and finding out
- * afterwards.
- *
- * The libraries are not inside the corpus, so their root comes from outside: if
- * it were deduced here, validation would say "library not found" for a perfectly
- * valid world, and the message would point at a file instead of at a path.
+ * Validates a corpus without writing it: for CI, where failing on the first broken world beats
+ * loading half a corpus and finding out afterwards.
  */
 export async function validateCorpus(root: string, loreRoot: string): Promise<CorpusProblem[]> {
   const problems: CorpusProblem[] = [];
@@ -237,19 +230,39 @@ export async function loadCorpus(db: Database, options: LoadOptions): Promise<Lo
       if (options.recreate === true) {
         worlds.delete(existing.id);
       } else {
-        // Library requirements are reconciled even for an already loaded world.
-        // A requirement is a dependency declaration, not content: declaring it in
-        // `world.yaml` and then finding the world without it is exactly the case
-        // the requirements mechanism was supposed to prevent, because it means the
-        // declared library never reached the narrator and nobody notices.
-        //
-        // Requirements only. Canon, Bible and eras stay untouched: `recreate`
-        // already exists for those and does its job.
+        // Library requirements are reconciled even for an already loaded world: a requirement is a
+        // dependency declaration, not content, so declaring it in `world.yaml` and finding the
+        // world without it means the library never reached the narrator. Canon, Bible and eras
+        // stay untouched: `recreate` exists for those.
         const declared = JSON.stringify(world.libraries);
         if (JSON.stringify(existing.libraries) !== declared) {
           worlds.update(existing.id, { libraries: world.libraries });
           options.log?.(`  ${world.slug}: library requirement updated`);
-        } else {
+        }
+
+        /*
+         * The starts are reconciled the same way: declared in `world.yaml`, not campaign
+         * content.
+         *
+         * The **selection** is not reconciled: it is the player's, and resetting it on every
+         * reload would put a played campaign back to waiting for a choice.
+         */
+        const declaredStarts = world.starts.map((start) => ({
+          id: start.id,
+          name: start.name,
+          game: start.game,
+          playable: start.playable,
+          narration: start.narration,
+          ...(start.location === "" ? {} : { location: start.location }),
+        }));
+        if (JSON.stringify(existing.starts.list) !== JSON.stringify(declaredStarts)) {
+          worlds.update(existing.id, {
+            starts: { list: declaredStarts, selectedId: existing.starts.selectedId },
+          });
+          options.log?.(`  ${world.slug}: starts updated`);
+        }
+
+        if (JSON.stringify(existing.libraries) === declared) {
           options.log?.(`  ${world.slug}: already present, skipped`);
         }
         loaded.push({
@@ -288,6 +301,7 @@ export async function loadCorpus(db: Database, options: LoadOptions): Promise<Lo
         game: start.game,
         playable: start.playable,
         narration: start.narration,
+        ...(start.location === "" ? {} : { location: start.location }),
       })),
     });
 
@@ -304,6 +318,23 @@ export async function loadCorpus(db: Database, options: LoadOptions): Promise<Lo
 
     canon.upsertMany(entries);
     options.log?.(`  ${world.slug}: ${entries.length} canon entries`);
+
+    /*
+     * The line that says a world was loaded from the corpus.
+     *
+     * The count of entries is the number that matters: a corpus that loaded a world
+     * with zero entries looks identical to one that loaded nothing, and the two are
+     * opposite outcomes. The starts are logged too, because a world that arrived
+     * without its starts is a world whose selector will not appear, and that is a
+     * failure the player only meets when they open the chat.
+     */
+    log.info("corpus.world.loaded", {
+      slug: world.slug,
+      name: world.name,
+      entries: entries.length,
+      starts: world.starts.length,
+      eras: world.eras.length,
+    });
 
     loaded.push({
       worldId: created.id,

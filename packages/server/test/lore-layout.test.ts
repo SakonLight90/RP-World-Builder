@@ -327,9 +327,8 @@ describe("an entry's slug", () => {
   });
 
   it("with the hash, two different names don't land in the same entry", () => {
-    // This is why the hash exists: "Mojave House" and "Mojave-House" normalize to
-    // the same name, and without a hash the second entry would write over the
-    // first, or the two would open each other.
+    // This is why the hash exists: two names differing only in punctuation normalise to
+    // the same name, and without a hash the second entry would write over the first.
     const rule = slug({ strategy: "slug-hash", hashLength: 6 });
     const first = slugFor("Mojave House", rule);
     const second = slugFor("Mojave-House", rule);
@@ -399,8 +398,8 @@ describe("a section's index files", () => {
 
 describe("the words that hook a name", () => {
   it("the first valid word is the search key", () => {
-    // Nobody writes "Mojave Wasteland" by writing "Mojave": without this key the
-    // right name doesn't enter the context exactly when the player is using it.
+    // Nobody writes a two-word name by writing its first word alone: without this key
+    // the right name doesn't enter the context exactly when the player is using it.
     expect(headKeysFor("Mojave Wasteland", matching())).toEqual(["mojave"]);
     expect(headKeysFor("Città Grande", matching())).toEqual(["citta"]);
   });

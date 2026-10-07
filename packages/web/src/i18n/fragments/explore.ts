@@ -24,9 +24,14 @@ export const exploreEn = {
 
   "explore.action.backHome": "back to the home",
 
-  "explore.canon.heading": "Search the canon",
-  "explore.canon.placeholder": "Vera, Morganthown, radiation…",
-  "explore.canon.noResults": "No canon entry matches.",
+  "explore.canon.heading": "Search everything",
+  "explore.canon.placeholder": "Vera, Morganthown, radiation.",
+  "explore.canon.noResults": "Nothing matches, in the canon or in the cast.",
+  "explore.search.canonGroup": "Canon",
+  "explore.search.charactersGroup": "Characters",
+  "explore.search.locationsGroup": "Places",
+  "explore.search.campaignsGroup": "Campaigns",
+  "explore.search.alsoKnownAs": "Also: {{names}}",
 };
 
 export const exploreIt = {
@@ -39,9 +44,14 @@ export const exploreIt = {
 
   "explore.action.backHome": "torna alla home",
 
-  "explore.canon.heading": "Cerca nel canone",
-  "explore.canon.placeholder": "Vera, Morganthown, radiazioni…",
-  "explore.canon.noResults": "Nessuna voce canonica corrisponde.",
+  "explore.canon.heading": "Cerca ovunque",
+  "explore.canon.placeholder": "Vera, Morganthown, radiazioni.",
+  "explore.canon.noResults": "Nessuna corrispondenza, né nel canone né nel cast.",
+  "explore.search.canonGroup": "Canon",
+  "explore.search.charactersGroup": "Personaggi",
+  "explore.search.locationsGroup": "Località",
+  "explore.search.campaignsGroup": "Campagne",
+  "explore.search.alsoKnownAs": "Anche: {{names}}",
 };
 
 export const exploreEs = {
@@ -54,9 +64,14 @@ export const exploreEs = {
 
   "explore.action.backHome": "volver al inicio",
 
-  "explore.canon.heading": "Buscar en el canon",
-  "explore.canon.placeholder": "Vera, Morganthown, radiación…",
-  "explore.canon.noResults": "Ninguna entrada del canon coincide.",
+  "explore.canon.heading": "Buscar en todo",
+  "explore.canon.placeholder": "Vera, Morganthown, radiaci�n.",
+  "explore.canon.noResults": "Nada coincide, ni en el canon ni en el reparto.",
+  "explore.search.canonGroup": "Canon",
+  "explore.search.charactersGroup": "Personajes",
+  "explore.search.locationsGroup": "Lugares",
+  "explore.search.campaignsGroup": "Campañas",
+  "explore.search.alsoKnownAs": "También: {{names}}",
 };
 
 export const exploreFr = {
@@ -69,9 +84,14 @@ export const exploreFr = {
 
   "explore.action.backHome": "retour à l'accueil",
 
-  "explore.canon.heading": "Chercher dans le canon",
-  "explore.canon.placeholder": "Vera, Morganthown, radiation…",
-  "explore.canon.noResults": "Aucune fiche canonique ne correspond.",
+  "explore.canon.heading": "Chercher partout",
+  "explore.canon.placeholder": "Vera, Morganthown, radiation.",
+  "explore.canon.noResults": "Rien ne correspond, ni dans le canon ni dans la distribution.",
+  "explore.search.canonGroup": "Canon",
+  "explore.search.charactersGroup": "Personnages",
+  "explore.search.locationsGroup": "Lieux",
+  "explore.search.campaignsGroup": "Campagnes",
+  "explore.search.alsoKnownAs": "Également : {{names}}",
 };
 
 export const exploreDe = {
@@ -84,7 +104,12 @@ export const exploreDe = {
 
   "explore.action.backHome": "zurück zur Startseite",
 
-  "explore.canon.heading": "Im Kanon suchen",
-  "explore.canon.placeholder": "Vera, Morganthown, Strahlung…",
-  "explore.canon.noResults": "Kein Kanoneintrag passt.",
+  "explore.canon.heading": "Alles durchsuchen",
+  "explore.canon.placeholder": "Vera, Morganthown, Strahlung.",
+  "explore.canon.noResults": "Nichts passt, weder im Kanon noch in der Besetzung.",
+  "explore.search.canonGroup": "Kanon",
+  "explore.search.charactersGroup": "Figuren",
+  "explore.search.locationsGroup": "Orte",
+  "explore.search.campaignsGroup": "Kampagnen",
+  "explore.search.alsoKnownAs": "Auch: {{names}}",
 };

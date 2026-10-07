@@ -2,6 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { ChapterDraft, World } from "@rpwb/shared";
 import { z } from "zod";
+import { log } from "../logging.js";
 import { askJson } from "../opencode/ask.js";
 import type { Narrator } from "../opencode/narrator.js";
 import { asString, asStringArray, jsonInstruction } from "../opencode/structured.js";
@@ -61,8 +62,8 @@ export interface CloseChapterInput {
   /** Index of the chapters already written, including the one just closed. */
   chapters: ChapterSummary[];
   /**
-   * Memory of the closed arcs, already compressed. If present, `chapters` must
-   * not contain the chapters of those arcs: they are already inside.
+   * Memory of the closed arcs, already compressed. If present, `chapters` must not contain
+   * the chapters of those arcs: they are already inside.
    */
   arcMemory?: string;
   tokenStart: number;
@@ -110,17 +111,9 @@ const EMPTY_DRAFT: ChapterDraft = {
 /**
  * Closes the chapter and **brings the context back to a small size**.
  *
- * The point is the second thing, not the writing. opencode's compaction
- * (`session.summarize`) turned out not to reduce at all what is sent to the
- * model: it adds a summary message and leaves the original turns, and the
- * context actually grows. Measured on opencode 1.18.7 with the same model and the
- * same turns: 1774 tokens without intervention, 2601 after compaction, that is
- * 47% more.
- *
- * So there is no trust involved: it tries to truncate with `revert` in the same
- * session, and it checks the real number of messages. If the history does not
- * go down, a new session is opened, which by definition starts empty. The
- * chapter is already on disk, so in neither case is the context lost.
+ * The second half is the point: opencode's compaction adds a summary and keeps the original
+ * turns, so the context grows. Truncation is attempted and the message count verified; if
+ * the history did not go down, a new session is opened. The chapter is on disk either way.
  */
 export async function closeChapter(input: CloseChapterInput): Promise<ClosedChapter> {
   const draft = await draftChapter(input);
@@ -160,13 +153,13 @@ export async function closeChapter(input: CloseChapterInput): Promise<ClosedChap
   }
 
   if (recovery === "none") {
-    // The context did not go down: a new session is the only guarantee. It is not
-    // an unwanted fallback, it is the normal path on this version.
+    // The context did not go down: a new session is the only guarantee, and on this version it
+    // is the normal path rather than a fallback.
     sessionId = await input.narrator.createSession(input.world.name);
     recovery = "new-session";
     afterCount = 0;
-    // The new session must never be left without a reminder: even with an empty
-    // index, the chapter just written is already the campaign's memory.
+    // The new session must never start with nothing: the chapter just written is already the
+    // campaign's memory.
     const history = historyIncluding(input.chapters, {
       n,
       title: draft.title,
@@ -182,7 +175,7 @@ export async function closeChapter(input: CloseChapterInput): Promise<ClosedChap
     afterCount = (await input.narrator.messages(sessionId)).length;
   }
 
-  return {
+  const closed = {
     n,
     title: draft.title === "" ? `Chapter ${n}` : draft.title,
     summary: draft.summary,
@@ -196,6 +189,23 @@ export async function closeChapter(input: CloseChapterInput): Promise<ClosedChap
     messagesBefore: beforeCount,
     messagesAfter: afterCount,
   };
+
+  /*
+   * `recovery` separates two outcomes: the session was truncated back, or a new one was
+   * opened and the old one abandoned.
+   */
+  log.info("chapter.closed", {
+    worldId: input.world.id,
+    chapter: n,
+    title: closed.title,
+    recovery,
+    messagesBefore: beforeCount,
+    messagesAfter: afterCount,
+    tokenStart: input.tokenStart,
+    tokenEnd: input.tokenEnd,
+  });
+
+  return closed;
 }
 
 /**
@@ -233,16 +243,8 @@ export function historyIncluding(
 /**
  * Carryover text for a new session.
  *
- * The carryover is **bounded**: recent chapters go in in full, older ones only
- * as a title. Without this, a long campaign would recreate the very problem the
- * chapter was supposed to solve, moving it into the initial prompt.
- *
- * `locale` is no longer read: the text is written in English for every world.
- * It stays in the signature because the callers pass the world's language and
- * removing it would mean touching code outside this module.
- *
- * It is a pure function separate from I/O so that it can be checked without
- * starting a server and without spending a token.
+ * Bounded: recent chapters in full, older ones as a title. Unbounded, a long campaign would
+ * recreate the problem the chapter was meant to solve.
  */
 export function buildCarryOverText(
   chapters: ChapterSummary[],
@@ -266,12 +268,10 @@ export function buildCarryOverText(
 }
 
 /**
- * Assembles the text that is put back into a new session.
+ * Assembles the text put back into a new session.
  *
- * There are two distinct blocks and they stay that way: the memory of the closed
- * arcs, which is compressed, and the index of the recent chapters, which serves
- * the last chapters still open. It is a pure function so that the result can be
- * checked without starting a server and without spending a token.
+ * Two distinct blocks: the compressed memory of the closed arcs, and the index of the recent
+ * chapters.
  */
 export function carryOverText(
   arcMemory: string,
@@ -284,12 +284,9 @@ export function carryOverText(
 }
 
 /**
- * Carries the story over into a new session. It costs zero output tokens: it is
- * a message with no answer.
+ * Carries the story into a new session. Zero output tokens: a message with no answer.
  *
- * `arcMemory` is the already compressed memory of the closed arcs. If it comes
- * in it goes first, and the chapters hung further back are not rewritten one by
- * one: this is where an arc's ten chapters shrink to a few lines.
+ * `arcMemory` goes first and the chapters further back are not rewritten one by one.
  */
 export async function carryOver(
   narrator: Narrator,
@@ -305,20 +302,15 @@ export async function carryOver(
 }
 
 /**
- * The model writes the chapter, but on a separate, short session.
- *
- * If it were summarised in the main session the summary would pollute the very
- * context that is about to be compacted, and the next turn would already start
- * dirty. It costs one extra session, which is deleted right away.
+ * The model writes the chapter, on a separate short session: summarising in the main one
+ * would pollute the context about to be compacted.
  */
 async function draftChapter(input: CloseChapterInput): Promise<ChapterDraft> {
   const transcript = await recentTranscript(input);
   if (transcript === "") return { ...EMPTY_DRAFT };
 
-  // An unwritten chapter must not block the game: it is recorded and play goes
-  // on, the missing chapter is noticed in the panel. That is why no failure is
-  // propagated here, not even when `askJson` does not distinguish the causes of
-  // its `null`.
+  // An unwritten chapter must not block the game: it is recorded and play goes on, and the
+  // missing chapter is noticed in the panel.
   const parsed = await askJson(input.narrator, {
     sessionTitle: `chronicler ${input.world.name}`,
     modelRef: input.world.model,
@@ -368,11 +360,8 @@ async function recentTranscript(input: CloseChapterInput): Promise<string> {
   return turns.slice(-input.recentTurns * 2).join("\n\n");
 }
 /**
- * After compaction the session no longer knows what just happened: the native
- * summary can be generic. The pointer to the chapter is therefore reinjected,
- * and it costs zero output tokens because it is a message with no answer.
- *
- * `locale` is no longer read, for the same reason as in `buildCarryOverText`.
+ * After compaction the session no longer knows what just happened, so the pointer to the
+ * chapter is reinjected. Zero output tokens: a message with no answer.
  */
 export async function reinsertPointer(
   narrator: Narrator,
@@ -400,22 +389,14 @@ export function chapterFileName(n: number): string {
 }
 
 /**
- * The name chapters had before the file pattern became English.
- *
- * Campaigns written before the rename still have their chapters on disk under
- * this name: the row in the database keeps the path it was written with, and a
- * row without a path has to be resolved by number, so the old name stays a
- * candidate when the current one is not there.
+ * The name chapters had before the file pattern became English. Campaigns written before the
+ * rename still have theirs on disk under it, and a row without a path is resolved by number.
  */
 export function legacyChapterFileName(n: number): string {
   return `capitolo-${pad(n)}.md`;
 }
 
-/**
- * Free models almost always send something slightly different from what was
- * asked for: a field as a string instead of a list, numbers as text. It is
- * normalised instead of failing.
- */
+/** Free models often send a field in a different shape: a string instead of a list. */
 function coerce(value: unknown): unknown {
   if (typeof value !== "object" || value === null) return value;
   const record = value as Record<string, unknown>;

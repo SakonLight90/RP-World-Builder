@@ -162,6 +162,7 @@ export const worldEn = {
   "world.canon.help":
     "The correction stays in the history with the old value, the new one and the reason. Removing an entry doesn't erase it: it marks that it doesn't exist in your world.",
   "world.canon.logHeading": "Corrections made by hand",
+  "world.canon.undo": "Put it back",
 
   "world.verify.heading": "Was the canon respected?",
   "world.verify.intro":
@@ -346,6 +347,7 @@ export const worldIt = {
   "world.canon.help":
     "La correzione resta nello storico con il valore di prima, quello di dopo e il motivo. Togliere una voce non la cancella: segna che nel tuo mondo non esiste.",
   "world.canon.logHeading": "Correzioni fatte a mano",
+  "world.canon.undo": "Rimettila com'era",
 
   "world.verify.heading": "Il canone e' stato rispettato?",
   "world.verify.intro":
@@ -530,6 +532,7 @@ export const worldEs = {
   "world.canon.help":
     "La corrección queda en el historial con el valor anterior, el nuevo y el motivo. Quitar una entrada no la borra: marca que en tu mundo no existe.",
   "world.canon.logHeading": "Correcciones hechas a mano",
+  "world.canon.undo": "Volver a como estaba",
 
   "world.verify.heading": "¿Se ha respetado el canon?",
   "world.verify.intro":
@@ -714,6 +717,7 @@ export const worldFr = {
   "world.canon.help":
     "La correction reste dans l'historique avec l'ancienne valeur, la nouvelle et le motif. Retirer une fiche ne l'efface pas : cela marque qu'elle n'existe pas dans votre monde.",
   "world.canon.logHeading": "Corrections faites à la main",
+  "world.canon.undo": "Remettre comme avant",
 
   "world.verify.heading": "Le canon a-t-il été respecté ?",
   "world.verify.intro":
@@ -898,6 +902,7 @@ export const worldDe = {
   "world.canon.help":
     "Die Korrektur bleibt im Verlauf mit dem alten Wert, dem neuen und dem Grund. Einen Eintrag zu entfernen löscht ihn nicht: Es markiert, dass es ihn in deiner Welt nicht gibt.",
   "world.canon.logHeading": "Von Hand gemachte Korrekturen",
+  "world.canon.undo": "Zurücksetzen",
 
   "world.verify.heading": "Wurde der Kanon eingehalten?",
   "world.verify.intro":

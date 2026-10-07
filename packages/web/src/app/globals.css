@@ -690,6 +690,112 @@ a.card:hover {
   }
 }
 
+/*
+   * Narrow screens: the layout stops being three columns and becomes one.
+   *
+   * The breakpoints above hide the art and the inspector. This is the part that
+   * makes the remaining column usable: a fixed header that does not shrink, a
+   * composer that stays reachable, and text that wraps instead of overflowing.
+   *
+   * It is not a mobile layout. There is no navigation drawer and no bottom bar,
+   * because this is a desktop application being read on a narrow window, and a
+   * drawer would hide the one thing the player came here to read. What it does is
+   * stop the page from breaking: nothing overflows horizontally, nothing is cut off,
+   * and the buttons stay where they were.
+   */
+@media (max-width: 640px) {
+  /* The header keeps its height and lets its title shrink. A title that overflows
+     pushes the settings button off the screen, and the settings are the only way
+     out of the chat. */
+  .stage-head {
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .stage-head h1 {
+    font-size: 14px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* The stream keeps its padding but stops centering a 780px column: on a 360px
+     screen that column is the screen, and the margin only eats the edges. */
+  .stream-in {
+    padding: 0 10px;
+  }
+  /* The narration is the text the player came to read, and 17px on a phone is a
+     wall of unbroken characters. It goes down and the line height opens up. */
+  .narr {
+    font-size: 15.5px;
+    line-height: 1.75;
+  }
+  /* The composer's buttons wrap instead of overflowing. A row of five buttons on a
+     phone is a row of five clipped buttons, and the one that matters is the last. */
+  .acts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+  }
+  .acts .btn {
+    width: 100%;
+  }
+  /* The place picker and the send button stack. Side by side they are each half a
+     screen wide, and a select at that width shows half of every place name. */
+  .composer .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .composer .row select {
+    width: 100%;
+  }
+  /* Tables become blocks. A three-column table on a phone is three columns of
+     clipped text, and the reader cannot tell which cell says what. */
+  table.t {
+    display: block;
+  }
+  table.t thead {
+    display: none;
+  }
+  table.t,
+  table.t tbody,
+  table.t tr,
+  table.t td {
+    display: block;
+    width: 100%;
+  }
+  table.t tr {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  table.t td {
+    border: 0;
+    padding: 2px 0;
+  }
+  /* The chat list rows stack their cover and their actions. The 92px cover and the
+     40px buttons side by side leave no room for the name. */
+  .chatrow {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .chatrow .art {
+    width: 100%;
+    height: 140px;
+  }
+  .chat-actions {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  /* The onboarding steps stack their text and their button. A button pushed to the
+     right edge of a 360px screen is a button that is not on the screen. */
+  .onboarding li {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .onboarding li .btn {
+    width: 100%;
+  }
+}
+
 .rail {
   position: relative;
   height: 100dvh;
@@ -772,40 +878,21 @@ a.card:hover {
   color: #ffb454;
 }
 
-.you {
-  display: flex;
-  justify-content: flex-end;
-}
 /*
- * The player's bubble.
+ * The player's line.
  *
- * It styles `.bubble` and not `.you span`: a selector on the descendants also
- * styles the pieces the renderer puts inside for italics, and the result is a
- * bubble inside the bubble. A prompt that goes past the first line then breaks
- * apart and shows a tall empty box. The colour is set once, on the container.
+ * Same `article` and same `.narr` block as the narrator's, so the two read as one conversation.
+ * A filled bubble in a different colour and shape made the player's turn look like a different
+ * thing from the narrator's reply, instead of the other half of the same exchange.
  */
-.you .bubble {
-  display: block;
-  max-width: 78%;
-  background: linear-gradient(135deg, var(--violet), #5b3ad6);
-  color: #fff;
-  padding: 11px 16px;
-  border-radius: 16px 16px 4px 16px;
-  font-size: 15px;
-  box-shadow: 0 6px 18px rgb(139 108 240 / 0.22);
-  /* Like the narration, line breaks are respected. Without this, a prompt with
-     newlines would be squeezed into a paragraph and would look like another
-     prompt with a different graphic: same bubble, different look. */
-  white-space: pre-wrap;
+.you .narr {
+  color: var(--ink-2);
   overflow-wrap: anywhere;
-  text-align: left;
 }
 
-/* The player's action, between double asterisks: light italics. It's the only
-   thing that stands out inside the bubble, and only if the asterisks are paired. */
-.you .bubble em {
+/* The player's action, between double asterisks: light italics. */
+.you .narr em {
   font-style: italic;
-  opacity: 0.92;
 }
 
 .who {
@@ -941,10 +1028,11 @@ a.card:hover {
   flex: 1;
   min-height: 0;
   padding: 14px;
-  display: grid;
-  align-content: start;
-  gap: 12px;
+  display: block;
   overflow-y: auto;
+}
+.ins-body > * + * {
+  margin-top: 12px;
 }
 
 .tabs {
@@ -1230,4 +1318,51 @@ table.t td {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* ============================================================ onboarding */
+
+/* The steps of a first campaign.
+   A list and not a stack of cards because the order is the point: each step is
+   something the previous one assumes. A done step stays in place, dimmed, so the
+   reader can see what was already there instead of a panel that silently appears
+   full when the last item is ticked. */
+.onboarding {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.onboarding li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-s);
+}
+.onboarding-done {
+  opacity: 0.55;
+}
+.onboarding-mark {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-family: var(--font-gold);
+}
+.onboarding-done .onboarding-mark {
+  color: var(--green);
+  border-color: rgb(88 201 138 / 0.4);
+}
+/* The text grows and the button does not, so the button stays reachable at the
+   right edge instead of being pushed off by a long sentence. */
+.onboarding-body {
+  flex: 1 1 auto;
+  min-width: 0;
 }

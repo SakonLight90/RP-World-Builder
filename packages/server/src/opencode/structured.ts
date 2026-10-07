@@ -1,14 +1,10 @@
-/**
+/*
  * Tolerant JSON extraction.
  *
- * The server only exposes structured output (`format: json_schema`) from v2 of
- * the SDK, and the free models we care about are generally bad at respecting an
- * imposed schema. Binding them to `format` would tie the project to a server
- * version and, worse, to capabilities the model does not have.
- *
- * Here we instead ask for JSON in a code block and parse it tolerantly: bare
- * JSON is accepted, so is the block with a language tag, plus any surrounding
- * lines of prose, and the first balanced object is extracted.
+ * Structured output is not requested: it ties the project to an SDK version and to a
+ * capability the models do not have. JSON is asked for in a code block and parsed
+ * tolerantly: bare JSON, the block with or without a language tag, and any surrounding
+ * prose.
  */
 export type ParseResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
@@ -35,11 +31,7 @@ function stripFence(text: string): string {
   return match?.[1]?.trim() ?? text;
 }
 
-/**
- * Extracts the first balanced JSON value, ignoring braces inside strings. It
- * exists because a free-form answer almost always contains quotes and
- * apostrophes that would fool a naive count.
- */
+/** The first balanced JSON value, ignoring braces inside strings. */
 export function firstBalanced(text: string): string | null {
   const start = text.search(/[[{]/);
   if (start === -1) return null;

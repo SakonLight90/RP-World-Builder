@@ -1,11 +1,8 @@
-/**
- * The routes' shared space: repositories, roots, bridge, and the helpers
- * serving more than one domain.
+/*
+ * The routes' shared space: repositories, roots, bridge, and the helpers serving
+ * more than one domain.
  *
- * It exists because `routes.ts` built everything in a single closure, and splitting the
- * routes without a place for what they share would have meant
- * either duplicating it or passing ten parameters to every call. The scope is one
- * thing to pass, and functions in here receive it first.
+ * One thing to pass, and the functions here receive it first.
  */
 
 import type { OpencodeClient } from "@opencode-ai/sdk";
@@ -18,6 +15,7 @@ import { CastRepository } from "../db/repo/cast.js";
 import { ChapterRepository } from "../db/repo/chapters.js";
 import { TurnRepository } from "../db/repo/turns.js";
 import { WorldRepository } from "../db/repo/worlds.js";
+import { CatalogCache } from "../opencode/catalog-cache.js";
 import { cleanNarration, isContext, isSilent } from "../opencode/markers.js";
 import type { Narrator } from "../opencode/narrator.js";
 import { narratorFor } from "../opencode/narrator-adapter.js";
@@ -29,6 +27,13 @@ export interface RouteScope {
   db: Database;
   roots: ProjectRoots;
   bridge: RouteDeps["bridge"];
+  /**
+   * The model catalogue, read at most once in a few seconds.
+   *
+   * On the scope because it belongs to the bridge: one bridge, one catalogue. A module
+   * variable would make a second bridge read the first one's answer.
+   */
+  catalog: CatalogCache;
   dataDir: string;
   worlds: WorldRepository;
   canon: CanonRepository;
@@ -45,13 +50,19 @@ export function createScope(
   bridge: RouteDeps["bridge"],
 ): RouteScope {
   // Local alias to avoid repeating `roots.` in every route: a single source remains,
-  // the one passed by `createApp`.
+  // the one passed to `createApp`.
   const dataDir = roots.data;
   return {
     db,
     roots,
     bridge,
     dataDir,
+    // Built here so every route shares one: a cache per route would be a cache that
+    // never hits, and a cache per call would be no cache at all.
+    catalog: new CatalogCache(() => {
+      if (!bridge) throw new Error("opencode is not available");
+      return bridge.clientFor(dataDir);
+    }),
     worlds: new WorldRepository(db),
     canon: new CanonRepository(db),
     cast: new CastRepository(db),
@@ -68,14 +79,10 @@ interface ConversationMessage {
 }
 
 /**
- * A world's path. Opens its opencode server, but **first** writes the
- * narrator agent file.
+ * A world's path: opens its opencode server, and **first** writes the agent file.
  *
- * The order is not a detail: opencode registers agents at boot by reading
- * `.opencode/agents/`, so a server started without `gm.md` does not know
- * `gm` and every `prompt` with that agent dies with a generic error that says
- * nothing. The case only shows on a new world's first run,
- * and looks like a session problem.
+ * opencode registers agents at boot, so a server started without `gm.md` does not know
+ * `gm` and every prompt with that agent dies with a generic error.
  */
 export const prepareWorld = async (scope: RouteScope, worldId: string): Promise<World | null> => {
   if (!scope.bridge) throw new Error("opencode is not available");
@@ -102,13 +109,7 @@ export const clientForWorld = async (
   return await scope.bridge.ensureServer(world?.opencodeDir ?? scope.dataDir);
 };
 
-/**
- * A world's narrator, that is the client with the contract up front.
- *
- * It is the only place where opencode becomes a `Narrator`: below, routes and pipeline
- * only speak to the contract. Call it when a narrator is needed, not
- * when a client is needed: they are two different questions.
- */
+/** A world's narrator: the client with the contract up front. */
 export const narratorForWorld = async (scope: RouteScope, worldId: string): Promise<Narrator> =>
   narratorFor(await clientForWorld(scope, worldId));
 
@@ -124,17 +125,11 @@ export const visibleCount = async (scope: RouteScope, world: World): Promise<num
 /**
  * Moves the deletion bookmark forward by how many messages arrived.
  *
- * `kept_messages` says how many of the visible messages to keep. The problem starts
- * when a world is restarted or deeply deleted: the bookmark stays at
- * `1` (the prologue, which is never deleted) and from then on the transcript shows
- * **only** the prologue, whatever gets written. The narrator replies, the
- * session grows, and the UI looks as if the prompt never started: the
- * campaign moved on with nobody watching.
+ * Without this the bookmark stays at 1 after a restart and the transcript shows only
+ * the opening whatever gets written: the campaign moves on with nobody watching.
  *
- * It is not taken to `-1` because that would lose deletions: if the
- * player removed three messages, they must stay removed. So only what
- * arrived after is added, keeping the previous cut while the new part
- * shows.
+ * Not reset to `-1`, because that would lose deletions. Only what arrived after is
+ * added, keeping the previous cut.
  */
 export const advanceKept = async (
   scope: RouteScope,
@@ -148,22 +143,19 @@ export const advanceKept = async (
     const added = after - before;
     if (added > 0) scope.worlds.setKeptMessages(world.id, kept + added);
   } catch {
-    // The transcript may be unreadable: the turn already went through,
-    // and failing here would leave an error on an already-written response.
+    // The transcript may be unreadable: the turn already went through.
   }
 };
 
 /**
  * The conversation, as the player sees it.
  *
- * The world's prologue is message 1 and lives in history. Behind it, there are
- * only the narrator's messages and the player's lines: the canon injected at
- * every turn and the automatic "Continue" and "Retry" requests are engine
- * business, and if they showed here they would look like lines written by you.
+ * Message 1 is the opening. Behind it, only the narrator's messages and the player's
+ * lines: the injected canon and the automatic Continue/Retry requests are engine
+ * business and would look like lines the player wrote.
  *
- * It lives in a single function because "Delete" uses it too: two lists built
- * in two places diverge at the first change, and the deletion count
- * ends up cutting the wrong message.
+ * One function because "Delete" uses it too: two lists built in two places diverge at
+ * the first change and the deletion count cuts the wrong message.
  */
 export const conversation = async (
   scope: RouteScope,
@@ -171,36 +163,21 @@ export const conversation = async (
   sessionId: string,
 ): Promise<ConversationMessage[]> => {
   /**
-   * Message 1, and it always exists.
+   * Message 1.
    *
-   * It used to be assembled on every read out of `bible.premise` and
-   * `bible.rules`, and it returned `null` when both were empty. That made the
-   * prologue something the campaign could simply not have: create a world, do
-   * not fill the Bible in, play, and resetting the conversation left the
-   * transcript with nothing in it. The narrator had written the whole story and
-   * the opening had never been there to begin with, so "restarting" looked like
-   * a deletion.
+   * A selected start comes first: when the player has chosen how to begin, that choice
+   * *is* the opening, and the Bible is what the narrator follows afterwards.
    *
-   * The premise and the rules are the first choice because they are what the
-   * prologue is made of. The description is the second, and it is not a
-   * decoration: it is the one line the player typed about their own campaign, so
-   * it opens the story in their own words and in their own language. Only when
-   * all three are empty is there nothing honest left to say, and that case says
-   * so rather than pretending.
-   *
-   * A selected start comes before all of them. When the player has chosen how to
-   * begin, that choice *is* the opening: the transcript opens on the narration
-   * they picked, and the Bible is what the narrator follows afterwards. Ranking it
-   * third would mean choosing a start and still being shown the generic prologue,
-   * with the choice visible nowhere except in a field.
+   * Without a start, the premise and the rules are what the opening is made of, and
+   * the description comes second — it is the one line the player wrote about their own
+   * campaign. When all three are empty there is nothing honest to say.
    */
   const prologueOf = (): ConversationMessage | null => {
     const starts = world.starts;
     if (starts.selectedId !== null) {
       const selected = starts.list.find((entry) => entry.id === starts.selectedId);
-      // A start with no narration is not an opening. It is a start that was
-      // written without a scene, and falling through to the Bible keeps the
-      // campaign readable instead of opening the transcript on an empty bubble.
+      // A start with no narration is not an opening: falling through to the Bible
+      // keeps the campaign readable instead of opening on an empty bubble.
       if (selected !== undefined && selected.narration.trim() !== "") {
         return { role: "assistant", text: cleanNarration(selected.narration), createdAt: 0 };
       }
@@ -220,9 +197,8 @@ export const conversation = async (
     return { role: "assistant", text: cleanNarration(text), createdAt: 0 };
   };
 
-  // A freshly opened campaign has no session yet: it asks with an empty
-  // id and opencode answers with an error about a session. The
-  // history of a world that has not started yet is just the prologue.
+  // A campaign that has not started has no session, and asking opencode with an
+  // empty id is an error. Its history is just the opening.
   if (sessionId === "") {
     const only = prologueOf();
     return only === null ? [] : [only];

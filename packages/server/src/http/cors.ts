@@ -63,7 +63,15 @@ export function corsHeaders(
     // `Vary` because the response changes with the origin: a cache mixing
     // both would be a door left open.
     vary: "Origin",
-    "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+    /*
+     * Every method the API uses.
+     *
+     * `PATCH` was missing from this list and every save failed: a `PATCH` with a JSON body
+     * makes the browser send a preflight, the preflight was refused, and the page reported a
+     * network error on a server that was up. Reads were `GET` and never made a preflight,
+     * which is why only saving was broken.
+     */
+    "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "access-control-allow-headers": "content-type",
     "access-control-max-age": "600",
   };

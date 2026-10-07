@@ -11,20 +11,14 @@ export interface JsonRequest {
 }
 
 /**
- * Asks the narrator for JSON and returns the object, or `null`.
+ * Asks the narrator for JSON, or `null` if nothing usable came back.
  *
- * It exists because the "open a session, ask, read the JSON, close" skeleton
- * was written by hand in four places under `canon/`, and in two of them it was
- * identical line for line. Four copies means that a quarter of any fix — for
- * example closing the session even when parsing fails — gets applied to one
- * copy only, while the others keep losing it.
+ * One function because the skeleton was written by hand in four places, and a fix
+ * applied to one copy leaves the other three losing it.
  *
- * `null` means "I got nothing usable": session not created, prompt failed,
- * answer without JSON, JSON that is not an object. It is deliberately a single
- * value instead of one error per case, because **all four callers have the same
- * fallback** and none distinguishes the causes. Shape validation is left to the
- * caller: here there is no way to know what the object should contain, and
- * guessing would produce a parameter no schema asks for.
+ * `null` covers session not created, prompt failed, answer without JSON and JSON
+ * that is not an object: all callers have the same fallback and none distinguishes
+ * the causes. Shape validation is left to the caller, which knows what it asked for.
  */
 export async function askJson(
   narrator: Narrator,

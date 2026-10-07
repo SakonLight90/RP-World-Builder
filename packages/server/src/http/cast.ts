@@ -57,18 +57,15 @@ export function registerCastRoutes(app: FastifyInstance, scope: RouteScope): voi
   });
 
   /**
-   * The world's vocabulary, with the same rules used to read the narrator:
-   * it is the only source that knows whether a name is a place or a person.
+   * The world's vocabulary, with the same rules used to read the narrator: the only source
+   * that knows whether a name is a place or a person.
    *
-   * Canon entries come in with their kind, because the corpus also brings
-   * "Flatwoods Lookout", which is a place without yet being a `locations` row:
-   * without the kind the classification would only say "it is in the
-   * canon", which is not enough to refuse promotion to character.
+   * Canon entries come in with their kind, because a canon entry can be a place without
+   * yet being a `locations` row, and without the kind the classification would only say "it
+   * is in the canon".
    *
-   * `listAll` and not `list`: `list` keeps only the active era's entries, so
-   * a place known in another era would pass as unknown and
-   * become a character. Classification is about what the name is, not
-   * what holds now.
+   * `listAll`, not `list`: `list` keeps only the active era's entries, and classification is
+   * about what the name is, not about what holds now.
    */
   const lexiconOf = (scope: RouteScope, worldId: string): Map<string, LexiconTerm> =>
     buildLexicon({
@@ -90,16 +87,12 @@ export function registerCastRoutes(app: FastifyInstance, scope: RouteScope): voi
     });
 
   /**
-   * Promote to canon a name the narrator mentioned that the player
-   * wants to keep. It is the only way the database grows during a
-   * game, and it is always explicit.
+   * Promote to canon a name the narrator mentioned. The only way the database grows during a
+   * game, and always explicit.
    *
-   * The lexicon classification is a filter, not a hint: the kind
-   * requested by whoever promotes is compared against the kind the world knows, and if
-   * they do not match the request is rejected. This exists because the real case happened
-   * and the default did not stop it: "Flatwoods", which is a place, ended up among
-   * characters together with "Michael", who is a person. From that moment the state
-   * card looks for it among people and the narrator cites it as a person.
+   * The classification is a filter, not a hint: a kind that does not match what the world
+   * knows about the name is rejected. A place filed among the characters makes the state card
+   * look for it among people and the narrator cite it as one.
    */
   app.post("/api/worlds/:id/promote", async (request, reply) => {
     const { id } = request.params as { id: string };

@@ -150,11 +150,10 @@ describe("conversation history", () => {
     /*
      * The whole point of the feature.
      *
-     * Choosing a start and still being shown the Bible's prologue would leave the
-     * choice invisible: the player picks "Goodsprings, on the floor with a hole in
-     * your head" and the first line they read is a paragraph about a setting they
-     * have not entered yet. The selection would be a field with no consequence,
-     * which is the same failure mode as the one the deletion bookmark had.
+     * Choosing a start and still being shown the Bible's prologue would leave the choice
+     * invisible: the player picks a scenario and the first line they read is a paragraph about
+     * a setting they have not entered yet. A selection with no consequence is the same failure
+     * mode as the deletion bookmark had.
      */
     const world = worldWithSession("start-opening", [LINE, REPLY]);
     h.worlds.setStarts(world.id, STARTS, "new-vegas");

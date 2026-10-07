@@ -1,12 +1,13 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { emptyTokenUsage } from "@rpwb/shared";
+
 import type { Database } from "better-sqlite3";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { resolveRoots } from "../src/config/paths.js";
 import { openMemory } from "../src/db/connection.js";
 import { WorldRepository } from "../src/db/repo/worlds.js";
+import type { ModelCatalog } from "../src/opencode/models.js";
 import type {
   EventSubscription,
   Narrator,
@@ -39,6 +40,16 @@ class FakeNarrator implements Narrator {
 
   async contextLimit(): Promise<number | null> {
     return 128_000;
+  }
+
+  /**
+   * An empty catalogue, and the reason matters: with no models in it the pipeline
+   * finds no price for the model and records `cost: null`. That is the state a
+   * provider in an unfamiliar shape produces, and a fake that returned a price would
+   * hide the "we cannot price this turn" path these tests never meant to exercise.
+   */
+  async models(): Promise<ModelCatalog> {
+    return { all: [], free: [], connectedProviders: [], problem: null };
   }
 
   async createSession(): Promise<string> {
@@ -123,7 +134,18 @@ describe("a fake narrator", () => {
     // The turn finished, on the session the fake narrator declared.
     expect(result.sessionId).toBe("ses_finta");
     expect(result.text).toBe("La porta cede.");
-    expect(result.usage).toEqual(emptyTokenUsage());
+    /*
+     * Null and not `emptyTokenUsage()`.
+     *
+     * The fake narrator reports no usage, and "the provider said nothing" is not
+     * "the turn cost nothing". This assertion is the whole reason the migration
+     * stores nulls: with an empty usage here, a campaign whose provider never reports
+     * would show a total of zero on a bill, and it would look like a campaign written
+     * for free.
+     */
+    expect(result.usage).toBeNull();
+    // And no price for the model in the fake catalogue, so no cost is invented.
+    expect(result.cost).toBeNull();
     // And the window is what it declared, not some server's.
     expect(result.debug.context.contextLimit).toBe(128_000);
 

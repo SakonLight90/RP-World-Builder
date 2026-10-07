@@ -70,19 +70,18 @@ export interface PlayerCharacter {
 /**
  * A playable scenario inside a world.
  *
- * A world is a setting and a start is a way into it: Fallout is one world with a
- * Capital Wasteland start, a Mojave start and a Commonwealth start, and the player
- * picks one when they begin playing. Selecting a start is what makes the first
- * message of the conversation that game's opening, instead of a generic prologue.
+ * A world is a setting and a start is a way into it: one world can offer a start in one region
+ * and another in a different one, and the player picks when they begin. Selecting a start is
+ * what makes the first message of the conversation that scenario's opening, instead of a
+ * generic prologue.
  *
- * `narration` is written to be the first thing the player reads. It sets the
- * scene, hands the player a situation, and stops: it never decides who they are.
- * A start that put words in the player's mouth would take away the only decision
- * that matters at the start of a roleplay.
+ * `narration` is written to be the first thing the player reads. It sets the scene, hands the
+ * player a situation, and stops: it never decides who they are. A start that put words in the
+ * player's mouth would take away the only decision that matters at the start of a roleplay.
  *
- * `playable` is not decorative. Games that have lore but no scenario to step
- * into stay in the library as reference: the narrator can cite them when the
- * player names them, but there is nothing to begin from.
+ * `playable` is not decorative. Sources that have lore but no scenario to step into stay in the
+ * library as reference: the narrator can cite them when the player names them, but there is
+ * nothing to begin from.
  */
 export interface WorldStart {
   /** Stable identifier, derived from the game: survives a rename of the name. */
@@ -95,6 +94,21 @@ export interface WorldStart {
   playable: boolean;
   /** The opening narration, shown as the first message of the conversation. */
   narration: string;
+  /**
+   * A place name from the canon that this scenario starts in.
+   *
+   * Not a database id and not something the player picks: the place the scenario begins in,
+   * matched against the world's places by name when the turn is sent.
+   *
+   * It exists because the narrator has to know where the player is from the first turn, and
+   * the narration alone does not say it in a form the narrator can use: it reads prose and
+   * looks up a record. Without this the state card has nothing to put in it and the narrator
+   * places the player wherever the prose happens to be standing.
+   *
+   * `null` when the scenario does not name one, and a name that matches nothing sends
+   * nothing: a custom start written by hand must not become a guess.
+   */
+  location?: string;
 }
 
 /**

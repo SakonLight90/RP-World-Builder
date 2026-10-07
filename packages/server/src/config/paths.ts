@@ -5,20 +5,16 @@ import { dirname, join, resolve } from "node:path";
 
 export const CONFIG_FILENAME = "world-builder.config.json";
 
-/**
- * The manifest that says which package this is.
- *
- * It is used by the discovery below: going up from the name declared in its own
- * `package.json`, the package root is recognised without counting how many levels
- * are above it, which change between `src/` and `dist/` and from one checkout to
- * another.
+/*
+ * The manifest that says which package this is, used by the discovery below: going up from
+ * the name declared in its own `package.json`, the package root is recognised without counting
+ * how many levels are above it, which change between `src/` and `dist/`.
  */
 const PACKAGE_NAME = "@rpwb/server";
 
 /**
- * All the project roots, resolved once.
- *
- * No module deduces them: it receives them. See `ARCHITECTURE.md`, section 1.
+ * All the project roots, resolved once. No module deduces them: it receives them. See
+ * `ARCHITECTURE.md`, section 1.
  */
 export interface ProjectRoots {
   /** Repository root: the folder that contains `packages/`, `corpus/`, `lore/`. */
@@ -67,9 +63,8 @@ let repositoryRoot: string | null = null;
 /**
  * Root of the server package: the folder that contains `prompts/`.
  *
- * The sentinel is the name declared in that package's `package.json`, so the
- * search does not count levels: it works from `src/` and from `dist/`, with `tsx`
- * and with the build.
+ * The sentinel is the name declared in that package's `package.json`, so the search does not
+ * count levels and works from `src/` and from `dist/`.
  */
 export function packageRoot(): string {
   if (pacchettoRoot !== null) return pacchettoRoot;
@@ -88,33 +83,16 @@ export function packageRoot(): string {
 /**
  * Repository root: the folder that contains `corpus/` and `lore/`.
  *
- * Why it is not taken from `process.cwd()`.
+ * Not `process.cwd()`: that is the folder someone typed `node` in, and a wrong one reports
+ * itself as a missing library or an empty corpus rather than as a path problem.
  *
- * `process.cwd()` is the folder someone typed `node` in, not the folder the
- * project is in: the two coincide only if the command was typed by hand inside
- * the repository. Started from a service tab, from `npm --prefix`, from a double
- * click on an executable or from a parent folder pointing elsewhere, the flaw
- * does not say it is a path flaw: it says the library is missing, that the corpus
- * is empty, that the prompt is gone. Half an hour is lost looking for the
- * container instead of the cause.
+ * Searched from **where this module was loaded**, the only thing independent of who started
+ * the process, up to the nearest `package.json` declaring `workspaces`: a property of the
+ * file, not a distance, so it survives a moved package, a renamed repository and a different
+ * machine. A missing sentinel says so instead of returning an invented path.
  *
- * So the root is searched from **where this module was loaded**, the only thing
- * that does not depend on who started the process: `import.meta.dirname` is the
- * folder of this file, in `src/` as in `dist/`, with `tsx` as with the build, in a
- * checkout as installed. From there it walks up until it finds a sentinel, and the
- * sentinel is a **property of the file**, not a distance: the nearest
- * `package.json` declaring `workspaces`, which is the very definition of a
- * workspace root.
- *
- * Why it is reliable: the search does not count levels, so it does not break if
- * the package moves, if the repository is renamed or if the machine is a
- * different one; it does not compare folder names, which are a choice of whoever
- * cloned it; and if the sentinel is not there it says so, instead of returning an
- * invented path that later shows up as "the library is missing".
- *
- * The price is that the package has to stay inside the workspace it was built
- * from: whoever puts it elsewhere declares it with `RPWB_REPO_ROOT`, and that is
- * the only case where something has to be configured.
+ * The price: the package must stay inside its workspace. `RPWB_REPO_ROOT` is the only thing
+ * that has to be configured.
  */
 export function repoRoot(): string {
   const override = envPath("RPWB_REPO_ROOT");
@@ -142,25 +120,16 @@ function envPath(name: string): string | null {
 }
 
 /**
- * All the project roots, together.
+ * All the project roots, together. Called once, where the application is built, and the
+ * result travels explicitly. Every root has an environment override and a working default.
  *
- * It is called once, where the application is built, and the result travels
- * explicitly. Every root has an environment override and a default that works
- * without configuring anything.
- *
- * - corpus: `RPWB_CORPUS_ROOT`, otherwise `corpus/` in the repository root. In
- *   development and in production it is the same folder, so the corpus can be
- *   edited and reloaded without reinstalling the package.
- * - libraries: `RPWB_LORE_DIR`, otherwise `lore/` in the repository root. It
- *   lives outside `data/` because `data/` is user state, regenerable and
- *   deletable, while a library is versioned content: put where the databases are,
- *   at some point it would be treated as a cache and would disappear.
- * - prompt: `RPWB_PROMPTS_DIR`, otherwise `prompts/` next to this package's
- *   code, which is the only place where the prompt is readable and diffable.
- *   `canon/gm-agent.ts` reads the same file from there.
- * - data: `RPWB_DATA_DIR`, otherwise the system data folder. Being inside the
- *   repository during development is fine too, because the `.gitignore` excludes
- *   `data/` and the configuration file.
+ * - corpus: `RPWB_CORPUS_ROOT`, else `corpus/` in the repository root: the same folder in
+ *   development and production, so the corpus is editable without reinstalling.
+ * - libraries: `RPWB_LORE_DIR`, else `lore/` in the repository root, outside `data/` because
+ *   it is versioned content and `data/` is regenerable and deletable.
+ * - prompt: `RPWB_PROMPTS_DIR`, else `prompts/` next to this package's code, the only place
+ *   where the prompt is readable and diffable.
+ * - data: `RPWB_DATA_DIR`, else the system data folder.
  */
 export function resolveRoots(): ProjectRoots {
   const repo = repoRoot();
@@ -175,10 +144,7 @@ export function resolveRoots(): ProjectRoots {
   };
 }
 
-/**
- * The user's data folder. Being inside the repo during development is fine too,
- * because the `.gitignore` excludes `data/` and the configuration file.
- */
+/** The user's data folder. Inside the repo in development is fine: `.gitignore` excludes it. */
 export function defaultDataDir(): string {
   const override = process.env.RPWB_DATA_DIR;
   if (override && override.trim() !== "") return override.trim();

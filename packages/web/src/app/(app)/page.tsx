@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Art, CastTile } from "../../components/Art";
+import { GettingStarted } from "../../components/getting-started";
 import { useI18n } from "../../i18n/provider";
 import { api, type Character, explainError, readIfNonEssential, type World } from "../../lib/api";
 
@@ -93,6 +94,8 @@ export default function HomePage() {
         </div>
       )}
 
+      {worlds !== null && worlds.length === 0 && <GettingStarted worlds={worlds} />}
+
       {cast.length > 0 && (
         <section className="section" style={{ paddingTop: 8 }}>
           <div className="castrow">
@@ -111,6 +114,7 @@ export default function HomePage() {
           </Link>
         </div>
 
+        {/* Nothing yet: say what is needed instead of only offering two buttons. */}
         {list.length === 0 ? (
           <div className="panel">
             <p style={{ margin: "0 0 14px" }}>

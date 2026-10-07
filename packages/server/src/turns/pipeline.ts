@@ -1,8 +1,10 @@
 import type { ContextState, Era, TokenUsage, World } from "@rpwb/shared";
 import {
+  BIBLE_SECTIONS,
   computeChapterThreshold,
   contextFootprint,
   emptyTokenUsage,
+  estimateTextTokens,
   localeName,
 } from "@rpwb/shared";
 import type { Database } from "better-sqlite3";
@@ -18,6 +20,7 @@ import { CanonRepository } from "../db/repo/canon.js";
 import { CastRepository } from "../db/repo/cast.js";
 import { ChapterRepository } from "../db/repo/chapters.js";
 import { WorldRepository } from "../db/repo/worlds.js";
+import { log } from "../logging.js";
 import { findInLibrary, renderLibraryHits } from "../lore/lookup.js";
 import { resolveLibraries } from "../lore/registry.js";
 import { isRecord } from "../opencode/bridge.js";
@@ -27,56 +30,39 @@ import type { EventSubscription, Narrator } from "../opencode/narrator.js";
 import { currentContextUsage } from "../opencode/session.js";
 import { CampaignSession } from "./session.js";
 
-/**
- * A turn, in order.
+/*
+ * A turn, in order:
  *
- * 1. the overdue chapters are closed, before anything new is written
- * 2. canon and state are injected, which generate no answer
- * 3. the player's action is sent and the text is streamed as it comes
+ * 1. overdue chapters are closed
+ * 2. canon and state are injected, generating no answer
+ * 3. the player's action is sent and the text streams
  *
- * Point 1 comes first on purpose: if the context is full, the chapter is written
- * **before** the turn that would make it overflow, not after.
+ * 1 comes first: a full context is written **before** the turn that would overflow it.
  */
 
 /**
  * The narrator agent's name.
  *
- * It has to be passed **explicitly** on every prompt. Without it, opencode uses
- * its own default agent, which is a coding agent with the tools active: it tries
- * to do its job instead of narrating, and the turn never ends. With the right
- * agent, which has no tools, the turn ends with `session.idle`.
+ * Passed explicitly on every prompt. Without it opencode uses its default coding agent,
+ * which tries to do its job instead of narrating and the turn never ends.
  */
 const GM_AGENT = "gm";
 
 /**
  * How long a turn can last before the work is given up on.
  *
- * There are two limits in two different places, and it is the difference that
- * makes the deadline safe. This is the **outer limit**: it covers the whole
- * `#run`, that is also what happens before the stream (chapters, context,
- * `promptAsync`) and what happens after. The one inside `#readTurn` covers only
- * the reading of the events, and if the waiting is upstream it covers nothing: it
- * is exactly the hole for which a turn could stay `running` forever.
+ * The **outer** limit, covering the whole `#run`: chapters, context injection and
+ * what comes after the stream. The inner one in `#readTurn` covers only the reading of
+ * the events, and waiting upstream it covers nothing — that is the hole where a turn
+ * stayed `running` forever.
  *
- * The value is the pipeline's timeout plus a margin. It has to be **greater**,
- * otherwise the outer deadline cuts a turn the pipeline was still closing
- * properly and that would have finished on its own; and it has to stay below
- * `RUNNING_STALE_MS` in the repository, which is the threshold past which a
- * `running` row is shown as `interrupted`: the turn has to become `failed`
- * **by decision**, with a written reason, not by ageing.
+ * The pipeline's timeout plus a margin: it has to be greater, or the outer deadline
+ * cuts a turn the pipeline was still closing, and below `RUNNING_STALE_MS`, or the row
+ * ages into `stale` instead of becoming `failed` by decision.
  */
 export const TURN_TIMEOUT_MS = 240_000;
 
-/**
- * An opencode event, reduced to what the turn uses.
- *
- * It lives here because it is born here and consumed here: `parseTurnEvent`
- * produces it, `#run` and `#readTurn` filter it and `play` accumulates it. A
- * separate module for this type had ended up containing also a whole second copy
- * of `streamTurn`, that is a stream-reading path nobody used and that had a
- * `finally` that never closed: dead code with a known flaw inside is a trap for
- * whoever re-imports it.
- */
+/** An opencode event, reduced to what the turn uses. */
 export type TurnEvent =
   | { kind: "text"; delta: string; partId: string }
   | { kind: "reasoning"; delta: string }
@@ -93,9 +79,7 @@ export interface TurnInput {
   /** Current place, chosen by the player. */
   locationId: string | null;
   /**
-   * The turn is the narrator's, not the player's: "Continue" is not a line and
-   * must not appear in the chat. The text is for the model, but the interface
-   * does not make a bubble out of it.
+   * A narrator request, not a player line: it does not appear in the chat.
    */
   silent?: boolean;
 }
@@ -120,19 +104,58 @@ export interface TurnDebug {
 
 export interface TurnResult {
   sessionId: string;
-  usage: TokenUsage;
+  /** What the provider reported, or null if it reported nothing. */
+  usage: TokenUsage | null;
   text: string;
   debug: TurnDebug;
+  /**
+   * What the turn cost in the provider's currency.
+   *
+   * `null` for a model with no price and `0` for a free one. The distinction travels to
+   * the summary: a priced-and-free turn is counted in the money total and an unpriced
+   * one is counted beside it.
+   */
+  cost: number | null;
+}
+
+/**
+ * One slice of the narrator's context, and what it weighs.
+ *
+ * The answer to "why did the narrator forget that": a full meter says how much was
+ * used, not what to write less.
+ *
+ * An estimate, never a measurement: the same four-characters-per-token rule as the
+ * meter, so the parts sum to the whole on screen.
+ */
+export interface ContextSlice {
+  /** Machine name, so the interface can label it without parsing a sentence. */
+  key: string;
+  tokens: number;
+  /** What this slice is, in words. Shown as the row's subtitle. */
+  detail: string;
+}
+
+/**
+ * The whole context, broken down.
+ *
+ * `known` is the sum of the slices and `state.tokensUsed` is what the model reports,
+ * and they are rarely equal: the provider counts its own formatting and the session
+ * carries the injected context and its markers. Showing both is the point — the gap is
+ * where the unaccounted text lives.
+ */
+export interface ContextBreakdown {
+  slices: ContextSlice[];
+  /** Sum of the slices. */
+  known: number;
+  /** What the model says it has used, which is `state.tokensUsed`. */
+  reported: number;
 }
 
 /**
  * A turn that ended badly, with the reason why.
  *
- * It goes as an error and not as an empty result for a precise reason: a turn
- * with no text that comes back as a success is indistinguishable, for whoever
- * reads the row, from a narrator that decided to stay silent. Whoever closes the
- * turn has to be able to write the reason in the row, and a result with
- * `text: ""` carries no reason with it.
+ * An error and not an empty result: a silent success is indistinguishable from a
+ * narrator that chose to say nothing, and `text: ""` carries no reason into the row.
  */
 export class TurnFailed extends Error {
   constructor(message: string) {
@@ -157,15 +180,8 @@ export class TurnPipeline {
   readonly #clock: Clock;
 
   /**
-   * `loreRoot` is the libraries root and it is received from whoever builds the
-   * pipeline: the worlds' folder already has it for every world, in `opencodeDir`,
-   * and the libraries live outside the worlds on purpose. A `worldDirHint` parameter
-   * was there, nobody used it and it got dropped: it remained only as the
-   * signature of a piece of code that no longer exists, so it went away instead of
-   * staying to occupy a position where the libraries root belongs today.
-   *
-   * The narrator is a contract and not a client: the pipeline does not know what
-   * is behind it, and that is the point of the whole change.
+   * The narrator is a contract, not a client: the pipeline does not know what is
+   * behind it.
    */
   constructor(db: Database, narrator: Narrator, loreRoot: string, clock: Clock = Date.now) {
     this.#narrator = narrator;
@@ -182,9 +198,8 @@ export class TurnPipeline {
   /**
    * A complete turn, from the player's action to the last line.
    *
-   * `onText` receives every piece as soon as the narrator produces it. Callers
-   * who do not pass it still get the final text in `result.text`: streaming is an
-   * extra, not an obligation.
+   * `onText` receives each piece as it is produced; callers without it still get the
+   * whole text in `result.text`.
    */
   async play(
     input: TurnInput,
@@ -192,7 +207,13 @@ export class TurnPipeline {
     timeoutMs = TURN_TIMEOUT_MS,
   ): Promise<TurnResult> {
     let text = "";
-    let usage: TokenUsage = { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } };
+    // Read once and used twice: `world.model` is re-read from the database on every turn, so
+    // a model changed from another tab mid-turn would otherwise be priced with the new
+    // rates against the old tokens.
+    const modelRef = this.#campaign.world(input.worldId).model;
+    // Null until the provider reports, and not an empty usage: a turn whose provider said
+    // nothing has not cost nothing.
+    let usage: TokenUsage | null = null;
     const debug: TurnDebug = {
       context: {
         model: "",
@@ -218,18 +239,47 @@ export class TurnPipeline {
           text += event.delta;
           onText?.(event.delta);
         }
-        if (event.kind === "done") usage = event.usage ?? usage;
+        if (event.kind === "done") usage = event.usage;
       },
       debug,
     );
 
-    return { sessionId, usage, text, debug };
+    return { sessionId, usage, text, debug, cost: await this.#costOf(usage, modelRef) };
   }
 
   /**
-   * Walks the turn and returns the session it happened on. The session can change
-   * halfway, when a chapter is closed: that is why it is returned and not only
-   * kept local.
+   * What a turn's tokens cost, from the model's own price list.
+   *
+   * `null` when the usage is unknown or the model has no price, and the two are not the
+   * same: an unpriced turn is counted in the tokens total and left out of the money
+   * total. Guessing a price puts a plausible figure on a bill.
+   *
+   * Read per turn and not cached on the pipeline: the model can change between two
+   * turns, and a cached price would be the old model's applied to the new one's tokens.
+   */
+  async #costOf(usage: TokenUsage | null, modelRef: string): Promise<number | null> {
+    if (usage === null) return null;
+    const catalog = await this.#narrator.models();
+    const model = catalog.all.find((entry) => entry.ref === modelRef);
+    if (model === undefined) return null;
+    // Divided by a million: providers publish a price per million tokens, and the
+    // figure is stored in the currency unit rather than in micro-units so that a total
+    // over a thousand turns stays readable.
+    //
+    // A free model gives zero, not null: the provider published a price and it was zero,
+    // which is a fact about the model rather than a gap in what we know.
+    return (
+      (usage.input * model.inputCost +
+        usage.output * model.outputCost +
+        usage.cache.read * model.cacheReadCost +
+        usage.cache.write * model.cacheWriteCost) /
+      1_000_000
+    );
+  }
+
+  /**
+   * Walks the turn and returns the session it happened on, which can change halfway when
+   * a chapter is closed.
    */
   async #run(
     input: TurnInput,
@@ -247,8 +297,8 @@ export class TurnPipeline {
     if (shouldCloseChapter(state)) {
       const closed = await this.#closeChapter(world, sessionId);
       if (closed === null) {
-        // The chapter could not be closed. Play goes on, but the session could be
-        // full, and the caller has to be told.
+        // The chapter could not be closed: play goes on and the caller is told, because the
+        // session may be full.
         debug.chapter = { closed: false, n: 0, recovery: "none", tokens: 0 };
       } else {
         sessionId = closed.sessionId;
@@ -269,32 +319,21 @@ export class TurnPipeline {
 
     // --- 3. the player's action ---------------------------------------------
     //
-    // The stream is opened **before** the prompt, not after. It has to be opened
-    // first for a reason that is not about style: if it were opened afterwards, the
-    // narrator may already be done and the `session.idle` that closes the turn has
-    // passed with nobody listening. The turn would wait for an event that will
-    // never come and stay hanging until the deadline, with the answer already
-    // written.
+    // The stream opens **before** the prompt: opened afterwards, the narrator may already
+    // be done and `session.idle` would have passed with nobody listening, leaving the turn
+    // waiting for an event that never comes.
     const subscription = await this.#narrator.events();
 
-    // The messages that are not the narrator's, that is the ones to discard: when
-    // you subscribe to an opencode event stream it also replays the state of what
-    // is already there, so without this filter the player's prompt text and the
-    // canon block would appear at the top of the answer.
-    //
-    // The filter is on the **message ids**, not on the text, because the player's
-    // prompt has no marks that distinguish it. And they are read **after** the
-    // prompt, not before: the prompt is itself a user message and it comes from
-    // the same call that sends it. Reading them before, what is missing is exactly
-    // the prompt, and it is the only thing that would end up at the top of the
-    // answer.
+    // Subscribing replays the messages already in the session, so without this filter the
+    // player's prompt and the canon block open the answer. Read **after** the prompt,
+    // which is itself a user message: read before, what is missing is exactly the prompt.
     let failure: string | null = null;
+    let modelRef = world.model;
     try {
       await this.#narrator.prompt(sessionId, {
         agent: GM_AGENT,
-        modelRef: world.model,
-        // The narrator's text does not come back from here: it arrives through the
-        // events, and waiting for it here would mean hanging until the deadline.
+        modelRef,
+        // The text arrives through the events: waiting here would hang until the deadline.
         delivery: "fire-and-forget",
         text: mark(input.text, input.silent === true),
       });
@@ -311,19 +350,65 @@ export class TurnPipeline {
         onEvent,
         debug,
       );
+
+      /*
+       * The fallback, here and not in the route: only the pipeline knows the session, the
+       * subscription and the text sent, and rebuilding those would be a second
+       * implementation of the turn.
+       *
+       * Only a real failure is retried (`failure !== null`, set on an error event or a
+       * timeout). A turn that produced nothing may be a narrator that chose silence, and
+       * asking a second model to answer what the first declined is a different turn.
+       */
+      if (failure !== null) {
+        const alternative = await this.#fallbackModel(modelRef);
+        if (alternative !== null) {
+          log.warn("turn.fallback", {
+            worldId: world.id,
+            from: modelRef,
+            to: alternative,
+            reason: failure,
+          });
+          modelRef = alternative;
+          // A new session, because the one that failed is marked and the next turn
+          // would not reuse it. The fallback starts from a clean context rather than
+          // from whatever state the failed model left behind.
+          sessionId = await this.#narrator.createSession(world.name);
+          this.#campaign.rememberSession(world.id, sessionId);
+          const retrySubscription = await this.#narrator.events();
+          try {
+            await this.#narrator.prompt(sessionId, {
+              agent: GM_AGENT,
+              modelRef,
+              delivery: "fire-and-forget",
+              text: mark(input.text, input.silent === true),
+            });
+            const retryDiscard = await this.#playerMessageIds(sessionId);
+            failure = await this.#readTurn(
+              retrySubscription,
+              sessionId,
+              retryDiscard,
+              world,
+              contextLimit,
+              timeoutMs,
+              onEvent,
+              debug,
+            );
+          } finally {
+            retrySubscription.close();
+          }
+        }
+      }
     } finally {
-      // The stream has to be closed in any case, even when everything went well:
-      // without this the connection stays open until opencode closes it, and every
-      // turn leaves a hanging stream.
+      // Closed in every case: otherwise each turn leaves the connection open until opencode
+      // closes it.
       subscription.close();
     }
 
-    // A timed out or interrupted turn leaves opencode working. It has to be
-    // aborted, otherwise the campaign stays busy and the next turn gets stuck.
     if (failure !== null) {
+      // Abort, or the campaign stays busy and the next turn gets stuck, and do not reuse
+      // the failed session. See `markSessionFailed`.
       await this.#narrator.abort(sessionId).catch(() => false);
-      // The session the turn ended badly on is not reused: the next turn opens a
-      // new one. See `markSessionFailed` for the why.
       this.#campaign.markSessionFailed(world.id, sessionId);
       throw new TurnFailed(failure);
     }
@@ -333,24 +418,38 @@ export class TurnPipeline {
   }
 
   /**
+   * A model to ask when the one the campaign chose did not answer.
+   *
+   * The widest free model that is not the failed one: the fallback continues a story the
+   * first model could not finish, so too small a window fails for the same reason, and a
+   * fallback that spends money the player did not agree to spend is a bill.
+   *
+   * `null` when there is no alternative, which is the common case on a single-provider
+   * account. Not an error: the turn fails with the reason it already had.
+   */
+  async #fallbackModel(exclude: string): Promise<string | null> {
+    const catalog = await this.#narrator.models();
+    const candidates = catalog.free
+      .filter((model) => model.ref !== exclude && model.admissibleByDefault)
+      .sort((a, b) => b.contextLimit - a.contextLimit);
+    return candidates[0]?.ref ?? null;
+  }
+
+  /**
    * The ids of the messages that are not the narrator's.
    *
-   * It has to be called **after** the prompt and not before: the player's prompt
-   * is a user message like the others and comes from the same call that sends it.
-   * Reading the ids before the prompt, what is missing is exactly the prompt, and
-   * it is the only one that would arrive at the top of the narrator's answer.
+   * Called **after** the prompt: the player's prompt is a user message like the others and
+   * comes from the same call, so reading before it would filter out exactly the prompt.
    *
-   * If they cannot be read an empty set is returned: everything is let through,
-   * which is the behaviour from before. Better to show something extra than to
-   * hide the narrator's answer.
+   * An empty set on failure lets everything through: better to show something extra than
+   * to hide the answer.
    */
   async #playerMessageIds(sessionId: string): Promise<Set<string>> {
     try {
       const ids = new Set<string>();
       for (const message of await this.#narrator.messages(sessionId)) {
         if (message.role !== "user") continue;
-        // A message without an id is not a message: putting it in the set would
-        // mean discarding any part that has an empty id.
+        // An empty id would filter out every part carrying it.
         if (message.id !== "") ids.add(message.id);
       }
       return ids;
@@ -360,15 +459,10 @@ export class TurnPipeline {
   }
 
   /**
-   * Reads the turn's events until it ends, and returns the failure reason, or
-   * `null` if it went well.
+   * Reads the turn's events until it ends, returning the failure reason or `null`.
    *
-   * The deadline is in here for a precise reason: it is the only place where time
-   * can be counted **from the start of the work**, that is also everything that
-   * happened before and that no tighter timeout would cover. It is not a
-   * `setTimeout` that closes the turn from outside: it waits together with
-   * `readTurn`, and when it expires it closes the stream and aborts the session,
-   * so the waiting cannot go on.
+   * The deadline is checked here because this is the only loop covering the whole wait:
+   * when it expires the stream closes and the session aborts, so the waiting cannot go on.
    */
   async #readTurn(
     subscription: EventSubscription,
@@ -433,8 +527,8 @@ export class TurnPipeline {
   }
 
   /**
-   * Canon and state generate no answer (`noReply`): they cost zero output tokens
-   * and are there to orient the narrator on the turn.
+   * Canon and state are injected with `noReply`: zero output tokens, there only to orient
+   * the narrator.
    */
   async #injectContext(
     world: World,
@@ -496,20 +590,12 @@ export class TurnPipeline {
 
     const canonText = renderCanonSlice(slice);
 
-    // Reference from the library, searched by the engine. It goes into the same
-    // block as the canon and for the same reason: if it depended on the narrator
-    // deciding to search, it would never search, and the turn would run on memory
-    // instead of on sources.
+    // Searched by the engine, in the same block as the canon: left to the narrator's
+    // decision it would never search and the turn would run on memory.
     const libraryText = await this.#libraryFor(world, input.text, debug);
 
-    // The language has to be **declared**, not deduced, and it goes at the end of
-    // the block for two reasons. The first is that the narrator used to deduce it
-    // from the player's text: on its own that is not enough, because the injected
-    // prompt and the library are in English while the player writes in another
-    // language, and what landed on it was a mix of the two. The second is that
-    // `isContext` recognises the
-    // context block from its head: with this at the end, the history keeps
-    // recognising it as context and not as a line of the player's.
+    // Declared, not deduced, and last: the injected text is English while the player writes
+    // in another language, and `isContext` recognises the block from its head.
     const blocks = [canonText, card.text, libraryText, languageBlock(input.locale)].filter(
       (block) => block !== "",
     );
@@ -526,9 +612,7 @@ export class TurnPipeline {
   /**
    * Library entries quoted by the player, to inject into the context.
    *
-   * It fails silently: an unreadable library or an unbuilt index must not stop
-   * the turn. The narrator will answer without references, which is the behaviour
-   * from before, and not with an error the player can do nothing about.
+   * Fails silently: an unreadable library or an unbuilt index must not stop the turn.
    */
   async #libraryFor(world: World, playerText: string, debug: TurnDebug): Promise<string> {
     try {
@@ -560,9 +644,8 @@ export class TurnPipeline {
 
     const usage = currentContextUsage(await this.#narrator.messages(sessionId));
 
-    // The closed arcs go in as compressed memory. Their chapters are not rewritten:
-    // they are already inside the spine, and repeating them would cost tokens on
-    // every chapter forever.
+    // Closed arcs go in as compressed memory: their chapters are already in the spine, and
+    // rewriting them would cost tokens on every chapter forever.
     const memories = this.#arcs.list(world.id).map((arc) => ({
       arc,
       chapters: this.#arcs.chaptersIn(arc.id),
@@ -603,8 +686,7 @@ export class TurnPipeline {
     });
     this.#arcs.attachChapter(arc.id, chapterNumber);
 
-    // The arc closes at the tenth chapter: from there the memory of its chapters
-    // goes in as the spine.
+    // The arc closes at the tenth chapter: from there its chapters go in as the spine.
     if (this.#arcs.needsClosing(arc.id)) {
       await this.#closeArc(world, arc.id);
     }
@@ -672,15 +754,80 @@ export class TurnPipeline {
     state: ContextState;
     chapterNumber: number;
     arcs: number;
+    breakdown: ContextBreakdown;
   }> {
     const world = this.#campaign.world(worldId);
     const sessionId = await this.#campaign.ensure(world);
     const contextLimit = await contextLimitFor(this.#narrator, world.model, world.contextLimit);
     const state = await this.#contextState(world, sessionId, contextLimit);
+    const breakdown = await this.#breakdown(world);
+    // The provider's own count. Shown beside the breakdown because the parts never sum to
+    // the whole: the provider counts its formatting and the session carries the injected
+    // context and its markers.
+    breakdown.reported = state.tokensUsed;
+
     return {
       state,
       chapterNumber: this.#chapters.latest(worldId)?.n ?? 0,
       arcs: this.#arcs.list(worldId).length,
+      breakdown,
+    };
+  }
+
+  /**
+   * The context, piece by piece.
+   *
+   * Slices are counted where they are already built. The Bible is read at startup by the
+   * narrator and the library is whatever it looked up on some past turn, so those say
+   * they are uncounted rather than showing a guess as a measurement.
+   */
+  async #breakdown(world: World): Promise<ContextBreakdown> {
+    const bible = this.#worlds.getBible(world.id);
+    const bibleTokens = estimateTextTokens(
+      BIBLE_SECTIONS.map((section) => bible[section] ?? "").join("\n\n"),
+    );
+    const activeEras = this.#worlds.listEras(world.id);
+    const canon = this.#canon.list({
+      worldId: world.id,
+      activeEras: activeEras.map((era) => era.key),
+      includeDisputed: false,
+    });
+    const canonTokens = canon.reduce((sum, entry) => sum + entry.tokens, 0);
+
+    const slices: ContextSlice[] = [
+      {
+        key: "bible",
+        tokens: bibleTokens,
+        detail:
+          bibleTokens === 0
+            ? "empty"
+            : `${BIBLE_SECTIONS.filter((s) => (bible[s] ?? "").trim() !== "").length} sections`,
+      },
+      {
+        key: "canon",
+        tokens: canonTokens,
+        detail: `${canon.length} entries`,
+      },
+      {
+        // Not measured: rebuilt from the cast and the location on every turn, so there is no
+        // stored version to count.
+        key: "stateCard",
+        tokens: 0,
+        detail: "rebuilt every turn",
+      },
+      {
+        // Not measured: the library is not in the context by default, so its cost shows up in
+        // the session rather than here.
+        key: "library",
+        tokens: 0,
+        detail: world.libraries.length === 0 ? "none" : `${world.libraries.length} on demand`,
+      },
+    ];
+
+    return {
+      slices,
+      known: slices.reduce((sum, slice) => sum + slice.tokens, 0),
+      reported: 0,
     };
   }
 
@@ -691,19 +838,14 @@ export class TurnPipeline {
 }
 
 /**
- * The turn's language, stated to the narrator in its own words.
+ * The turn's language, stated on every turn and not only in the agent.
  *
- * It has to be repeated on every turn and the agent's one is not enough, for two
- * reasons. The first is recency: the instruction closest to the prompt is the one
- * the model follows, and the canon and the library sit in between, with a bag of
- * English inside them. The second is that the two languages are not necessarily
- * the same: the agent's file carries the language of the **world**, declared when
- * the world was created, and the turn carries the one the interface asked for
- * now. When they differ the turn wins, and that is why the line does not say "as
+ * Recency: the instruction closest to the prompt is the one followed, and the canon and
+ * the library sit in between in English. The agent's language is the world's declared
+ * one, so when they differ the turn wins — which is why the line does not say "as
  * before".
  *
- * The block is not written in the narrator's language, and that is fine: it does
- * not need to be, it needs to name that language.
+ * The block need only name the language, not be written in it.
  */
 export function languageBlock(locale: string): string {
   const language = localeName(locale);
@@ -719,23 +861,15 @@ export function languageBlock(locale: string): string {
 }
 
 /**
- * Translates an opencode event into a turn event, discarding what does not
- * concern us.
+ * Translates an opencode event into a turn event, discarding the rest.
  *
- * opencode's events are **global**, not per session: without the session filter
- * two campaigns open at the same time would write into each other's answer.
+ * opencode's events are **global**, so the session filter keeps two open campaigns from
+ * writing into each other's answer.
  *
- * There is a second filter, and it is the one that makes the chat readable. When
- * you subscribe to the stream, opencode also replays the state of the messages
- * that are already there: so the first piece that arrives is the player's prompt
- * text and the canon injected on the previous turn, that is hundreds of
- * characters of world rules at the top of the answer. `daScartare` are the ids of
- * those messages.
- *
- * The filter is on the **ids**, not on the text: the player's prompt is arbitrary
- * text and has no mark that distinguishes it from an answer. A text-based filter
- * would let the prompt through, and the result would be an answer that repeats
- * the player's line at the top.
+ * `daScartare` is the second filter and is what makes the chat readable: subscribing
+ * replays the messages already there, so the first pieces arriving are the player's prompt
+ * and the canon injected on the previous turn. Filtering on ids and not on text, because
+ * a prompt has no mark distinguishing it from an answer.
  */
 export function parseTurnEvent(
   evento: unknown,

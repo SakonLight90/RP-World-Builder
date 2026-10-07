@@ -6,9 +6,7 @@ import { newId, nowIso, parseStringArray, stringify, toBool, toInt } from "./com
 /**
  * A character used outside its own world.
  *
- * A dedicated error, not just any error: the route must be able to tell it apart
- * to answer 400 "this character is not from this campaign" instead of
- * 500, which would be something else.
+ * A dedicated error so the route can answer 400 instead of 500.
  */
 export class CastScopeError extends Error {
   readonly #role: string;
@@ -31,18 +29,12 @@ export class CastScopeError extends Error {
 }
 
 /**
- * An impossible geographic parent.
+ * A location whose parent cannot be what the caller asked for: a place inside itself or
+ * inside its own descendant belongs to the world all right, it is the hierarchy that
+ * makes no sense.
  *
- * A dedicated error because "does not belong to the world" would be the wrong diagnosis
- * in two cases out of three: a place inside itself or inside one of its descendants
- * belongs to the world all right, it is the hierarchy that makes no sense.
- */
-/**
- * A location whose parent cannot be what the caller asked for.
- *
- * It carries the code and not just the sentence, because the route has to send
- * that code to the interface: a free-form reason here is a problem the client
- * can only show in English.
+ * Carries the code and not just the sentence, because the route sends it to the interface
+ * and a free-form reason would be shown in English only.
  */
 export class LocationParentError extends Error {
   readonly code:
@@ -133,6 +125,15 @@ function toRelationship(row: RelationshipRow): Relationship {
   };
 }
 
+/**
+ * Escapes the two `LIKE` wildcards: unescaped, `_` matches every single-character name and
+ * `%` the whole table, and both are ordinary text in a name. Escaping anything else would
+ * make a literal backslash unsearchable for no gain.
+ */
+function escapeLike(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
+
 export class CastRepository {
   readonly #db: Database;
 
@@ -181,6 +182,29 @@ export class CastRepository {
       .map(toLocation);
   }
 
+  /**
+   * Places matching `text` in name, description or aliases.
+   *
+   * Aliases are searched because the canon writes a place under one name and the player looks
+   * for it under another.
+   */
+  searchLocations(worldId: string, text: string, limit = 20): Location[] {
+    const needle = text.trim();
+    if (needle === "") return [];
+    const pattern = `%${escapeLike(needle)}%`;
+    const rows = this.#db
+      .prepare<[string, string, string, string, number], LocationRow>(
+        `SELECT * FROM locations
+         WHERE world_id = ?
+           AND (name LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\' OR aliases LIKE ? ESCAPE '\\')
+         ORDER BY name ASC
+         LIMIT ?`,
+      )
+      .all(worldId, pattern, pattern, pattern, limit);
+
+    return rows.map(toLocation);
+  }
+
   deleteLocation(worldId: string, id: string): boolean {
     return (
       this.#db
@@ -192,14 +216,11 @@ export class CastRepository {
   /**
    * Fixes an existing place.
    *
-   * The parent is validated here and not in the route: it must belong to the same
-   * world, it cannot be the place itself and it cannot be one of its descendants.
-   * Without these three checks you get impossible geographies — a place inside
-   * itself — which the parent chain then walks forever, or worse
-   * ends up in another world with nothing flagging it.
+   * The parent is validated here and not in the route: same world, not the place itself, not
+   * one of its descendants. Without the three checks you get impossible geographies, which the
+   * parent chain then walks forever.
    *
-   * Returns `null` when the place does not exist, so the route tells "missing"
-   * apart from "updated".
+   * `null` when the place does not exist, so the route tells "missing" from "updated".
    */
   updateLocation(
     worldId: string,
@@ -218,8 +239,7 @@ export class CastRepository {
       if (!parent) {
         throw new LocationParentError("cast.locationParentOtherWorld");
       }
-      // The new parent cannot sit below the place being moved: otherwise the
-      // child would become its own ancestor and `locationAncestry` would loop.
+      // A parent below the moved place would make the child its own ancestor.
       if (this.locationAncestry(worldId, parent.id).some((avo) => avo.id === id)) {
         throw new LocationParentError("cast.locationParentNested");
       }
@@ -246,11 +266,8 @@ export class CastRepository {
   }
 
   /**
-   * Attaches a place to a parent.
-   *
-   * Needed when copying places from one world to another: the order the
-   * database returns them in does not guarantee a parent arrives before its child, and
-   * without a second pass half the geography is lost.
+   * Attaches a place to a parent, for the second pass of a world copy: the database does not
+   * guarantee a parent before its child.
    */
   reparentLocation(worldId: string, id: string, parentId: string | null): void {
     this.#db
@@ -330,6 +347,28 @@ export class CastRepository {
     return rows.map(toCharacter);
   }
 
+  /**
+   * Characters matching `text` in name, role or description.
+   *
+   * Three columns because a character is findable by any of the three things a reader knows:
+   * who they are, what they do, how they look.
+   */
+  searchCharacters(worldId: string, text: string, limit = 20): Character[] {
+    const needle = text.trim();
+    if (needle === "") return [];
+    const pattern = `%${escapeLike(needle)}%`;
+    return this.#db
+      .prepare<[string, string, string, string, number], CharacterRow>(
+        `SELECT * FROM characters
+         WHERE world_id = ?
+           AND (name LIKE ? ESCAPE '\\' OR role LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\')
+         ORDER BY name ASC
+         LIMIT ?`,
+      )
+      .all(worldId, pattern, pattern, pattern, limit)
+      .map(toCharacter);
+  }
+
   /** Characters on stage: those in the current place, excluding the player. */
   charactersAt(worldId: string, locationId: string): Character[] {
     return this.#db
@@ -388,15 +427,10 @@ export class CastRepository {
   /**
    * Deletes **all** characters of a world and returns how many it had.
    *
-   * Backs "Restart": characters are the lineup of **that**
-   * campaign, not data surviving a new story. Without this, a
-   * place or a name wrongly promoted in the previous game stayed in
-   * the new game's character list, and the user has no way to
-   * remove it from chat.
+   * Backs "Restart": a name wrongly promoted in the previous game would otherwise stay in the
+   * new lineup with no way to remove it from chat.
    *
-   * Relationships go away on their own: the table has `ON DELETE CASCADE` on
-   * characters, so there is no need to delete them by hand, and doing it first would be
-   * pointless.
+   * Relationships go away on their own through `ON DELETE CASCADE`.
    */
   deleteAllCharacters(worldId: string): number {
     const removed = this.#db
@@ -409,12 +443,9 @@ export class CastRepository {
   // --- relationships ------------------------------------------------------------
 
   setRelationship(worldId: string, input: Relationship): Relationship {
-    /*
-     * Both characters must belong to this world. The table constraint
-     * only checks that they exist, not which campaign they are from: without this a
-     * relationship between characters of another game ends up in this lineup and
-     * the state card presents them as if they knew each other.
-     */
+    // Both characters must belong to this world: the table constraint checks only that they
+    // exist, so without this a relationship between characters of another game reaches this
+    // lineup and the state card presents them as knowing each other.
     const lookup = this.#db.prepare(`SELECT id FROM characters WHERE id = ? AND world_id = ?`);
     for (const [role, characterId] of [
       ["from", input.fromCharacterId],

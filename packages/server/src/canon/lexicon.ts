@@ -2,12 +2,10 @@ import type { CanonKind, Character, Location } from "@rpwb/shared";
 import { STOPWORDS } from "../db/repo/common.js";
 import { normalize } from "./inject.js";
 
-/**
- * The narrator can name things the canon does not contain: they are "in-game
- * internal lore". The player promotes to canon whatever they want to keep, and
- * doing that requires knowing *what* was quoted without the AI having to say it.
- *
- * So detection is deterministic and client-side: no model involved.
+/*
+ * The narrator can name things the canon does not contain. The player promotes to canon
+ * whatever they want to keep, which requires knowing *what* was quoted without the AI
+ * having to say it: detection is deterministic and client-side, no model involved.
  */
 
 export interface LexiconTerm {
@@ -17,13 +15,10 @@ export interface LexiconTerm {
   key: string;
   kind: "canon" | "cast" | "place" | "new";
   /**
-   * For `kind: "canon"`, the type of the canon entry the name comes from.
+   * For `kind: "canon"`, the type of the entry the name comes from.
    *
-   * It is needed because `canon` only says *where from* the name comes, not
-   * *what it is*: without this, "Flatwoods Lookout" (which in the corpus is an
-   * entry of type `location`) would be indistinguishable from a settlement or an
-   * event, and promotion would have no way of knowing that the name is a place
-   * and not a person.
+   * `canon` says only *where from* the name comes, not *what it is*: without this a
+   * `location` entry would be indistinguishable from a settlement or an event.
    */
   canonKind?: CanonKind;
   id: string;
@@ -31,9 +26,8 @@ export interface LexiconTerm {
 
 export interface BuildLexiconInput {
   /**
-   * The world's canon entries. `kind` is optional for compatibility, but without
-   * it a canon entry does not say what type of entity it is: `undefined` is
-   * better than an invented value.
+   * The world's canon entries. `kind` is optional, and `undefined` is better than an
+   * invented value.
    */
   canonSubjects: { id: string; subject: string; aliases: string[]; kind?: CanonKind }[];
   characters: Pick<Character, "id" | "name">[];
@@ -91,13 +85,10 @@ const CANON_PROMOTE: Partial<Record<CanonKind, PromoteKind>> = {
 };
 
 /**
- * What kind of entity an already known name is.
+ * What kind of entity an already known name is, or `null` when the name says nothing.
  *
- * `null` when the name says nothing: a canon entry that is not a person, a
- * place, a faction or an item blocks no promotion, because there is no wrong
- * type to contradict. Blocking there would mean forbidding the player from
- * canonising a name the narrator used, and the punishment falls on them while
- * the problem is ours.
+ * A canon entry that is not a person, a place, a faction or an item blocks no promotion,
+ * because there is no wrong type to contradict.
  */
 export function promotionKindOf(term: LexiconTerm): PromoteKind | null {
   if (term.kind === "place") return "location";
@@ -118,17 +109,11 @@ export interface PromotionVerdict {
 /**
  * Decides whether a name can be promoted to the requested type.
  *
- * A place cannot become a character and a character cannot become a place, even
- * if the player explicitly asks for it: it is not an arbitrary ban, it is that
- * the two entities are not interchangeable. A "Flatwoods" that ends up among the
- * characters is not just a wrong row, it is a place that from that moment on the
- * state card looks for among the people, and that the narrator keeps quoting as
- * if it were a person. That is why the check is here and not only in the request:
- * a wrong `kind` default has already done the damage once, and a default is not a
- * check.
+ * A place cannot become a character even if the player asks: the two are not
+ * interchangeable, and a place filed as a person is then looked for among the people and
+ * quoted as one.
  *
- * A name the lexicon does not know passes: it is the normal case of promotion,
- * the narrator came up with something new and the player decides it is worth it.
+ * An unknown name passes: the narrator came up with something new and the player decides.
  */
 export function decidePromotion(
   name: string,
@@ -149,10 +134,10 @@ export function decidePromotion(
 }
 
 /**
- * Substrings to avoid: partial proper nouns or set phrases that generate false
- * positives. A fixed vocabulary is one of the few heuristics that does not get
- * worse with data, and here the cost of a false positive is high: a "known" name
- * the player cannot promote is a lost piece of canon.
+ * Substrings to avoid: partial proper nouns and set phrases that generate false positives.
+ *
+ * A fixed vocabulary, because here the false positive costs a piece of canon: a "known"
+ * name the player cannot promote.
  */
 const IGNORED = new Set([
   "io",
@@ -220,10 +205,7 @@ export interface DetectedName {
   known: boolean;
   kind: LexiconTerm["kind"] | "new";
   id: string;
-  /**
-   * How reliable the hypothesis that it is a proper noun is. Names already in the
-   * canon are always reliable; for new ones `NameTracker` decides.
-   */
+  /** How reliable the proper-noun hypothesis is. `NameTracker` decides for new names. */
   confidence: NameConfidence;
 }
 
@@ -237,8 +219,7 @@ function isIgnorable(surface: string): boolean {
   if (IGNORED.has(key)) return true;
   if (STOPWORDS.has(key)) return true;
   if (key.length < 3) return true;
-  // Phrases and set expressions, not names: they have more than four words or end
-  // with a punctuation mark a proper noun would not carry.
+  // Phrases and set expressions, not names.
   if (surface.split(/\s+/).length > 4) return true;
   return false;
 }
@@ -248,13 +229,8 @@ function escapeRegExp(value: string): string {
 }
 
 /**
- * A run of consecutive capitalised words is read all together, and an initial
- * function word ends up inside the name: "Poi Brennan" becomes a different
- * candidate from "Brennan", so the recurrence never triggers and promotion to
- * canon never arrives.
- *
- * Function words are therefore trimmed off the ends: what remains is the name,
- * and it is stable across quotes.
+ * Trims function words off the ends of a capitalised run, so a leading preposition does not
+ * make it a different candidate from the bare name and the recurrence still triggers.
  */
 function trimFunctionWords(surface: string): string {
   const words = surface.split(/\s+/);
@@ -271,10 +247,7 @@ function trimFunctionWords(surface: string): string {
   return words.join(" ");
 }
 
-/**
- * Words that signal the proper noun is about to arrive: "un uomo di nome
- * Brennan", "dalla dottoressa Vale", "con O'Neil".
- */
+/** Words that signal a proper noun is about to arrive: "di nome", "con", "dal titolo di". */
 const PRECEDING_TRIGGERS = new Set([
   "di",
   "del",
@@ -337,14 +310,11 @@ function isAfterTrigger(text: string, index: number): boolean {
 }
 
 /**
- * A proper noun quoted by the narrator is almost always followed by another
- * entity or by an appositive punctuation mark ("Brennan, il nuovo arrivo",
- * "Brennan."). A verb ("Vesti una luce verde") instead introduces a phrase, and
- * the name is followed by an article.
+ * A proper noun is usually followed by another entity or appositive punctuation; a verb is
+ * followed by an article.
  *
- * Precision is preferred even at the cost of recall: proposing "Vesti" as a
- * character to canonise costs the player a deletion, while a missed name costs
- * nothing, because it can always be added by hand.
+ * Precision over recall: proposing a verb as a name costs the player a deletion, a missed
+ * name costs nothing because it can be added by hand.
  */
 function isNameLikeFollower(text: string, index: number, length: number): boolean {
   const after = text.slice(index + length);
@@ -353,24 +323,14 @@ function isNameLikeFollower(text: string, index: number, length: number): boolea
 }
 
 /**
- * A name quoted by the narrator is almost always introduced by a preposition
- * phrase ("un uomo di nome Brennan") or followed by another entity or by
- * appositive punctuation ("Brennan, il nuovo arrivo"). A verb instead introduces
- * a phrase: "Vesti una luce verde".
- *
- * A degree of confidence is needed and not a yes/no: a high-confidence name can
- * be proposed right away, a low-confidence one waits to be quoted a second time.
- * Without this distinction you have to choose between proposing "Vesti" as a
- * character to canonise and never seeing "Brennan".
+ * Confidence rather than yes/no: a high-confidence name is proposed at once, a
+ * low-confidence one waits to be quoted again.
  */
 function confidenceOf(text: string, index: number, surface: string): NameConfidence {
   if (isAfterTrigger(text, index)) return "high";
   if (isNameLikeFollower(text, index, surface.length)) return "high";
-  // A name at the start of a sentence, with no punctuation and no other
-  // occurrence on its own, is almost always a common word capitalised for the
-  // start of the period. It is not discarded, though: a real name recurs, and the
-  // recurrence is what tells them apart. It costs one extra quote, not the
-  // proposal.
+  // A bare capital at the start of a sentence is usually just a common word: kept, because a
+  // real name recurs, at the cost of one extra quote.
   if (startsSentenceBare(text, surface)) return "low";
   return "low";
 }
@@ -386,15 +346,14 @@ function startsSentenceBare(text: string, surface: string): boolean {
 export type NameConfidence = "high" | "low";
 
 /**
- * Searches a text for proper nouns, separating those already known to the canon
- * and the cast from the new ones. Both are returned because the UI does two
- * different things: highlight the known ones and propose promoting the new ones.
+ * Proper nouns in a text, known to the canon and the cast or new. Both are returned
+ * because the interface highlights the known ones and proposes promoting the new ones.
  */
 export function detectNames(text: string, lexicon: Map<string, LexiconTerm>): DetectedName[] {
   const found = new Map<string, DetectedName>();
   const lower = normalize(text);
 
-  // The known terms first: they are more reliable than the capitals heuristic.
+  // Known terms first: more reliable than the capitals heuristic.
   for (const [key, term] of lexicon) {
     if (key.length < 3) continue;
     if (!lower.includes(key)) continue;
@@ -420,8 +379,8 @@ export function detectNames(text: string, lexicon: Map<string, LexiconTerm>): De
     if (surface === "" || isIgnorable(surface)) continue;
     const key = normalize(surface);
     if (found.has(key)) continue;
-    // A sequence that already contains a known term is not a new name: it is
-    // "Fort Atlas" inside "Fort Atlas militare".
+    // A sequence containing a known term is not a new name: it is a longer phrase built on a
+    // name already found.
     if ([...found.keys()].some((existing) => key.includes(existing))) continue;
     found.set(key, {
       surface,
@@ -439,12 +398,8 @@ export function detectNames(text: string, lexicon: Map<string, LexiconTerm>): De
 export type NameCandidate = TrackedName;
 
 /**
- * A name the narrator uses only once is indistinguishable from a typo or from a
- * verb; a name that recurs is a name.
- *
- * The tracker counts the quotes per campaign, so the proposal to canonise arrives
- * when the evidence is there, with no need to ask the model anything and no word
- * lists to maintain.
+ * Counts quotes per campaign, so a name is proposed once the evidence is there: no model
+ * call and no word lists to maintain.
  */
 export class NameTracker {
   readonly #counts = new Map<string, TrackedName>();
@@ -456,18 +411,14 @@ export class NameTracker {
       const previous = this.#counts.get(name.key);
       this.#counts.set(name.key, {
         ...name,
-        // A high-confidence quote counts double: it is already a strong hint.
+        // A high-confidence quote counts double.
         mentions: (previous?.mentions ?? 0) + (name.confidence === "high" ? 2 : 1),
       });
     }
     return found;
   }
 
-  /**
-   * New names whose quotes reach the threshold. The default of two is the point
-   * where the signal beats the noise; high-confidence names reach it with a
-   * single occurrence, because they count double.
-   */
+  /** New names whose quotes reach the threshold. Two is where the signal beats the noise. */
   candidates(minMentions = 2): NameCandidate[] {
     return [...this.#counts.values()]
       .filter((name) => name.mentions >= minMentions)

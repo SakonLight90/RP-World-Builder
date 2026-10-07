@@ -2,9 +2,8 @@ import { CANON_KINDS, CANON_STATUSES, type CanonEntry, EraSchema } from "@rpwb/s
 import { z } from "zod";
 
 /**
- * Token estimates: about four chars per token is the
- * rule of thumb. Only used for the canon slice budget, so
- * precision is not critical, but it must be stable and conservative.
+ * Token estimates: four chars per token. Only used for the canon slice budget, so it must be
+ * stable and conservative rather than precise.
  */
 function tokensFromChars(chars: number): number {
   return Math.ceil(chars / 4);
@@ -56,12 +55,9 @@ export const CorpusBibleSchema = z.object({
 /**
  * A playable scenario written in the corpus.
  *
- * `playable` defaults to false, not true, and the reason is what it means for the
- * games this corpus does not have an opening for: they are in the library as
- * reference, and defaulting them to playable would offer a campaign that begins
- * nowhere. Defaulting to false means a start that does not say it can be played is
- * not offered, which is the safe direction: the worst case is a start nobody sees
- * instead of a start that opens on nothing.
+ * `playable` defaults to false: a start that does not say it can be played is not offered,
+ * which is the safe direction — the worst case is a start nobody sees, not a start that
+ * opens on nothing.
  */
 const CorpusStartSchema = z.object({
   id: z.string().min(1, "a start needs an id: it is what a selection points at"),
@@ -71,6 +67,11 @@ const CorpusStartSchema = z.object({
   playable: z.boolean().default(false),
   /** The opening narration, shown as the first message of the conversation. */
   narration: z.string().default(""),
+  /**
+   * A canon place name the scenario begins in, not a database id: the corpus is written by
+   * hand. A name that matches nothing sends nothing rather than a guess.
+   */
+  location: z.string().default(""),
 });
 
 export const CorpusWorldSchema = z.object({
@@ -96,11 +97,10 @@ export const CorpusWorldSchema = z.object({
   /**
    * Libraries the world **requires**, not ones it copies.
    *
-   * A library lives outside the worlds, read-only, and can serve all the worlds
-   * at once: it is the way to avoid rewriting the same story every time. The
-   * world declares id, version and hash: if the library on disk changes without
-   * the world updating the requirement, validation flags it instead of letting
-   * the campaign derive from sources other than the declared ones.
+   * A library lives outside the worlds, read-only, and can serve all of them: the way to avoid
+   * rewriting the same story every time. The world declares id, version and hash, so a
+   * library that changes without the world updating the requirement is flagged instead of
+   * silently used.
    */
   libraries: z
     .array(
@@ -115,9 +115,9 @@ export const CorpusWorldSchema = z.object({
   /**
    * The ways into this world.
    *
-   * A setting can have several beginnings: Fallout is one world with a Capital
-   * Wasteland start and a Mojave start, and the player picks the one they want when
-   * they begin playing. The world itself is unchanged by the choice.
+   * A setting can have several beginnings: one world can offer a start in one region and
+   * another in a different one, and the player picks when they begin. The world itself is
+   * unchanged by the choice.
    */
   starts: z.array(CorpusStartSchema).default([]),
 });

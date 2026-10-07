@@ -98,14 +98,14 @@ describe("library search", () => {
     const subjects = hits.map((h) => h.subject);
     expect(subjects).toContain("Mojave Wasteland");
     expect(subjects).toContain("Freeside");
-    // "Mojave Wasteland" is longer than "Freeside": it must come first.
+    // The longer name must come first.
     expect(subjects.indexOf("Mojave Wasteland")).toBeLessThan(subjects.indexOf("Freeside"));
   });
 
   it("doesn't lower text to short words appearing by chance", async () => {
     const root = await mkdtemp(join(tmpdir(), "lore-lookup-"));
     const hits = await findInLibrary(await libsFor(root), "un oste gridò: vattene da qui");
-    // "NCR" is in the library but too short to be searched alone.
+    // In the library, but below the minimum name length.
     expect(hits.some((h) => h.subject === "NCR")).toBe(false);
   });
 

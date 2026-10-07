@@ -6,15 +6,11 @@ import { isRecord } from "./bridge.js";
 import { call } from "./client.js";
 import type { EventSubscription, StoredMessage } from "./narrator.js";
 
-/**
- * The type describing **what** is read from the narrator lives in the contract, not
- * here: this module talks to opencode, and a type describing a history
- * has no reason to know where it comes from.
- *
- * It is re-exported for the single reason that `currentContextUsage`
- * mentions it and readers look for it right here. If the path
- * changes, it changes in one place without touching the types.
+/*
+ * The type describing **what** is read from the narrator lives in the contract, not here.
+ * Re-exported only because `currentContextUsage` mentions it and readers look for it here.
  */
+
 export type { StoredMessage } from "./narrator.js";
 
 export async function createSession(client: OpencodeClient, title: string): Promise<string> {
@@ -28,18 +24,11 @@ export async function createSession(client: OpencodeClient, title: string): Prom
 /**
  * Headers the event stream must present for authentication.
  *
- * They copy the ones `makeFetch` adds to every other request, but
- * placed here for one precise, verified reason: **the SDK `createSseClient` does not
- * use the `fetch` handed to the client**, it calls the global one directly
- * (`node_modules/@opencode-ai/sdk/dist/gen/core/serverSentEvents.gen.js`, line
- * `const response = await fetch(url, ...)`). So the header `makeFetch`
- * adds never reaches `/event`, and on a server with
- * `OPENCODE_SERVER_PASSWORD` the answer is `401`.
+ * Passed by hand: the SDK's SSE client calls the global `fetch` instead of the one the client
+ * was given, so the header never reaches `/event`.
  *
- * And a `401` on the stream is the worst possible defect, because it is invisible:
- * `createSseClient` does `if (!response.ok) throw`, the `catch` backs off and
- * **retries forever**. No event and no error arrive: the
- * generator looks alive and yields nothing. The header must be passed by hand.
+ * A 401 on the stream is invisible: the SDK throws, backs off and retries forever, so no event
+ * and no error arrive.
  */
 function streamAuthHeaders(env: NodeJS.ProcessEnv = process.env): Record<string, string> {
   const credentials = readServerCredentials(env);
@@ -47,19 +36,11 @@ function streamAuthHeaders(env: NodeJS.ProcessEnv = process.env): Record<string,
 }
 
 /**
- * Subscription to opencode events that closes when asked.
+ * A subscription that closes when asked.
  *
- * The point here is not receiving events, which the SDK can do, it is **being able
- * to stop**. The SDK generator, when the connection fails, spends its
- * life between `await sleep(backoff)` and another failing `fetch`: a loop
- * with no `yield`, and on an async generator `return()` does not apply
- * until a suspension point that is a `yield` arrives. Asking
- * `iterator.return()` of a generator in that loop means waiting
- * forever: measured, `return()` did not settle after 20 seconds.
- *
- * Below sits an `AbortController` owned by the caller, so
- * closing does not go through `return()` but through an explicit abort, which closes the
- * connection and ends the generator at once. Measured: 2 ms.
+ * The point is being able to **stop**: on a failed connection the SDK generator retries with no
+ * `yield`, and `return()` on an async generator takes effect only at a `yield`, so asking it to
+ * return there never settles. Closing goes through the `AbortController` instead.
  */
 export async function subscribeEvents(client: OpencodeClient): Promise<EventSubscription> {
   const controller = new AbortController();
@@ -72,9 +53,8 @@ export async function subscribeEvents(client: OpencodeClient): Promise<EventSubs
   });
 
   if (!response.ok) {
-    // Here failure is said out loud instead of retried quietly:
-    // a stream that never starts is a reason a turn cannot
-    // end, and a reason the player must be able to read.
+    // Said out loud instead of retried quietly: a stream that never starts is a reason a
+    // turn cannot end, and the player must be able to read it.
     throw new Error(
       `opencode did not open the event stream (HTTP ${response.status}). ` +
         "The narrator stays in the dark and the turn will be closed as failed.",
@@ -95,8 +75,8 @@ export async function subscribeEvents(client: OpencodeClient): Promise<EventSubs
         if (done) return;
         buffer += value;
 
-        // opencode sends SSE events: one `data:` block per event, split by
-        // an empty line. A block without `data:` is a keep-alive to ignore.
+        // SSE: one `data:` block per event, split by an empty line. A block without `data:` is a
+        // keep-alive to ignore.
         const blocchi = buffer.split("\n\n");
         buffer = blocchi.pop() ?? "";
         for (const blocco of blocchi) {
@@ -135,11 +115,10 @@ function eventoDaBlocco(blocco: string): unknown {
 }
 
 /**
- * The address of the opencode server this client talks to.
+ * The address of the opencode server.
  *
- * The SDK does not expose it, and it must be read from what the client was built with.
- * Needed for the event stream, which bypasses the client `fetch` and so
- * does not know it: without this address there is no way to open `/event`.
+ * Not exposed by the SDK and read from the client: the event stream bypasses the client's `fetch`
+ * and needs the address to open `/event`.
  */
 function clientBaseUrl(client: OpencodeClient): string {
   const url = readClientUrl(client);
@@ -150,13 +129,10 @@ function clientBaseUrl(client: OpencodeClient): string {
 }
 
 /**
- * Looks up `baseUrl` inside the client, the ways the SDK really uses.
+ * Looks up `baseUrl` inside the client.
  *
- * The working path is `_client.getConfig().baseUrl`, that is the
- * live client configuration. `_config` is tried too, but it is an internal
- * path that may change release to release: no narrator
- * is built on it. When neither is there, say so, and the turn
- * fails with a readable reason instead of hanging.
+ * `getConfig()` is the live configuration; `_config` is an internal path no narrator is built on.
+ * When neither is there the turn fails with a readable reason instead of hanging.
  */
 function readClientUrl(client: OpencodeClient): string | null {
   const daConfig = () => {
@@ -182,13 +158,11 @@ function directConfigUrl(client: OpencodeClient): string | null {
 /**
  * Deletes **one** message: only the last, and only that.
  *
- * opencode has no "delete message", and `session.revert` is no eraser: it
- * is observed to answer without errors while leaving messages in place. So
- * nothing is faked here: the **start** id of the part to keep is returned,
- * and the caller decides how much to cut and saves it.
+ * opencode has no delete-message call and `session.revert` is no eraser: it answers without error
+ * and leaves the messages in place. So nothing is faked — the id to keep is returned and the
+ * caller decides how much to cut.
  *
- * The reason it lives here and not in the route is that the rule is one and
- * holds for every caller: a deleted message is gone, never two.
+ * The rule holds for every caller: a deleted message is gone, never two.
  */
 export async function dropLastMessage(
   client: OpencodeClient,
@@ -198,8 +172,7 @@ export async function dropLastMessage(
 ): Promise<{ kept: number; removed: number }> {
   if (visible <= 0) return { kept, removed: 0 };
 
-  // A lone message is never deleted: it starts the campaign, and without it
-  // there is nothing left to restart from.
+  // A lone message starts the campaign: without it there is nothing to restart from.
   if (visible === 1) {
     throw new Error("This is the first message of the history: it cannot be deleted.");
   }
@@ -207,9 +180,8 @@ export async function dropLastMessage(
   const next = kept < 0 ? visible - 1 : Math.min(kept, visible) - 1;
   const finalKept = Math.max(1, next);
 
-  // opencode is told anyway: it may use it to ignore truncation when
-  // building the next turn context. It does not delete, so
-  // the result does not depend on this call.
+  // opencode is told anyway: it may use it to ignore truncation when building the next turn
+  // context. It does not delete, so the result does not depend on this call.
   const messages = await readMessages(client, sessionId);
   const keep = messages[messages.length - 2];
   if (keep !== undefined) {
@@ -283,9 +255,8 @@ function readUsage(info: Record<string, unknown>): TokenUsage | null {
 /**
  * Current context-window usage.
  *
- * Message tokens are not summed: the last assistant
- * message input already holds all piled-up context, so it is
- * the true measure of how full the window is.
+ * Not a sum: the last assistant message's input already holds the whole piled-up context, so it
+ * is the measure of how full the window is.
  */
 export function currentContextUsage(messages: StoredMessage[]): TokenUsage {
   for (let i = messages.length - 1; i >= 0; i -= 1) {

@@ -12,29 +12,18 @@ import { WorldRepository } from "../db/repo/worlds.js";
 import { libraryIndex, readableRoots, resolveLibraries } from "../lore/registry.js";
 import type { Narrator } from "../opencode/narrator.js";
 
-/**
- * A campaign is three things that must exist before the first turn: the world's
- * directory, the narrator agent with the Bible inside, and the opencode session
- * that keeps its conversation.
- *
- * The session can change when a chapter closes the context, so only the bootstrap
- * happens here and the pipeline is left to decide the rest.
- *
- * Calling `ensure` on every turn has to cost nothing and lose nothing: that is
- * what keeps the turn path simple.
+/*
+ * A campaign is three things that must exist before the first turn: the world's directory,
+ * the narrator agent with the Bible inside, and the opencode session holding its
+ * conversation. The session changes when a chapter closes the context, so only the bootstrap
+ * belongs here: `ensure` must cost nothing and lose nothing.
  */
+
 /**
- * Prepares a world's narrator **without** needing an opencode client.
+ * Prepares a world's narrator without an opencode client.
  *
- * It is for the routes, which have to have the agent's file in place *before*
- * starting the world's server: opencode registers the agents at boot, and a
- * server started without `gm.md` does not know `gm`.
- *
- * It does not need the client because the file is only written to disk.
- *
- * `loreRoot` comes from the caller: the libraries root is a fact of
- * `config/paths.ts`, and deriving it in here would mean one module knows a
- * different version of another.
+ * For the routes: opencode registers agents at boot, so a server started without `gm.md` does
+ * not know `gm`.
  */
 export async function prepareNarrator(
   world: World,
@@ -59,14 +48,7 @@ export class CampaignSession {
   readonly #turns: TurnRepository;
   /** Libraries root: it comes from outside, it is not deduced. See `prepareNarrator`. */
   readonly #loreRoot: string;
-  /**
-   * Sessions not to reuse, per world.
-   *
-   * It lives in memory and not in the database for a precise reason: it marks
-   * **the session that has just failed**, and that is information about this
-   * process. An old failed turn must not cost a conversation, and `settings` has
-   * no room for a row that has to be cleaned at every start.
-   */
+  /** Sessions not to reuse, per world. In memory: it marks the session that just failed. */
   readonly #sessioniFallite = new Map<string, string>();
   #template: string | null = null;
 
@@ -105,22 +87,20 @@ export class CampaignSession {
 
     const sessionId = await this.#narrator.createSession(world.name);
     this.#worlds.update(world.id, { opencodeSessionId: sessionId });
-    // A new session is no longer the one marked as poisoned.
+    // A new session is no longer the marked one.
     this.#sessioniFallite.delete(world.id);
     return sessionId;
   }
 
   /**
-   * A session already marked as failed is not reused, and asking opencode whether
-   * it exists is not enough: it does exist, it is just no longer good for the
-   * conversation. The comparison is with the id, not with the world: if a chapter
-   * has changed the session in the meantime, the new one has to be used.
+   * Whether a session is reusable.
    *
-   * The last closed turn is checked too, not only the in-memory bookmark: if the
-   * backend restarted while a turn was in flight, that turn ended badly with
-   * nobody having written it anywhere, and the session it was using is still the
-   * one saved on the world. It is the case where the campaign gets stuck and never
-   * unsticks.
+   * A marked session exists and is no longer good for the conversation, so asking opencode
+   * whether it exists is not enough. Compared by id, since a chapter may have changed the
+   * session.
+   *
+   * The last closed turn is checked too: a backend that restarted mid-turn leaves a `running`
+   * row whose session is still the world's, and that is where a campaign never unsticks.
    */
   #riutilizzabile(world: World): boolean {
     if (this.#sessioniFallite.get(world.id) === world.opencodeSessionId) return false;
@@ -130,21 +110,15 @@ export class CampaignSession {
   /**
    * Marks the session a turn ended badly on, so the next turn opens a new one.
    *
-   * A session on which the provider errored is not fixed by a simple retry, and
-   * not even waiting is enough: the assistant's message stays in `error` inside
-   * the session, and opencode keeps considering it part of the conversation.
-   * Every later prompt starts again from there, with that message inside, and the
-   * result is that the campaign does not advance while every turn seems to start.
+   * Retrying on an errored session does not fix it: the assistant's message stays in `error`
+   * inside it and every later prompt starts from there, so the campaign stops advancing while
+   * every turn appears to start.
    *
-   * The worst case is not the message, though: it is the session staying
-   * **busy**. `session.abort` on an already free session is not a guaranteed
-   * no-op, and a session that believes it is writing makes the next prompt queue
-   * without ever running it. It is exactly the flaw for which a turn produces
-   * nothing and never ends.
+   * Worse, the session can stay **busy**: a session that believes it is writing queues the
+   * next prompt forever.
    *
-   * The cost of getting it wrong is a conversation that restarts from the
-   * prologue; the cost of not doing it is a campaign blocked forever. The second
-   * is irreversible, the first is not.
+   * Getting it wrong costs a conversation restarting from the prologue; not getting it wrong
+   * costs a campaign blocked forever.
    */
   markSessionFailed(worldId: string, sessionId: string): void {
     if (sessionId === "") return;
@@ -162,12 +136,9 @@ export class CampaignSession {
   }
 
   /**
-   * The Bible is in the agent, not in the turn's context: it is the "initial
-   * context that must never be lost" and, being in the system prompt, it survives
-   * any compaction.
+   * The Bible is in the agent, in the system prompt, so it survives compaction.
    *
-   * The file is rewritten only if it really changed, because regenerating it every
-   * turn would touch it while opencode is reading it.
+   * Written only when it really changed, so the file is not touched while opencode reads it.
    */
   async ensureAgent(world: World): Promise<void> {
     if (this.#template === null) this.#template = await loadTemplate();
@@ -177,12 +148,10 @@ export class CampaignSession {
   }
 
   /**
-   * Resolves the world's library requirements against the disk.
+   * Resolves the world's library requirements.
    *
-   * It is redone on every `ensureAgent` and not memoised: a library can appear or
-   * change while the server is up, and a permission frozen at the first turn would
-   * give the narrator an access that no longer reflects the world, or take away one
-   * that is its due.
+   * Redone on each `ensureAgent`, not memoised: a permission frozen at the first turn would no
+   * longer reflect the world.
    */
   async #libraries(world: World): Promise<AgentLibraries> {
     if (world.libraries.length === 0) return NO_LIBRARIES;
@@ -202,16 +171,10 @@ export class CampaignSession {
   }
 
   /**
-   * The most recent turn that ended badly, with the session it happened on.
+   * The most recent turn that ended badly, with its session.
    *
-   * It is read from the **turns** and not from a world field, because it is the
-   * only trace that survives a backend restart: if the process dies while a turn
-   * is in flight, on return that row is still `running` and the session that turn
-   * was using is the one left hanging. Without this check, the first turn after the
-   * restart would reuse that session and start again from the hole.
-   *
-   * A `running` turn that has not expired does not count: it is a turn somebody is
-   * carrying forward right now, not a failed turn.
+   * Read from `turns`, the only trace that survives a restart. A `running` turn that has not
+   * expired does not count: somebody is carrying it forward.
    */
   latestFailedSession(worldId: string): string | null {
     for (const turn of this.#turns.list(worldId, 5)) {

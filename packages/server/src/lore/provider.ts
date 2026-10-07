@@ -3,18 +3,16 @@ import type { LoreDescriptor } from "./layout.js";
 /**
  * The contract the engine expects from a library.
  *
- * The engine knows how to read no format: it knows how to ask which entry types
- * exist, get the index of a type, get the text of an entry, and ask whether that
- * entry is primary or only quoted. Whoever knows how to answer is an adapter, and
- * an adapter can describe a format the engine has never seen, because the variable
- * part is all inside the adapter.
+ * The engine knows how to ask which entry types exist, get the index of a type, get
+ * an entry's text and ask whether it is owned or only quoted. Whoever knows how to
+ * answer is an adapter, so the variable part of a format lives entirely there.
  *
- * Matching too is a question and not a rule: which names are too short, which
- * words distinguish nothing and which word hooks onto an abbreviated name are
- * facts of that library, and they come back as answers.
+ * Matching is a question and not a rule: which names are too short, which words
+ * distinguish nothing and which word hooks onto an abbreviated name are facts of that
+ * library, and come back as answers.
  */
 
-/** A library, in terms of what an adapter needs to know to read it. */
+/** A library, in terms of what an adapter needs to read it. */
 export interface LoreLibrary {
   /** Id with which the world required it. */
   id: string;
@@ -25,8 +23,8 @@ export interface LoreLibrary {
 /**
  * An entry as the library describes it.
  *
- * `file` is relative to the library's folder and is validated by the engine before
- * any read: it comes from data, so it is an input to be treated as such.
+ * `file` is relative to the library's folder and is validated before any read: it
+ * comes from data.
  */
 export interface LoreRecord {
   /** Canonical name. */

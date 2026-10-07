@@ -133,7 +133,6 @@ export default function PlayClient({ worldId }: Props) {
   );
   const [cast, setCast] = useState<{ id: string; name: string }[]>([]);
   const [places, setPlaces] = useState<{ id: string; name: string }[]>([]);
-  const [location, setLocation] = useState("");
   const [newNames, setNewNames] = useState<string[]>([]);
   /**
    * The last prompt that failed, if any. Feeds the "Retry" button, which
@@ -193,6 +192,40 @@ export default function PlayClient({ worldId }: Props) {
    */
   const awaitingStart =
     world !== null && playableStarts.length > 0 && world.starts.selectedId === null;
+
+  /*
+   * Where the player is, worked out and never asked for.
+   *
+   * The start says where the scenario begins and the name is matched against the world's
+   * places. There is no picker: the player chose a scenario and that choice already named the
+   * place, and a second control would let them contradict it without ever being told they had.
+   *
+   * A picker existed, and its empty option said "undeclared place": it asked the player to
+   * state something the scenario had already stated, and a campaign that had not touched it
+   * arrived with no location at all — so the narrator did not know where the scenario begins.
+   *
+   * `null` when the start names no place, or the world has no place by that name, and both are
+   * ordinary: a hand-written start may not name one, and a world whose places have not been
+   * declared yet has nothing to match.
+   *
+   * Derived and not stored, because it comes from two things that change independently: the
+   * player can pick a different start after this renders, and the places arrive after the
+   * world does.
+   */
+  const startLocationId = useMemo(() => {
+    const starts = world?.starts;
+    if (starts === undefined || starts.selectedId === null) return null;
+    const start = starts.list.find((entry) => entry.id === starts.selectedId);
+    const name = start?.location?.trim();
+    if (name === undefined || name === "") return null;
+    // Exact match first, then a prefix: a scenario can name a more specific place than the
+    // canon declares, and a substring match would take the first place alphabetically.
+    const wanted = name.toLowerCase();
+    const exact = places.find((place) => place.name.toLowerCase() === wanted);
+    if (exact !== undefined) return exact.id;
+    const byPrefix = places.find((place) => place.name.toLowerCase().startsWith(wanted));
+    return byPrefix?.id ?? null;
+  }, [world, places]);
 
   /**
    * Failure of the selection, kept apart from `problem`.
@@ -491,9 +524,9 @@ export default function PlayClient({ worldId }: Props) {
   /**
    * Sends a turn.
    *
-   * `silent` feeds the "Continua" button: the narrator continues, but it isn't the
-   * player speaking, so no bubble appears in chat. The text
-   * feeds the model; the cursor must not impersonate the player.
+   * `silent` feeds the "Continua" button: the narrator continues, but it is not the player
+   * speaking, so no line appears in chat. The text feeds the model; the cursor must not
+   * impersonate the player.
    *
    * Start and exit here: what answers is the turn's id, not the text. The
    * narrator carries on even if the tab closes a second later, and what it
@@ -518,7 +551,7 @@ export default function PlayClient({ worldId }: Props) {
       const started = await api.startTurn(worldId, {
         text: body,
         locale: world?.activeLocale ?? "it",
-        locationId: location === "" ? null : location,
+        locationId: startLocationId,
         silent,
       });
       setActive(started.turnId);
@@ -547,9 +580,9 @@ export default function PlayClient({ worldId }: Props) {
    *
    * It goes like a normal send, not silently: if it's your line, in chat it must
    * appear as such, otherwise after the retry you can't tell what you
-   * wrote. Before sending, the leftover bubble with the same text from the
-   * failed attempt is removed, otherwise two copies of the same sentence back to back
-   * look like you wrote it twice.
+   * wrote. Before sending, the leftover line with the same text from the failed attempt is
+   * removed, otherwise two copies of the same sentence back to back look like you wrote it
+   * twice.
    *
    * The only exception is "Continua": that's not a player turn, so
    * retrying it must not put words in your mouth that aren't yours.
@@ -561,7 +594,7 @@ export default function PlayClient({ worldId }: Props) {
     setFailed(null);
     forgetPendingByPrompt(worldId, prompt);
     setLocalTurns(pendingTurns(worldId));
-    // The previous attempt's bubble, if any.
+    // The previous attempt's line, if any.
     setLines((prev) => {
       const last = prev[prev.length - 1];
       return last !== undefined && last.role === "player" && last.text.trim() === prompt.trim()
@@ -826,11 +859,17 @@ export default function PlayClient({ worldId }: Props) {
               <div className="stream-in stack" style={{ gap: 24 }}>
                 {lines.map((line) =>
                   line.role === "player" ? (
-                    <div key={line.id} className="you">
-                      <span className="bubble">
+                    <article key={line.id} className="you">
+                      <div className="who">
+                        <span className="who-mark" aria-hidden="true">
+                          ✧
+                        </span>
+                        {t("play.turn.you")}
+                      </div>
+                      <div className="narr">
                         <PlayerText text={line.text} />
-                      </span>
-                    </div>
+                      </div>
+                    </article>
                   ) : (
                     <article key={line.id}>
                       <div className="who">
@@ -883,14 +922,9 @@ export default function PlayClient({ worldId }: Props) {
                         className="panel"
                         style={{ padding: 12, background: "var(--indigo-2)" }}
                       >
-                        <div
-                          className="you"
-                          style={{ justifyContent: "flex-start", marginBottom: 8 }}
-                        >
-                          <span className="bubble" style={{ maxWidth: "100%" }}>
-                            <PlayerText text={item.prompt} />
-                          </span>
-                        </div>
+                        <p className="narr" style={{ borderBottom: 0, paddingBottom: 8 }}>
+                          <PlayerText text={item.prompt} />
+                        </p>
                         {item.partial !== "" && (
                           <p
                             className="narr"
@@ -937,16 +971,6 @@ export default function PlayClient({ worldId }: Props) {
                             {t("play.action.discard")}
                           </button>
                         </div>
-
-                        <p className="muted" style={{ marginTop: 8, fontSize: 12 }}>
-                          {location === ""
-                            ? t("play.context.placeFree")
-                            : t("play.context.placeChosen", {
-                                place:
-                                  places.find((p) => p.id === location)?.name ??
-                                  t("play.context.placeUnknown"),
-                              })}
-                        </p>
                       </div>
                     ))}
                   </div>
@@ -998,24 +1022,12 @@ export default function PlayClient({ worldId }: Props) {
             />
 
             <div className="row" style={{ marginTop: 10, gap: 8 }}>
-              <select
-                value={location}
-                onChange={(event) => setLocation(event.target.value)}
-                style={{ width: "auto", flex: 1, padding: "9px 11px", fontSize: 13 }}
-                title={t("play.composer.locationTitle")}
-              >
-                <option value="">{t("play.composer.locationUnset")}</option>
-                {places.map((place) => (
-                  <option key={place.id} value={place.id}>
-                    {place.name}
-                  </option>
-                ))}
-              </select>
               <button
                 type="button"
                 className="btn btn-primary"
                 onClick={() => void send()}
                 disabled={writing || input.trim() === ""}
+                style={{ flex: 1 }}
               >
                 {writing ? t("play.composer.writing") : t("play.action.send")}
               </button>
@@ -1046,7 +1058,7 @@ export default function PlayClient({ worldId }: Props) {
                 disabled={writing || failed === null}
                 onClick={() => {
                   if (failed === null) return;
-                  // The failed prompt's bubble stays: that's what you wrote.
+                  // The failed prompt's line stays: that is what you wrote.
                   // It retries that one, without adding a second copy.
                   void retry(failed);
                 }}
@@ -1333,11 +1345,9 @@ export default function PlayClient({ worldId }: Props) {
 /**
  * One line from the player.
  *
- * The ** are their convention for meaning "I'm doing this", not the narrator's.
- * They become italics, but **only if they come in pairs**: if one is left open,
- * the text stays as it is. Without that condition a long prompt with an odd number
- * of asterisks would render half italic and half not, looking like another prompt
- * with different formatting inside the same bubble.
+ * The ** are their convention for meaning "I'm doing this", not the narrator's. They become
+ * italics only if they come in pairs: an unpaired one leaves the text as it is, or half a long
+ * prompt would render italic and half not.
  */
 function PlayerText({ text }: { text: string }) {
   const marks = text.split("**").length - 1;

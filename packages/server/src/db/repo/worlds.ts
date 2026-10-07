@@ -42,20 +42,9 @@ interface WorldRow {
   kept_messages: number;
   /** Requested lore libraries, serialised as JSON. */
   libraries: string;
-  /**
-   * The player character, serialised as JSON.
-   *
-   * Optional because the column arrives with a migration: on a database that
-   * does not have it yet the field is simply absent, and it has to be read as
-   * "no character" instead of making the row fail.
-   */
+  /** The player character, serialised as JSON. Absent until the migration adds it. */
   player_character?: string | null;
-  /**
-   * The starts and the selected one, serialised as JSON.
-   *
-   * Optional for the same reason as `player_character`: the column arrives with a
-   * migration, and a database that does not have it yet simply has no starts.
-   */
+  /** The starts and the selected one, serialised as JSON. Absent until the migration adds it. */
   starts?: string | null;
   created_at: string;
   updated_at: string;
@@ -81,15 +70,11 @@ const PLAYER_COLUMN = "player_character";
 const STARTS_COLUMN = "starts";
 
 /**
- * The character column is added to `worlds` with a migration, so it is not
- * guaranteed: a database opened by a previous build has it only if the migrations
- * have run.
+ * The migrated columns, asked of the schema once.
  *
- * So it is asked of the schema, once, instead of putting the column in the fixed
- * `SELECT`. The reason is that the `SELECT` is the way in for every world: if it
- * named a missing column it would not lose the character, which is an extra, but
- * it would lose the whole table, and a world that does not load cannot be told
- * apart from a world that does not exist.
+ * Kept out of the fixed `SELECT` because naming a missing column would lose the whole
+ * table, not just the extra: a world that does not load cannot be told apart from one
+ * that does not exist.
  */
 function playerColumn(db: Database): string {
   const present = db
@@ -99,14 +84,7 @@ function playerColumn(db: Database): string {
   return present ? `, ${PLAYER_COLUMN}` : "";
 }
 
-/**
- * The starts column, asked of the schema for the same reason as the character's.
- *
- * It does not share `playerColumn`'s answer on purpose: the two arrive with
- * different migrations, so a database can have one and not the other, and reusing
- * the single check would make a world load with a character's column and no
- * starts, or the other way round.
- */
+/** Checked separately from `playerColumn`: the two arrive with different migrations. */
 function startsColumn(db: Database): string {
   const present = db
     .prepare<[], { name: string }>("PRAGMA table_info(worlds)")
@@ -148,14 +126,7 @@ function toReasoning(value: string): ReasoningEffort {
     : DEFAULT_REASONING_EFFORT;
 }
 
-/**
- * The `libraries` column is JSON when written, but on read it has to be an
- * array of valid objects: if the JSON is corrupted, or if the column holds
- * something that is not a list of requirements, the world still loads, without
- * libraries. Because a world without libraries is a legitimate state: it can be a
- * new world that requires none. It must not become a world that does not start
- * because a library broke.
- */
+/** A world without libraries is a legitimate state, so corrupted JSON degrades to none. */
 function toLibraries(raw: string): LibraryRequirement[] {
   try {
     const parsed: unknown = JSON.parse(raw);
@@ -175,15 +146,9 @@ function toLibraries(raw: string): LibraryRequirement[] {
 }
 
 /**
- * The `player_character` column is JSON when written, but on read it has to be a
- * character or nothing: if the JSON is corrupted, if it is not an object, or if
- * the name is missing, the world still loads, without a character. As with the
- * libraries, degrading is the right choice because a world without a character is
- * a legitimate state and is reached even with nothing broken.
- *
- * An empty or blank name is discarded for the same reason: it is not a
- * character, it is a half-filled field the narrator would end up completing with
- * an invented name.
+ * A character or nothing, degrading like the libraries: a world without a character is
+ * legitimate. A blank name is discarded too — it is a half-filled field the narrator
+ * would complete with an invented name.
  */
 function toPlayer(raw: unknown): PlayerCharacter | undefined {
   if (typeof raw !== "string" || raw === "") return undefined;
@@ -204,22 +169,14 @@ function toPlayer(raw: unknown): PlayerCharacter | undefined {
 }
 
 /**
- * The starts, or none at all.
+ * The starts, or none.
  *
- * Degrading for the same reason as the libraries and the character: a corrupted
- * column must not make the world fail to load, because a world that does not load
- * cannot be told apart from a world that does not exist. Losing the starts costs
- * the player the selector, which they can get back by choosing again; losing the
- * world costs them the campaign.
+ * Degrades like the libraries and the character: losing the starts costs the player the
+ * selector, losing the world costs them the campaign.
  *
- * Two things are validated beyond "is it JSON", and both matter:
- *
- * * A start without an id is dropped. The id is what a selection points at, so a
- *   start that cannot be pointed at is not a start.
- * * A `selectedId` that names no start in the list becomes null. That is the case
- *   the single-column decision exists to prevent from ever being written, but a
- *   hand-edited database can still hold one, and the consequence would be a
- *   transcript opening on nothing.
+ * A start without an id is dropped, because the id is what a selection points at, and a
+ * `selectedId` naming no start in the list becomes null rather than opening the
+ * transcript on nothing.
  */
 function toStarts(raw: unknown): StartsState {
   if (typeof raw !== "string" || raw === "") return { ...EMPTY_STARTS };
@@ -244,6 +201,9 @@ function toStarts(raw: unknown): StartsState {
         game: toStr(start.game).trim(),
         playable: start.playable === true,
         narration: toStr(start.narration).trim(),
+        // Omitted when blank rather than written as `""`, so an absent place needs no filtering
+        // at each place it is read.
+        ...(toStr(start.location).trim() === "" ? {} : { location: toStr(start.location).trim() }),
       });
     }
     const selected = toStr(entry.selectedId).trim();
@@ -351,21 +311,18 @@ opencode_dir, opencode_session_id, is_template, template_author, kept_messages, 
         now,
       });
 
-    // The Bible starts empty but with all the sections present: the narrator has
-    // to be able to rely on a fixed structure, not on keys that may be missing.
+    // Empty but with every section present: the narrator relies on a fixed structure rather
+    // than on keys that may be missing.
     for (const section of BIBLE_SECTIONS) {
       this.setBibleSection(id, section, "");
     }
 
-    // The character is written with the same method the user will use, and not
-    // inside the `INSERT`: a column in two places is a column that sooner or later
-    // is forgotten in one of the two.
+    // Written through the method the player uses, not inside the `INSERT`: a column in two
+    // places is one that gets forgotten in one of them.
     if (input.player !== undefined) this.setPlayer(id, input.player);
 
-    // Same as the character: written through the method the player will use, and
-    // not inside the `INSERT`. A world created from a template is born with its
-    // starts and with none selected, because choosing is the player's first move
-    // inside the chat and doing it here would spend it for them.
+    // Born with its starts and none selected: choosing is the player's first move inside the
+    // chat, and doing it here would spend it for them.
     if (input.starts !== undefined) this.setStarts(id, input.starts, null);
 
     const world = this.get(id);
@@ -383,10 +340,9 @@ opencode_dir, opencode_session_id, is_template, template_author, kept_messages, 
   /**
    * Sets the player character, or removes it with `null`.
    *
-   * There is a dedicated method and not just an `update` field because the
-   * character changes on its own, while everything else about the world changes
-   * from the edit screen: forcing a re-read and rewrite of the whole world for a
-   * name means that sooner or later nobody saves it.
+   * A dedicated method because the character changes on its own while the rest of the world
+   * changes from the edit screen: forcing a whole-world rewrite for a name means nobody saves
+   * it.
    */
   setPlayer(id: string, player: PlayerCharacter | null): void {
     if (this.#playerColumn() === "") {
@@ -402,17 +358,11 @@ opencode_dir, opencode_session_id, is_template, template_author, kept_messages, 
   /**
    * The starts, and which one is in play.
    *
-   * The list is cleaned on the way in, not only on the way out: `toStarts` would
-   * drop a start with no id on the next read, and a selection naming a start that
-   * does not exist is nulled. Validating at the door means what is stored is what
-   * will be read, instead of the two quietly disagreeing.
+   * Cleaned on the way in and not only on the way out, so what is stored is what will be read.
    *
-   * A selection naming a start that is not in the list is refused with an error
-   * rather than corrected to null. The two are not the same: null is "the player
-   * has not chosen yet", which is a state the selector shows and offers, while a
-   * dropped id is a caller passing something wrong, and silently answering with a
-   * world that has no opening narration would hide it until the transcript looked
-   * empty.
+   * A selection naming an absent start is refused, not corrected to null: null means "not
+   * chosen yet", a state the selector offers, while a dropped id is a caller passing
+   * something wrong.
    */
   setStarts(id: string, list: WorldStart[], selectedId: string | null): void {
     if (this.#startsColumn() === "") {
@@ -430,6 +380,9 @@ opencode_dir, opencode_session_id, is_template, template_author, kept_messages, 
         game: toStr(start.game).trim(),
         playable: start.playable === true,
         narration: toStr(start.narration).trim(),
+        // A blank location is left out, as on the way out, so the two readers cannot disagree
+        // about what a start with no place means.
+        ...(toStr(start.location).trim() === "" ? {} : { location: toStr(start.location).trim() }),
       });
     }
     if (selectedId !== null && !seen.has(selectedId)) {
@@ -443,15 +396,11 @@ opencode_dir, opencode_session_id, is_template, template_author, kept_messages, 
   /**
    * Chooses the start the conversation opens on.
    *
-   * Only a playable start can be chosen. A lore-only entry is in the library so
-   * the narrator can cite it, not so a campaign can begin there: there is no
-   * scenario to step into, and selecting one would produce an opening narration
-   * for a game nobody can play.
+   * Only a playable one: a lore-only entry is there to be cited, and selecting it would
+   * produce an opening narration for a game nobody can play.
    *
-   * It does not touch the session. Changing the start of a campaign that has
-   * already been played would leave the transcript beginning one way and the story
-   * another, and only the player can decide that; the interface asks before
-   * calling this on a world with messages in it.
+   * The session is untouched: changing the start of a played campaign would leave the
+   * transcript and the story disagreeing, and only the player decides that.
    */
   selectStart(id: string, startId: string | null): World | null {
     const world = this.get(id);
@@ -484,12 +433,9 @@ opencode_dir, opencode_session_id, is_template, template_author, kept_messages, 
   /**
    * Sets how many messages to keep. `-1` means "all".
    *
-   * The minimum of one only applies to positive numbers, and that distinction is
-   * the whole problem: `Math.max(1, -1)` yields `1`, so the "all" bookmark was
-   * never actually writable. A single conversation reset was enough to plant that
-   * `1`, and from then on the transcript showed only the prologue forever: the
-   * narrator answered, the session grew, and the UI looked like the prompt had
-   * never gone out. The campaign moved on with nobody seeing it.
+   * The minimum of one applies to positive numbers only: `Math.max(1, -1)` is `1`, which
+   * made the "all" bookmark unwritable and left the transcript showing only the prologue
+   * while the campaign moved on unseen.
    */
   setKeptMessages(id: string, count: number): void {
     const value = count < 0 ? -1 : Math.max(1, count);
@@ -505,15 +451,7 @@ opencode_dir, opencode_session_id, is_template, template_author, kept_messages, 
     return row ? toWorld(row) : null;
   }
 
-  /**
-   * The playable worlds, and only those.
-   *
-   * Excluding the templates is not fussiness: a template is the model you start
-   * from, not a campaign. If it also ended up here it would appear twice in the
-   * same answer, as a world and as a template, and in the "your worlds" page there
-   * would be an entry that cannot be opened and whose reason for existing is
-   * unclear.
-   */
+  /** The playable worlds. A template is the model you start from, not a campaign. */
   list(): World[] {
     return this.#db
       .prepare<[], WorldRow>(
@@ -572,14 +510,11 @@ is_template = @isTemplate, template_author = @templateAuthor,
         updatedAt: next.updatedAt,
       });
 
-    // The character is not in the `UPDATE` above, which lists a column per item.
-    // It has to be written only when it was explicitly asked for: an `update` of
-    // the world's name must not zero out the protagonist, and an `update` without
-    // a character must not touch it.
+    // Written only when explicitly asked for: the `UPDATE` above lists a column per item, so
+    // renaming a world must not zero out the protagonist.
     if (patch.player !== undefined) this.setPlayer(id, patch.player);
 
-    // Same rule as the character: writing them unconditionally would wipe the
-    // selection every time the world was renamed.
+    // Same rule: written unconditionally, they would wipe the selection on every rename.
     if (patch.starts !== undefined) {
       this.setStarts(id, patch.starts.list, patch.starts.selectedId);
     }
@@ -686,21 +621,12 @@ is_template = @isTemplate, template_author = @templateAuthor,
       isTemplate: false,
       chapterThresholdRatio: source.chapterThresholdRatio,
       canonBudgetRatio: source.canonBudgetRatio,
-      // Requirements are copied by reference, not their contents: the clone asks
-      // for the same library as the source, which stays unique and read-only. That
-      // is the point of the whole mechanism: cloning a world does not clone the
-      // lore.
+      // By reference, not by contents: the clone asks for the same library, which stays unique
+      // and read-only. Cloning a world does not clone the lore.
       libraries: overrides.libraries ?? source.libraries,
-      // The character is not cloned, for the reason the starts are not *selected*:
-      // a template is the model somebody starts from, and whoever starts declares
-      // their own protagonist. Without this, forking a template would carry around
-      // the name of whoever wrote it, and the narrator would tell a stranger about a
-      // person they have never met.
+      // Not cloned, and the selection not chosen either: whoever starts declares their own
+      // protagonist and meets the selector first.
       player: overrides.player,
-      // The starts travel with the world, and the selection does not: whoever starts
-      // from a template has not chosen their opening yet, and the selector is the
-      // first thing they should meet. A template that arrived with a start already
-      // chosen would open the new campaign on the previous player's decision.
       starts: overrides.starts ?? source.starts.list,
     });
 
@@ -717,19 +643,16 @@ is_template = @isTemplate, template_author = @templateAuthor,
   /**
    * Copies the canon.
    *
-   * It has to be done, otherwise a world created from a template is born with its
-   * Bible and its eras but **zero canon entries**: everything looks ready and the
-   * narrator has nothing to work from. It is the worst case, because it looks
-   * like it works.
+   * Without it a world created from a template has its Bible and its eras but zero canon
+   * entries: everything looks ready and the narrator has nothing to work from.
    */
   #copyCanon(sourceId: string, cloneId: string): void {
-    // `listAll`, not `list`: `list` only keeps the entries of the active era, and
-    // copying those would lose half the canon without anything flagging it.
+    // `listAll`, not `list`: `list` keeps only the active era and copying those would lose
+    // half the canon silently.
     const entries = new CanonRepository(this.#db).listAll(sourceId);
     if (entries.length === 0) return;
 
-    // The ids have to change: an id shared between two worlds makes a change to
-    // one touch the other, and that is not immediately visible.
+    // The ids must change: a shared id makes a change to one world touch the other.
     const remap = new Map<string, string>();
     for (const entry of entries) {
       remap.set(entry.id, `${cloneId}-${entry.id}`);
@@ -760,16 +683,15 @@ is_template = @isTemplate, template_author = @templateAuthor,
           description: place.description,
           aliases: [...place.aliases],
           era: place.era,
-          // The parent is recalculated: if it has not been copied yet, it waits.
-          // Places arrive in the order the database gives them, and it is not
-          // guaranteed that a parent comes before its child.
+          // Recalculated: the database does not guarantee a parent before its child, so an
+          // uncopied parent waits.
           parentId: place.parentId === null ? null : (placeIds.get(place.parentId) ?? null),
         }).id,
       );
     }
 
-    // If some parent was ahead of its child, a second round fixes it:
-    // `addLocation` creates the place without a parent and it is then attached.
+    // Second round for the parents that arrived after their child: `addLocation` creates the
+    // place without a parent and it is attached here.
     for (const place of places) {
       if (place.parentId === null) continue;
       const child = placeIds.get(place.id);
@@ -798,8 +720,7 @@ is_template = @isTemplate, template_author = @templateAuthor,
       );
     }
 
-    // Relationships are between characters: without recalculating the ids they
-    // would point at characters of the starting world, which do not exist here.
+    // Ids recalculated, or the relationships would point at characters of the source world.
     for (const relation of cast.listRelationships(sourceId)) {
       const from = peopleIds.get(relation.fromCharacterId);
       const to = peopleIds.get(relation.toCharacterId);
