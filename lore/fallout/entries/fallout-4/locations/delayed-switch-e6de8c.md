@@ -5,6 +5,4 @@
 - variants: "Fallout 4 settlement objects"
 - categories: Fallout 4 settlement objects
 
-## Summary from the source
-
 Delayed Switch is a settlement object in Fallout 4.

@@ -5,6 +5,4 @@
 - variants: "Vault 76"
 - categories: Vault 76
 
-## Summary from the source
-
 The Vault 76 Slideshow is a presentation shown during the quest Reclamation Day in the Fallout 76.

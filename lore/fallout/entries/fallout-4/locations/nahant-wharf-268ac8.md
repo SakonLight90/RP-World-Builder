@@ -5,6 +5,4 @@
 - variants: "Coastal Commonwealth primary locations", "Nahant"
 - categories: Fallout 4 locations; Coastal Commonwealth primary locations; Nahant
 
-## Summary from the source
-
 The Nahant Wharf is a location in The Commonwealth in Fallout 4.

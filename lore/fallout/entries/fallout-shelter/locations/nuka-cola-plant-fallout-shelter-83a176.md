@@ -5,6 +5,4 @@
 - variants: "Nuka-Cola Plant"
 - categories: Fallout Shelter locations
 
-## Summary from the source
-
 The Nuka-Cola Plant is a location in Fallout Shelter.

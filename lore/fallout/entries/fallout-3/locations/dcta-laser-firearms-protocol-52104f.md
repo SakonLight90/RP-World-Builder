@@ -5,6 +5,4 @@
 - variants: "Fallout 3 Metro"
 - categories: Fallout 3 Metro
 
-## Summary from the source
-
 DCTA Laser Firearms Protocol is a handbook on how to use the Laser Pistol.

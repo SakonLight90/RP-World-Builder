@@ -5,6 +5,4 @@
 - variants: "Southwest Desert"
 - categories: Fallout: New Vegas locations; Fallout: New Vegas unmarked locations; Southwest Desert secondary locations
 
-## Summary from the source
-
 Mole Rat Burrows is a location and in Fallout: New Vegas.

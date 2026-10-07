@@ -5,6 +5,4 @@
 - variants: "BosCommon primary locations"
 - categories: BosCommon primary locations; Fallout 4 locations
 
-## Summary from the source
-
 The Boylston Club is a location in the Boston Common neighborhood in Fallout 4.

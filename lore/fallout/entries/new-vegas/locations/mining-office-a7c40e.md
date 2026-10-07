@@ -5,6 +5,4 @@
 - variants: "Sloan buildings"
 - categories: Fallout: New Vegas locations; Fallout: New Vegas unmarked locations; Sloan buildings
 
-## Summary from the source
-
 The Mining Office is a building within the mining settlement of Sloan in Fallout: New Vegas.

@@ -5,6 +5,4 @@
 - variants: "Dead Money locations"
 - categories: Dead Money locations; Fallout: New Vegas unmarked locations
 
-## Summary from the source
-
 The Service Route is a location in Puesta del Sol in the Sierra Madre in the Fallout: New Vegas DLC Dead Money.

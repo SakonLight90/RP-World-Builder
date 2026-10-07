@@ -5,6 +5,4 @@
 - variants: "Arefu"
 - categories: Fallout 3 locations; Arefu
 
-## Summary from the source
-
 The Ewer Residence is a location in the Capital Wasteland.

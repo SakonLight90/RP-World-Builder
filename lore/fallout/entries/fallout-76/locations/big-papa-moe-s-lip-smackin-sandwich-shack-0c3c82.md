@@ -5,6 +5,4 @@
 - variants: "Ash Heap locations", "Beckley"
 - categories: Ash Heap locations; Beckley
 
-## Summary from the source
-
 Big Papa Moe's Lip Smackin' Sandwich Shack is an unmarked location in the town of Beckley in the Ash Heap region of Appalachia. The building is inaccessible.

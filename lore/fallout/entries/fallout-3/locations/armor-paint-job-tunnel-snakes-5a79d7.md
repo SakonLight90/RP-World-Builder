@@ -5,6 +5,4 @@
 - variants: "Tunnel Snakes"
 - categories: Tunnel Snakes
 
-## Summary from the source
-
 Armor Paint Job - Tunnel Snakes is a Creation Club Creation in Fallout 4.

@@ -5,6 +5,4 @@
 - variants: "Fallout 2 roadways", "Modoc"
 - categories: Fallout 2 locations; Fallout 2 roadways; Modoc
 
-## Summary from the source
-
 Modoc Main Street is the central thoroughfare of Modoc.

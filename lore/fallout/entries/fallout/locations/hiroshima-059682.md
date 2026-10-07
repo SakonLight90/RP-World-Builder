@@ -5,6 +5,4 @@
 - variants: "Japan"
 - categories: Japan
 
-## Summary from the source
-
 Hiroshima was a pre-War city in Japan.

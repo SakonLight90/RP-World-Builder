@@ -5,6 +5,4 @@
 - variants: "Vault 101"
 - categories: Vault 101
 
-## Summary from the source
-
 Revelation 21:6 is a framed quote in Vault 101's clinic as well as a paper note in Fallout 3.

@@ -4,6 +4,4 @@
 - game: fallout-4
 - categories: Fallout 4 locations
 
-## Summary from the source
-
 Player Character Housing are locations that the player can live and store items in Fallout 4.

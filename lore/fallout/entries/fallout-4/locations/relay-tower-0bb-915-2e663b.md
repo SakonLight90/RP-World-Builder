@@ -5,6 +5,4 @@
 - variants: "Fort Hagen", "Western Commonwealth primary locations"
 - categories: Fallout 4 locations; Fort Hagen; Western Commonwealth primary locations
 
-## Summary from the source
-
 Relay Tower 0BB-915 is a location in The Commonwealth in Fallout 4.

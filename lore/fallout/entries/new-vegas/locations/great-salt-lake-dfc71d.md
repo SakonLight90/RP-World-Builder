@@ -6,6 +6,4 @@
 - categories: Fallout: New Vegas mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 The Great Salt Lake is a location in the pre-War state of Utah.

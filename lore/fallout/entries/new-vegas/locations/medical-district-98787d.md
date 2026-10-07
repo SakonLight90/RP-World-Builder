@@ -5,6 +5,4 @@
 - variants: "Dead Money locations"
 - categories: Dead Money locations
 
-## Summary from the source
-
 The Medical District is a location in the Sierra Madre in the Fallout: New Vegas DLC Dead Money.

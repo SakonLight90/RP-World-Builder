@@ -5,6 +5,4 @@
 - variants: "Bandits"
 - categories: Fallout 3 factions
 
-## Summary from the source
-
 Bandits are hostile mercenaries in the Capital Wasteland in the Fallout 3 DLC Broken Steel.

@@ -5,6 +5,4 @@
 - variants: "Morgantown"
 - categories: Morgantown
 
-## Summary from the source
-
 Apartment Renter was a resident of Morgantown.

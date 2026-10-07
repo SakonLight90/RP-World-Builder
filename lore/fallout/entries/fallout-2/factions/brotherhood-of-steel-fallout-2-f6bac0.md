@@ -5,6 +5,4 @@
 - variants: "Brotherhood of Steel"
 - categories: Fallout 2 factions
 
-## Summary from the source
-
 The Brotherhood of Steel is a paramilitary organization devoted to the preservation of technology and knowledge, the chapters of which operate across the post-War United States.

@@ -5,6 +5,4 @@
 - variants: "Savage Divide locations"
 - categories: Savage Divide locations
 
-## Summary from the source
-
 The Halloween Horror Hamlet is an unmarked location in the Savage Divide region of Appalachia.  It is situated southeast of the Hornwright Estate.

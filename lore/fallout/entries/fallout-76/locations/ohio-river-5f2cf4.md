@@ -5,6 +5,4 @@
 - variants: "The Forest locations"
 - categories: The Forest locations
 
-## Summary from the source
-
 The Ohio River is an unmarked location, a river running between former U.S. states of Ohio and West Virginia.

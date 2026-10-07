@@ -6,6 +6,4 @@
 - categories: Fallout: New Vegas mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Rita's Cafe was a pre-War restaurant in the Las Vegas area.

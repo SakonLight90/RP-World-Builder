@@ -5,6 +5,4 @@
 - variants: "Mothership Zeta locations"
 - categories: Mothership Zeta locations
 
-## Summary from the source
-
 The Death Ray Control is a location on board Mothership Zeta.  It is a single large room serving as the control center for Zeta's Death Ray.

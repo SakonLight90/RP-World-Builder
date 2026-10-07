@@ -6,6 +6,4 @@
 - categories: The Pitt locations; Fallout 3 mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Pennsylvania is a location in the United States mentioned in the Fallout Series.

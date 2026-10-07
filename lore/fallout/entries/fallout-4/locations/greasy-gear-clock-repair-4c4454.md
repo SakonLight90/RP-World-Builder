@@ -4,6 +4,4 @@
 - game: fallout-4
 - categories: Fallout 4 locations
 
-## Summary from the source
-
 Greasy Gear Clock Repair is an unused location in Fallout 4.

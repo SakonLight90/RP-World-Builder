@@ -5,6 +5,4 @@
 - variants: "Malden"
 - categories: Fallout 4 locations; Malden; North Central Commonwealth primary locations
 
-## Summary from the source
-
 Malden Center is a location in The Commonwealth in Fallout 4.

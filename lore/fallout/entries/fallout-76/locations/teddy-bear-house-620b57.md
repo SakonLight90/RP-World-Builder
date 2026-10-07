@@ -5,6 +5,4 @@
 - variants: "The Forest locations"
 - categories: The Forest locations
 
-## Summary from the source
-
 The Teddy Bear House is an unmarked location in Appalachia.

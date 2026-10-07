@@ -4,6 +4,4 @@
 - game: fallout-76
 - categories: Fallout 76 locations
 
-## Summary from the source
-
 Mr. Fuzzy's Boardgame Tent Pylon is an unmarked location in Fallout 76.

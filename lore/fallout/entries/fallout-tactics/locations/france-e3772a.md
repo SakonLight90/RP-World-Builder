@@ -6,6 +6,4 @@
 - categories: Fallout Tactics mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 France was a country before the Great War.

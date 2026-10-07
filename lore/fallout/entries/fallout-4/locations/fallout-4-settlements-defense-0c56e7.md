@@ -5,6 +5,4 @@
 - variants: "Fallout 4 settlements"
 - categories: Fallout 4 settlements
 
-## Summary from the source
-
 Defense is a gameplay mechanic related to attacks on settlements in Fallout 4.

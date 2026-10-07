@@ -6,6 +6,4 @@
 - categories: Fallout: New Vegas mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Cornucopia Fresh Groceries was a pre-War coffee shop chain in the United States.

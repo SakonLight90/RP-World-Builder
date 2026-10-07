@@ -5,6 +5,4 @@
 - variants: "Commonwealth Neighborhood regions"
 - categories: Commonwealth Neighborhood regions
 
-## Summary from the source
-
 Charlestown is a district of Boston in Fallout 4. It is located between Cambridge and East Boston.

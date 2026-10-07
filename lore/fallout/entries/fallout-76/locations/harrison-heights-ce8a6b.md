@@ -5,6 +5,4 @@
 - variants: "The Mire locations"
 - categories: The Mire locations
 
-## Summary from the source
-
 Harrison Heights is an unmarked location in The Mire region of Appalachia. It is located west of the Ransacked Bunker.

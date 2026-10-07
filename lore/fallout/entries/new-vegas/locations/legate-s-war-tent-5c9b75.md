@@ -5,6 +5,4 @@
 - variants: "Caesar's Legion locations"
 - categories: Fallout: New Vegas locations; Fallout: New Vegas unmarked locations; Caesar's Legion locations
 
-## Summary from the source
-
 The Legate's War Tent is a location in the Mojave Wasteland in Fallout: New Vegas. Located inside the Legate's Camp, it belongs to one of the final bosses of Fallout: New Vegas, Legate Lanius.

@@ -5,6 +5,4 @@
 - variants: "Savage Divide locations"
 - categories: Savage Divide locations
 
-## Summary from the source
-
 The Hopewell Cave Cemetery is a unmarked location in Appalachia. It is situated directly above Hopewell Cave.

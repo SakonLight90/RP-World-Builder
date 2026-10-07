@@ -5,6 +5,4 @@
 - categories: Fallout 4 locations
 - variants: "Parking Lot"
 
-## Summary from the source
-
 The Parking Lot is an unmarked location in Fallout 4.

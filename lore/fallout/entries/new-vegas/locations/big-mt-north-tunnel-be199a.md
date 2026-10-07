@@ -5,6 +5,4 @@
 - variants: "Old World Blues locations"
 - categories: Old World Blues locations
 
-## Summary from the source
-
 The Big MT North Tunnel is a location in the north section of Big MT in Fallout: New Vegas.

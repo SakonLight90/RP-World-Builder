@@ -5,6 +5,4 @@
 - variants: "The Hole", "Hole (Den)", "Den"
 - categories: Fallout 2 locations; Den
 
-## Summary from the source
-
 The Hole is a bar in the eastern sub-section of the Den. Frankie is the owner of the struggling business.

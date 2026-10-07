@@ -5,6 +5,4 @@
 - variants: "Metro signage"
 - categories: Metro signage
 
-## Summary from the source
-
 Red Line Sign is a sign in Fallout 3.

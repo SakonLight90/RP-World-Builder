@@ -5,6 +5,4 @@
 - variants: "Little Lamplight"
 - categories: Little Lamplight
 
-## Summary from the source
-
 Lamplight Caverns was a large natural cave system and a pre-War tourist attraction mentioned in Fallout 3.

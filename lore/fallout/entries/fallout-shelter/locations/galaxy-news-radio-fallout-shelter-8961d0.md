@@ -5,6 +5,4 @@
 - variants: "Galaxy News Radio"
 - categories: Fallout Shelter locations
 
-## Summary from the source
-
 Galaxy News Radio is a location in Fallout Shelter.

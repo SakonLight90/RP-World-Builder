@@ -4,6 +4,4 @@
 - game: bos
 - categories: Fallout: Brotherhood of Steel locations
 
-## Summary from the source
-
 The Brotherhood of Steel Automated Training Center is a location in Fallout: Brotherhood of Steel.

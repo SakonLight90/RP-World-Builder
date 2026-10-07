@@ -5,6 +5,4 @@
 - variants: "Fusion Generator", "Fallout 4 settlement objects"
 - categories: Fallout 4 settlement objects
 
-## Summary from the source
-
 Fusion Generator is a settlement object in Fallout 4.

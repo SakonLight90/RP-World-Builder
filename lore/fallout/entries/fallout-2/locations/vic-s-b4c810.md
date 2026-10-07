@@ -5,6 +5,4 @@
 - variants: "Klamath"
 - categories: Fallout 2 locations; Klamath
 
-## Summary from the source
-
 Vic's is a building in Klamath.

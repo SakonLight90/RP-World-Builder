@@ -5,6 +5,4 @@
 - categories: Fallout 3 locations
 - variants: "A Cuppa Joe"
 
-## Summary from the source
-
 A Cuppa Joe is a pre-War company in Washington, D.C.

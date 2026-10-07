@@ -5,6 +5,4 @@
 - categories: Fallout 76 locations
 - variants: "Cultist Totems"
 
-## Summary from the source
-
 Cultist Totems is an unmarked location in Fallout 76.

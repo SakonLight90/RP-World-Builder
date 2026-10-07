@@ -5,6 +5,4 @@
 - variants: "San Francisco", "Fallout 2 shops"
 - categories: Fallout 2 locations; San Francisco; Fallout 2 shops
 
-## Summary from the source
-
 Dr. Fung's Clinic is a medical facility in Chinatown, San Francisco in Fallout 2.

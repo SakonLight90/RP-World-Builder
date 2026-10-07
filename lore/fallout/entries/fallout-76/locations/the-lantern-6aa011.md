@@ -6,6 +6,4 @@
 - categories: Fallout 76 mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 The Lantern is a location in the wasteland occupied by the Enlightened.

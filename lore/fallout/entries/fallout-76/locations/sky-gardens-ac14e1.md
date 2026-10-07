@@ -5,6 +5,4 @@
 - variants: "Lewisburg locations"
 - categories: Lewisburg locations
 
-## Summary from the source
-
 Sky Gardens is a location in Fallout 76.

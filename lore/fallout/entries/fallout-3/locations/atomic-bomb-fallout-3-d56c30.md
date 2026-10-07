@@ -5,6 +5,4 @@
 - variants: "Atomic Bomb", "Megaton"
 - categories: Megaton
 
-## Summary from the source
-
 The Atomic Bomb is a world object in Fallout 3.

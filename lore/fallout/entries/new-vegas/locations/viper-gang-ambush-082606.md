@@ -5,6 +5,4 @@
 - variants: "Central Mountains"
 - categories: Fallout: New Vegas unmarked locations; Central Mountains secondary locations
 
-## Summary from the source
-
 The Viper Gang Ambush is an unmarked location in the Mojave Wasteland, located east of Nipton along Nevada 164.

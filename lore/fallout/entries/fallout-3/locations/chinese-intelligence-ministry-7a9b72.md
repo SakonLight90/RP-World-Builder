@@ -5,6 +5,4 @@
 - variants: "China", "Chinese government"
 - categories: China; Chinese government
 
-## Summary from the source
-
 The Chinese Intelligence Ministry was a pre-War division of the Chinese government.

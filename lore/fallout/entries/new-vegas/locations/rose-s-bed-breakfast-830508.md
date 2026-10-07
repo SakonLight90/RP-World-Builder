@@ -6,6 +6,4 @@
 - categories: Fallout: New Vegas mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Rose's Bed and Breakfast is a hotel in Modoc owned by Rose.

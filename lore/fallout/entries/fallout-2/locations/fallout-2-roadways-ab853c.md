@@ -4,6 +4,4 @@
 - game: fallout-2
 - categories: Fallout 2 locations; Fallout 2 roadways
 
-## Summary from the source
-
 The following roadways were once thoroughfares of their respective regions, seen or mentioned in Fallout 2.

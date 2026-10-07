@@ -5,6 +5,4 @@
 - variants: "Crow's Nest", "Lonesome Road locations"
 - categories: Lonesome Road locations
 
-## Summary from the source
-
 The Crow's Nest is a location at the Divide in Fallout: New Vegas.

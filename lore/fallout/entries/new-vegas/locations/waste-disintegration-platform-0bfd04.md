@@ -5,6 +5,4 @@
 - variants: "Old World Blues locations"
 - categories: Old World Blues locations
 
-## Summary from the source
-
 The Waste Disintegration Platform is a location in the northeast region of Big MT in the Fallout: New Vegas DLC Old World Blues.

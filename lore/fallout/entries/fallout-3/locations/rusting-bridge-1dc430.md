@@ -5,6 +5,4 @@
 - variants: "Georgetown"
 - categories: Georgetown
 
-## Summary from the source
-
 Rusting Bridge is an unmarked location in Fallout 3.

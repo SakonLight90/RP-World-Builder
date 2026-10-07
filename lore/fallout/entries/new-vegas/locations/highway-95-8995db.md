@@ -5,6 +5,4 @@
 - variants: "Fallout: New Vegas Roadways", "Fallout: New Vegas Roadways Highways"
 - categories: Fallout: New Vegas unmarked locations; Fallout: New Vegas Roadways; Fallout: New Vegas Roadways Highways
 
-## Summary from the source
-
 Highway 95, also called Route 95, is a pre-War roadway in the Mojave Wasteland in Fallout: New Vegas.

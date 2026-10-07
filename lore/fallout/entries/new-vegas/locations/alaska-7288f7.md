@@ -6,6 +6,4 @@
 - categories: Fallout: New Vegas mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Alaska is a location in the United States mentioned throughout the Fallout Series.

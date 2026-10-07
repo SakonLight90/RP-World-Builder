@@ -5,6 +5,4 @@
 - variants: "Newsstand"
 - categories: Fallout 76 locations
 
-## Summary from the source
-
 The Newsstand is a shop in the Whitespring Mall.

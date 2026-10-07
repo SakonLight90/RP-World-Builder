@@ -4,6 +4,4 @@
 - game: new-vegas
 - categories: Fallout: New Vegas unmarked locations
 
-## Summary from the source
-
 The Summer Springs Boarding House is an unmarked location and pre-War business located northeast of Monte Carlo Suites in the Mojave Wasteland.

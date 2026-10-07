@@ -5,6 +5,4 @@
 - variants: "Lonesome Road locations"
 - categories: Lonesome Road locations
 
-## Summary from the source
-
 Ulysses' Temple is a location in the Divide in Fallout: New Vegas.

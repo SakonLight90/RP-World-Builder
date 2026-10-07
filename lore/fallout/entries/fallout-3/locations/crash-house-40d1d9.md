@@ -5,6 +5,4 @@
 - variants: "Junktown"
 - categories: Junktown
 
-## Summary from the source
-
 The Crash House is a cheap rest house located in Junktown.

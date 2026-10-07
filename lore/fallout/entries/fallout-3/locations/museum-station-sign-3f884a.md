@@ -5,6 +5,4 @@
 - variants: "Metro signage"
 - categories: Metro signage
 
-## Summary from the source
-
 Museum Station Sign is a sign in Fallout 3.

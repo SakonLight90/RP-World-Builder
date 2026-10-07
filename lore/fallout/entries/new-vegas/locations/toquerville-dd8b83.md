@@ -5,6 +5,4 @@
 - variants: "Honest Hearts mentioned-only locations"
 - categories: Honest Hearts mentioned-only locations
 
-## Summary from the source
-
 Toquerville is a location in Utah, mentioned in the Fallout: New Vegas DLC Honest Hearts.

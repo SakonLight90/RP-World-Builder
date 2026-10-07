@@ -5,6 +5,4 @@
 - variants: "The Hub"
 - categories: The Hub
 
-## Summary from the source
-
 Old Town or Oldtown is the easternmost district of the Hub and where the Thieves' Guild is located in Fallout.

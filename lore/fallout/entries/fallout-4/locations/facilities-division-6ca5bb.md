@@ -5,6 +5,4 @@
 - variants: "Institute locations", "Commonwealth Institute of Technology"
 - categories: Fallout 4 locations; Institute locations; Commonwealth Institute of Technology
 
-## Summary from the source
-
 The Facilities Division is a part of The Institute.

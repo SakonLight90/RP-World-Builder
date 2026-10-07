@@ -5,6 +5,4 @@
 - variants: "Sanctuary Hills"
 - categories: Sanctuary Hills
 
-## Summary from the source
-
 The Sole Survivor's House or the "House of Tomorrow" is a Modern Home and residence of the Sole Survivor and their spouse in Sanctuary Hills.

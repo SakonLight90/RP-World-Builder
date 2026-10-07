@@ -5,6 +5,4 @@
 - variants: "Boston"
 - categories: Boston
 
-## Summary from the source
-
 Boston City Works is a location in Fallout 4. It is the origin of the Boston City Works Beacon, heard after extending Relay Tower 1DL-109.

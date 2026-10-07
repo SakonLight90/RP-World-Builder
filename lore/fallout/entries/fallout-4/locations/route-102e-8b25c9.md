@@ -5,6 +5,4 @@
 - variants: "Fallout 4 roadways", "Fallout 4 Roadways Routes", "Far Harbor locations"
 - categories: Fallout 4 roadways; Fallout 4 Roadways Routes; Far Harbor locations
 
-## Summary from the source
-
 Route 102E is a roadway in Fallout 4.

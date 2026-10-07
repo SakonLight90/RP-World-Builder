@@ -5,4 +5,3 @@
 - variants: "Freeside locations"
 - categories: Freeside locations
 
-## Summary from the source

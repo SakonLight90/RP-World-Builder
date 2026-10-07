@@ -5,6 +5,4 @@
 - variants: "Savage Divide locations", "Fallout 76 dungeons", "Fallout 76 outdoors theme locations"
 - categories: Fallout 76 locations; Savage Divide locations; Fallout 76 dungeons; Fallout 76 outdoors theme locations
 
-## Summary from the source
-
 The Autumn Acre Cabin is a location in the Savage Divide region of Appalachia.

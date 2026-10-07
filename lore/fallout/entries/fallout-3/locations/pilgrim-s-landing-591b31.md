@@ -5,6 +5,4 @@
 - variants: "Point Lookout locations", "Pilgrim's Landing buildings"
 - categories: Point Lookout locations; Pilgrim's Landing; Pilgrim's Landing buildings
 
-## Summary from the source
-
 Pilgrim's Landing is a small tourist attraction in Point Lookout in Fallout 3.

@@ -5,6 +5,4 @@
 - categories: Fallout 76 locations
 - variants: "Bloatfly Lair"
 
-## Summary from the source
-
 Bloatfly Lair is an unmarked location in Fallout 76.

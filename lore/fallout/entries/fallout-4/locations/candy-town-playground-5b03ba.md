@@ -4,6 +4,4 @@
 - game: fallout-4
 - categories: Fallout 4 locations
 
-## Summary from the source
-
 The Candy Town Playground is an unmarked location in the Nuka-World Amusement Park in Fallout 4.

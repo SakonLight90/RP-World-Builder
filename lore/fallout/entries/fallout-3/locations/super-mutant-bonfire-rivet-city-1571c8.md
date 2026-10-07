@@ -5,6 +5,4 @@
 - categories: Fallout 3 locations
 - variants: "Super Mutant Bonfire"
 
-## Summary from the source
-
 The Super Mutant Bonfire is an unmarked location in the Capital Wasteland. It is located northwest of Rivet City.

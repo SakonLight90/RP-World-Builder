@@ -5,6 +5,4 @@
 - variants: "Fallout 76 mining theme locations"
 - categories: Fallout 76 locations; Fallout 76 mining theme locations
 
-## Summary from the source
-
 Shining Creek Cavern is a location in Fallout 76, introduced in the Skyline Valley update.

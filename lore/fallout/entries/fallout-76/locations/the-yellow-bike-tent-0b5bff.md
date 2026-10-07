@@ -5,6 +5,4 @@
 - categories: Fallout 76 locations
 - variants: "Yellow Bike Tent"
 
-## Summary from the source
-
 The Yellow Bike Tent is an unmarked location in Fallout 76.

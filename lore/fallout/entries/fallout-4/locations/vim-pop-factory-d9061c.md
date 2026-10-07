@@ -5,6 +5,4 @@
 - variants: "Far Harbor locations"
 - categories: Far Harbor locations
 
-## Summary from the source
-
 The Vim! Pop Factory is a location on The Island. It is overrun with Super Mutants and Mutant Hounds.

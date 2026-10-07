@@ -5,6 +5,4 @@
 - variants: "Savage Divide locations"
 - categories: Savage Divide locations
 
-## Summary from the source
-
 Sunny's Killing Supplies is a post-War business within Foundation in the Savage Divide region of Appalachia.

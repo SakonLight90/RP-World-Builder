@@ -5,6 +5,4 @@
 - variants: "Parking Garage", "Glowing Sea"
 - categories: Glowing Sea
 
-## Summary from the source
-
 The Parking Garage is an unmarked location in The Commonwealth in Fallout 4. It is in the Glowing Sea, just north of the southern Cave.

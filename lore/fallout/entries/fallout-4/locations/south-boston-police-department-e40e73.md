@@ -5,6 +5,4 @@
 - variants: "Fallout 4 police stations", "South Boston primary locations"
 - categories: Fallout 4 police stations; South Boston primary locations; Fallout 4 locations
 
-## Summary from the source
-
 The South Boston Police Department is a location in the South Boston neighborhood of Boston in Fallout 4.

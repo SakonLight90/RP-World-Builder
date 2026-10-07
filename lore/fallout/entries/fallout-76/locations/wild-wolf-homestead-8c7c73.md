@@ -5,6 +5,4 @@
 - variants: "Savage Divide locations"
 - categories: Savage Divide locations
 
-## Summary from the source
-
 The Wild Wolf Homestead is an unmarked location in the Savage Divide region of Appalachia. It is situated south of Hornwright Estate and east of the Garrahan Mining Headquarters.

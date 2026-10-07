@@ -5,6 +5,4 @@
 - variants: "The Mire locations", "Fallout 76 dungeons", "Fallout 76 raider theme locations"
 - categories: Fallout 76 locations; The Mire locations; Fallout 76 dungeons; Fallout 76 raider theme locations
 
-## Summary from the source
-
 Crevasse Dam is a location in The Mire region of Appalachia.

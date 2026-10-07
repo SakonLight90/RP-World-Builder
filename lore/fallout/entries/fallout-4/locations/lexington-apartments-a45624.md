@@ -5,6 +5,4 @@
 - variants: "Fallout 4 Apartments", "Lexington", "Northwest Commonwealth primary locations"
 - categories: Fallout 4 Apartments; Lexington; Northwest Commonwealth primary locations
 
-## Summary from the source
-
 The Lexington Apartments are a location in The Commonwealth in Fallout 4.

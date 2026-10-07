@@ -5,6 +5,4 @@
 - variants: "Restrooms", "Fallout: New Vegas interior locations"
 - categories: Fallout: New Vegas interior locations
 
-## Summary from the source
-
 Restrooms is an unmarked location inside the King's School of Impersonation.

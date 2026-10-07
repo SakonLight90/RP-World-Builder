@@ -5,6 +5,4 @@
 - variants: "Fallout 4 game guide locations"
 - categories: Fallout 4 game guide locations; Financial District secondary locations
 
-## Summary from the source
-
 Bus of Bones or Bus Wreckage is an unmarked location in Fallout 4.

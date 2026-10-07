@@ -5,6 +5,4 @@
 - variants: "Honest Hearts locations", "Zion Valley caves"
 - categories: Honest Hearts locations; Zion Valley caves
 
-## Summary from the source
-
 Stone Bones Cave is a location in Zion Canyon in the Fallout: New Vegas DLC Honest Hearts.

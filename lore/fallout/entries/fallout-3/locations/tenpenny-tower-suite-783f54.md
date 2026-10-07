@@ -5,7 +5,5 @@
 - variants: "Tenpenny Tower"
 - categories: Fallout 3 locations; Tenpenny Tower
 
-## Summary from the source
-
 The Tenpenny Tower Suite is a location in Tenpenny Tower.
 The suite becomes available to the Lone Wanderer if they assist Mr. Burke in destroying the town of Megaton and its residents.

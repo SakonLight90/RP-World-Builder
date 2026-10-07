@@ -5,6 +5,4 @@
 - variants: "Klamath"
 - categories: Klamath
 
-## Summary from the source
-
 The grazing grounds is a place just outside Klamath.

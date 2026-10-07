@@ -24,7 +24,7 @@ activeEras:
 libraries:
   - id: fallout
     version: "1.0.0"
-    hash: "sha256:fa32d54d3d671d64463c5f60a55ac6ab6455c5c81095fc7d17f73b77f38e8070"
+    hash: "sha256:125694253b6c72301bb30d64e46d1cab1d01456c640dd39178a70d80be6fbbd6"
 
 eras:
   - key: pre-war

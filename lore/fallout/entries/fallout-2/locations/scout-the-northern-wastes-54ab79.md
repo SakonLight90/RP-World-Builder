@@ -5,6 +5,4 @@
 - variants: "Mariposa Military Base"
 - categories: Mariposa Military Base
 
-## Summary from the source
-
 Scout the northern wastes is an unmarked quest in Fallout, given by High Elder John Maxson of the Brotherhood of Steel.

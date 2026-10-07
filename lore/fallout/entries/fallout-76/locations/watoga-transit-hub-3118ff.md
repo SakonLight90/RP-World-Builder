@@ -5,6 +5,4 @@
 - variants: "Fallout 76 white collar theme locations"
 - categories: Fallout 76 locations; Fallout 76 white collar theme locations
 
-## Summary from the source
-
 The Watoga Transit Hub is a location in the town of Watoga in the Cranberry Bog region of Appalachia.

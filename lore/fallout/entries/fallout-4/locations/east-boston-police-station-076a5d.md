@@ -5,6 +5,4 @@
 - variants: "Coastal Commonwealth primary locations"
 - categories: Coastal Commonwealth primary locations; Fallout 4 locations
 
-## Summary from the source
-
 The East Boston Police Station is a location in The Commonwealth in Fallout 4.

@@ -5,6 +5,4 @@
 - variants: "Fallout: New Vegas Roadways"
 - categories: Fallout: New Vegas locations; Fallout: New Vegas unmarked locations; Fallout: New Vegas Roadways
 
-## Summary from the source
-
 I-95 Overpass Bridge is a roadway mentioned in Fallout: New Vegas.

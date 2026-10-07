@@ -5,6 +5,4 @@
 - variants: "Southwest Territories", "Fallout 3 power stations"
 - categories: Fallout 3 locations; Southwest Territories; Fallout 3 power stations
 
-## Summary from the source
-
 The VAPL-84 Power Station is a location in the Capital Wasteland in Fallout 3. It is located north of the RobCo Facility and southeast of Evergreen Mills.

@@ -5,6 +5,4 @@
 - variants: "Unstoppables Silver Shroud Gun Poster", "Fallout 4 settlement objects"
 - categories: Fallout 4 settlement objects
 
-## Summary from the source
-
 The Unstoppables Silver Shroud Gun Poster is a settlement object in Fallout 4.

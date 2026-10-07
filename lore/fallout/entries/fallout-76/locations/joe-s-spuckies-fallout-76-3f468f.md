@@ -5,6 +5,4 @@
 - variants: "Joe's Spuckies", "Ash Heap locations"
 - categories: Ash Heap locations
 
-## Summary from the source
-
 Joe's Spuckies is an unmarked location in the town of Beckley in Appalachia.

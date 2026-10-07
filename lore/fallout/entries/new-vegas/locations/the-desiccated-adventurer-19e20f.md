@@ -5,6 +5,4 @@
 - variants: "Desiccated Adventurer", "Southwest Desert"
 - categories: Fallout: New Vegas unmarked locations; Southwest Desert secondary locations
 
-## Summary from the source
-
 The Desiccated Adventurer is a location and in Fallout: New Vegas.

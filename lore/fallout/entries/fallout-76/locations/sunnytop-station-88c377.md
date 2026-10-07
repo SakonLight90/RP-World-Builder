@@ -5,6 +5,4 @@
 - variants: "Savage Divide locations", "Fallout 76 railway locations", "Fallout 76 winter theme locations"
 - categories: Fallout 76 locations; Savage Divide locations; Fallout 76 railway locations; Fallout 76 winter theme locations
 
-## Summary from the source
-
 Sunnytop Station is a Train Station in the Savage Divide region of Appalachia.

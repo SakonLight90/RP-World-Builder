@@ -6,6 +6,4 @@
 - categories: Followers of the Apocalypse locations; Fallout: New Vegas mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 The Pre-War Unexploded Munitions Collection is a location mentioned by Julie Farkas of the Followers of the Apocalypse.

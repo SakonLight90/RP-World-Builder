@@ -5,6 +5,4 @@
 - variants: "Red Rocket", "Red Rocket locations FO76", "Sutton"
 - categories: Fallout 76 locations; Red Rocket locations FO76; Sutton
 
-## Summary from the source
-
 The Sutton Red Rocket is an unmarked location in The Forest region of Appalachia.

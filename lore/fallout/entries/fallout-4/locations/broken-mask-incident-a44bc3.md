@@ -5,6 +5,4 @@
 - variants: "Diamond City", "Commonwealth Institute of Technology"
 - categories: Diamond City; Commonwealth Institute of Technology
 
-## Summary from the source
-
 The Broken Mask Incident was a sudden outburst of violence perpetrated by Diamond City visitor Mr. Carter against individuals around the market bar in May 2229.

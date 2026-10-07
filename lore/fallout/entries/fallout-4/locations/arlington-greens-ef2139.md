@@ -6,6 +6,4 @@
 - categories: Fallout 4 mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Arlington Greens was a golf course mentioned by Eddie Winter in Fallout 4.

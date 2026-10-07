@@ -5,6 +5,4 @@
 - variants: "Television", "Fallout 4 settlement objects"
 - categories: Fallout 4 settlement objects
 
-## Summary from the source
-
 The Television is a world object and settlement object in Fallout 4 and its DLC Vault-Tec Workshop.

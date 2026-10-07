@@ -5,6 +5,4 @@
 - variants: "Publick Occurrences", "Diamond City buildings", "Fallout 4 Post-War Offices"
 - categories: Diamond City buildings; Fallout 4 Post-War Offices
 
-## Summary from the source
-
 Publick Occurrences is an unmarked location in Diamond City in Fallout 4. It is owned and operated by Piper and Nat Wright, who use the facility to print the Publick Occurrences newspaper.

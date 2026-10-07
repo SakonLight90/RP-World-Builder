@@ -5,6 +5,4 @@
 - variants: "Megaton buildings"
 - categories: Fallout 3 locations; Megaton buildings
 
-## Summary from the source
-
 Nathan and Manya's House is an unmarked location in Megaton in the Capital Wasteland.

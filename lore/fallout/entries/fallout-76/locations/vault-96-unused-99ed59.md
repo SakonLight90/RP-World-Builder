@@ -5,6 +5,4 @@
 - variants: "Vault 96"
 - categories: Fallout 76 locations; Vault 96
 
-## Summary from the source
-
 A list of unused content in Vault 96.

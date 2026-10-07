@@ -5,6 +5,4 @@
 - variants: "New Vegas Conurbation South Vegas primary locations"
 - categories: Fallout: New Vegas unmarked locations; New Vegas Conurbation South Vegas primary locations
 
-## Summary from the source
-
 Southwest Exit Fiend Territory is an unmarked location in the Mojave Wasteland located in the southwest corner of the South Vegas Ruins.

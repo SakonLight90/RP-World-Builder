@@ -5,6 +5,4 @@
 - variants: "Unwashed Villagers"
 - categories: Fallout 2 factions
 
-## Summary from the source
-
 Unwashed Villagers are a faction in Fallout 2.

@@ -5,6 +5,4 @@
 - variants: "Old World Blues locations"
 - categories: Old World Blues locations
 
-## Summary from the source
-
 The X-7a "Left Field" Artillery Launch is a location in the southwest of Big MT in the Fallout: New Vegas DLC Old World Blues.

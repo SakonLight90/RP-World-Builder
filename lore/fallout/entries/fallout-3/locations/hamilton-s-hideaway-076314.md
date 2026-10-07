@@ -5,6 +5,4 @@
 - variants: "Central Plains and Potomac"
 - categories: Fallout 3 locations; Central Plains and Potomac
 
-## Summary from the source
-
 Hamilton's Hideaway is a small cave in the side of a cliff face in the Capital Wasteland in Fallout 3.

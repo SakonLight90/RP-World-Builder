@@ -5,6 +5,4 @@
 - variants: "Girdershade"
 - categories: Girdershade
 
-## Summary from the source
-
 Ronald Laren's Home is a location in Girdershade.

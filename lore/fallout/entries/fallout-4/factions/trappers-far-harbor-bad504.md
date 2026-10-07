@@ -5,6 +5,4 @@
 - variants: "Trappers"
 - categories: Far Harbor factions
 
-## Summary from the source
-
 The Trappers are a hostile faction operating on The Island in Fallout 4.

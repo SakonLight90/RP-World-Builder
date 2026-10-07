@@ -4,6 +4,4 @@
 - game: fallout
 - categories: Fallout factions
 
-## Summary from the source
-
 The Underground Ghouls were a loose organization of disgruntled but peaceful ghouls in Necropolis in Fallout.

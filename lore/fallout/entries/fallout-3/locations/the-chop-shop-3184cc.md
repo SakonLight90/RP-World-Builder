@@ -5,6 +5,4 @@
 - variants: "Chop Shop", "Fallout 3 Post-War Health Care Institutions", "Underworld"
 - categories: Fallout 3 locations; Fallout 3 Post-War Health Care Institutions; Underworld
 
-## Summary from the source
-
 The Chop Shop is Doctor Barrows' infirmary in Underworld in Fallout 3.

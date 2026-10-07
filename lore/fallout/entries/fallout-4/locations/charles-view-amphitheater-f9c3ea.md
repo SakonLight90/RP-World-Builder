@@ -5,6 +5,4 @@
 - variants: "Esplanade primary locations"
 - categories: Esplanade primary locations
 
-## Summary from the source
-
 The Charles View Amphitheater is a location in the Esplanade neighborhood of Boston in Fallout 4.

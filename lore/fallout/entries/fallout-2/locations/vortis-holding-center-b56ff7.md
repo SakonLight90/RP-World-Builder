@@ -5,6 +5,4 @@
 - variants: "New California Republic (town)"
 - categories: Fallout 2 locations; New California Republic (town)
 
-## Summary from the source
-
 Vortis Holding Center is a slave holding center and is run by Vortis in Fallout 2.

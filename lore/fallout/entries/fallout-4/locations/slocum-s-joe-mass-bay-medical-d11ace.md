@@ -5,6 +5,4 @@
 - variants: "Slocum's Joe"
 - categories: Theater District secondary locations
 
-## Summary from the source
-
 Slocum's Joe is an unmarked location in the Theater District of Boston in Fallout 4.

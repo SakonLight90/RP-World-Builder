@@ -5,6 +5,4 @@
 - variants: "Unstoppables Silver Shroud Overlay Poster", "Fallout 4 settlement objects"
 - categories: Fallout 4 settlement objects
 
-## Summary from the source
-
 The Unstoppables Silver Shroud Overlay Poster is a settlement object in Fallout 4.

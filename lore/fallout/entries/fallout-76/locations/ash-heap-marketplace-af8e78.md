@@ -5,6 +5,4 @@
 - variants: "Ash Heap locations"
 - categories: Ash Heap locations
 
-## Summary from the source
-
 The Ash Heap Marketplace is an unmarked location in Appalachia.

@@ -5,6 +5,4 @@
 - variants: "Coldwater"
 - categories: Fallout Tactics locations; Coldwater
 
-## Summary from the source
-
 Cold Water is a town in Fallout Tactics.

@@ -5,6 +5,4 @@
 - variants: "Green Line"
 - categories: Fallout 76 locations; Green Line
 
-## Summary from the source
-
 The Green Line is a series of bus stops throughout Appalachia.

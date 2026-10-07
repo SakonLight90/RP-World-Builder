@@ -5,6 +5,4 @@
 - variants: "Toxic Valley locations", "Fallout 76 dungeons", "Fallout 76 raider theme locations"
 - categories: Fallout 76 locations; Toxic Valley locations; Fallout 76 dungeons; Fallout 76 raider theme locations
 
-## Summary from the source
-
 Knife Edge is a location in the Toxic Valley region of Appalachia.

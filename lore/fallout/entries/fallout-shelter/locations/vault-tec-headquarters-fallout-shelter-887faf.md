@@ -5,6 +5,4 @@
 - variants: "Vault-Tec Headquarters"
 - categories: Fallout Shelter locations
 
-## Summary from the source
-
 Vault-Tec Headquarters is a location in Fallout Shelter.

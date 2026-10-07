@@ -5,6 +5,4 @@
 - variants: "Wright's Inn"
 - categories: Cambridge locations
 
-## Summary from the source
-
 Wright's Inn is an unmarked location in Cambridge in Fallout 4.

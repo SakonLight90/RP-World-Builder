@@ -5,6 +5,4 @@
 - variants: "Lexington", "Northwest Commonwealth"
 - categories: Lexington; Northwest Commonwealth secondary locations
 
-## Summary from the source
-
 The Super Duper Mart Parking Lot is an unmarked location in Fallout 4.

@@ -5,6 +5,4 @@
 - variants: "Diamond City Radio"
 - categories: Diamond City Radio
 
-## Summary from the source
-
 Travis Miles is the radio host for Diamond City Radio in Fallout 4.

@@ -6,6 +6,4 @@
 - categories: Fallout 3 mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Hagerstown is a pre-War city located on the outskirts of Washington, D.C.

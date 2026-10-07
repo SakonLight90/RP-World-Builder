@@ -5,6 +5,4 @@
 - variants: "Starlight Drive In", "Fallout 4 Cinemas", "Northwest Commonwealth primary locations", "Fallout 4 settlements"
 - categories: Fallout 4 locations; Fallout 4 Cinemas; Northwest Commonwealth primary locations; Fallout 4 settlements
 
-## Summary from the source
-
 The Starlight Drive In is a location and possible Settlement in The Commonwealth in Fallout 4.

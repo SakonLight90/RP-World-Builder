@@ -5,6 +5,4 @@
 - categories: Fallout 76 locations
 - variants: "Yao Guai Alcove"
 
-## Summary from the source
-
 Yao Guai Alcove is an unmarked location in Fallout 76.

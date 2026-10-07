@@ -5,6 +5,4 @@
 - variants: "Diamond City buildings", "Fens primary locations"
 - categories: Diamond City buildings; Fens primary locations
 
-## Summary from the source
-
 The Diamond City Market is a location in Diamond City in Fallout 4.

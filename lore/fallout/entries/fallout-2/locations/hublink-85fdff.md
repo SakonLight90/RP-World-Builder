@@ -5,6 +5,4 @@
 - variants: "Hubologists"
 - categories: Hubologists
 
-## Summary from the source
-
 HubLink is a computer network maintained by the Hubologists.

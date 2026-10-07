@@ -5,6 +5,4 @@
 - variants: "Fallout 4 roadways"
 - categories: Fallout 4 roadways
 
-## Summary from the source
-
 The Evans Way Cul-de-Sac is an unmarked location in the Fens neighborhood of Boston in Fallout 4. It is northeast of the Boston Police Rationing Site.

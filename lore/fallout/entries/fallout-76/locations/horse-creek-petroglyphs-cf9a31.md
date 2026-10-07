@@ -6,6 +6,4 @@
 - categories: Fallout 76 mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 The Horse Creek Petroglyphs are a mentioned-only artifact in Appalachia.

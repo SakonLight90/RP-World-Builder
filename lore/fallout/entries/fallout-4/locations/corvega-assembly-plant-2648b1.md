@@ -5,6 +5,4 @@
 - variants: "Lexington", "Western Commonwealth primary locations"
 - categories: Fallout 4 locations; Lexington; Western Commonwealth primary locations
 
-## Summary from the source
-
 The Corvega Assembly Plant is a location in the city of Lexington in The Commonwealth in Fallout 4.

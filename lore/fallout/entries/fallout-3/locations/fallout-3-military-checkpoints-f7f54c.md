@@ -4,6 +4,4 @@
 - game: fallout-3
 - categories: Fallout 3 military checkpoints
 
-## Summary from the source
-
 Military Checkpoints are unmarked locations found throughout the Capital Wasteland.

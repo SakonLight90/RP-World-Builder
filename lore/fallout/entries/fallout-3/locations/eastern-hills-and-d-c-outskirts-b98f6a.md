@@ -5,6 +5,4 @@
 - variants: "Capital Wasteland regions"
 - categories: Capital Wasteland regions
 
-## Summary from the source
-
 The Eastern Hills and D.C. Outskirts are an unmarked location in the Capital Wasteland.

@@ -6,6 +6,4 @@
 - categories: Fallout 4 mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Ubar is an ancient city buried beneath the Rub' al Khali desert.

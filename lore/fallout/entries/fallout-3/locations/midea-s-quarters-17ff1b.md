@@ -5,6 +5,4 @@
 - variants: "The Pitt locations"
 - categories: The Pitt locations
 
-## Summary from the source
-
 Midea's Quarters is a location in The Pitt in the Fallout 3 DLC The Pitt.

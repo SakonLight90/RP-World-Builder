@@ -5,6 +5,4 @@
 - categories: Fallout 3 locations
 - variants: "Eyechart"
 
-## Summary from the source
-
 Eyechart is a sign in Fallout 3.

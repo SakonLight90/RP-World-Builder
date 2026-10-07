@@ -5,6 +5,4 @@
 - variants: "Southwest Desert"
 - categories: Fallout: New Vegas unmarked locations; Southwest Desert secondary locations
 
-## Summary from the source
-
 The Prospector’s Lean-To is a location and in Fallout: New Vegas. It is located west of Primm and north of the California Sunset Drive-in.

@@ -5,6 +5,4 @@
 - variants: "Morgantown"
 - categories: Morgantown
 
-## Summary from the source
-
 Pi House is an unmarked location in The Forest region of Appalachia, along Morgantown's Fraternity Row. It is next to Morgantown High School.

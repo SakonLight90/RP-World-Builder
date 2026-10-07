@@ -5,6 +5,4 @@
 - variants: "Athens"
 - categories: Athens
 
-## Summary from the source
-
 Strouds Run State Park is a location in Burning Springs.

@@ -5,6 +5,4 @@
 - variants: "Southern Commonwealth primary locations"
 - categories: Fallout 4 locations; Southern Commonwealth primary locations; Triggermen Locations
 
-## Summary from the source
-
 The NH&M Freight Depot is a location in The Commonwealth in Fallout 4.

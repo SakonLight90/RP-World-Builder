@@ -5,6 +5,4 @@
 - variants: "Fallout 76 dungeons", "Fallout 76 working class theme locations"
 - categories: Fallout 76 locations; Fallout 76 dungeons; Fallout 76 working class theme locations
 
-## Summary from the source
-
 Naked Creek is a location in Fallout 76, introduced in the Skyline Valley update.

@@ -5,6 +5,4 @@
 - variants: "Fallout 4 playgrounds"
 - categories: Fallout 4 playgrounds
 
-## Summary from the source
-
 Malden Playground is an unmarked location in The Commonwealth.

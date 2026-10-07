@@ -5,6 +5,4 @@
 - variants: "Regulator", "Regulator HQ"
 - categories: Regulator HQ
 
-## Summary from the source
-
 A Regulator is a member of the group of the same name in Fallout 3.

@@ -4,6 +4,4 @@
 - game: fallout-3
 - categories: Fallout 3 locations
 
-## Summary from the source
-
 DLC01FFCorpseDump is a test cell in Fallout 3. It is accessed via the console command COC DLC01FFCorpseDump.

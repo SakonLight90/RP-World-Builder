@@ -5,6 +5,4 @@
 - variants: "Boardwalk"
 - categories: Fallout 76 locations
 
-## Summary from the source
-
 The Boardwalk is a location in Fallout 76, introduced in the Atlantic City Boardwalk Paradise update.

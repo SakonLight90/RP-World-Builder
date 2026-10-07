@@ -5,6 +5,4 @@
 - variants: "Jacobstown locations"
 - categories: Fallout: New Vegas locations; Fallout: New Vegas unmarked locations; Jacobstown locations
 
-## Summary from the source
-
 Mount Charleston is an unmarked location in the northwestern Mojave Wasteland.

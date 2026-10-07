@@ -5,6 +5,4 @@
 - variants: "Vault City locations"
 - categories: Vault City locations
 
-## Summary from the source
-
 Purchasing Office is a location in Fallout 2.

@@ -5,6 +5,4 @@
 - variants: "Little Lamplight"
 - categories: Little Lamplight
 
-## Summary from the source
-
 My Diary, by Jason Grant is a set of two holotapes in Fallout 3. They were recorded by Jason Grant, one of the founding members of Little Lamplight.

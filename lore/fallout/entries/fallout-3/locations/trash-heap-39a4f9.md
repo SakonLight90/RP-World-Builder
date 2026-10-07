@@ -5,6 +5,4 @@
 - variants: "Point Lookout locations"
 - categories: Point Lookout locations
 
-## Summary from the source
-
 The Trash Heap is a dumpsite in the Point Lookout area used by the Swampfolk. It is located near the northwestern edge of the swampland.

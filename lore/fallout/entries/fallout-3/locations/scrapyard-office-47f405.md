@@ -5,6 +5,4 @@
 - variants: "Fallout 3 Post-War Offices", "Scrapyard"
 - categories: Fallout 3 locations; Fallout 3 Post-War Offices; Scrapyard
 
-## Summary from the source
-
 The Scrapyard Office is part of the Scrapyard in Fallout 3.

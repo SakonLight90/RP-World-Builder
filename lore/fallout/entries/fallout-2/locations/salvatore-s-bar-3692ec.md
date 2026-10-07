@@ -5,6 +5,4 @@
 - variants: "New Reno"
 - categories: Fallout 2 locations; New Reno
 
-## Summary from the source
-
 Salvatore's Bar is an establishment on Second Street in New Reno.

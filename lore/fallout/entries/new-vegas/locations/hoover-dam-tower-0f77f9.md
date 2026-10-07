@@ -5,6 +5,4 @@
 - variants: "Hoover Dam Towers"
 - categories: Hoover Dam Towers
 
-## Summary from the source
-
 The Hoover Dam Towers are a set of four pre-War buildings found at the Hoover Dam. The southernmost tower is destroyed.

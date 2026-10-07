@@ -6,6 +6,4 @@
 - categories: Boneyard locations; Fallout mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 The Angel's Boneyard Medical University is a post-War medical school located in Angel's Boneyard.

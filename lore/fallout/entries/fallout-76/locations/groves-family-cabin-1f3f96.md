@@ -5,6 +5,4 @@
 - variants: "The Forest locations", "Fallout 76 dungeons", "Fallout 76 outdoors theme locations"
 - categories: Fallout 76 locations; The Forest locations; Fallout 76 dungeons; Fallout 76 outdoors theme locations
 
-## Summary from the source
-
 The Groves Family Cabin is a location in The Forest region of Appalachia. It is located northeast of Darling Sister's Lab and southeast of WV Lumber Co.

@@ -5,6 +5,4 @@
 - variants: "Nuka-Cola Plant", "Southern Plains and D.C. Outskirts"
 - categories: Fallout 3 locations; Southern Plains and D.C. Outskirts
 
-## Summary from the source
-
 The Nuka-Cola Plant or the D.C. Nuka-Cola Bottling Facility is a large, three-story factory building located at the southern edge of the Capital Wasteland in Fallout 3. It is populated with Nukalurks, Nuka-Cola security Protectrons, and Radroaches.

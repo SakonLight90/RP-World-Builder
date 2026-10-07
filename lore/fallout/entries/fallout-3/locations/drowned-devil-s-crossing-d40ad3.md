@@ -5,6 +5,4 @@
 - variants: "Northwest Territories"
 - categories: Fallout 3 locations; Northwest Territories
 
-## Summary from the source
-
 Drowned Devil's Crossing is a collapsed bridge in the Capital Wasteland in Fallout 3. It is located between Silver Lining Drive-In and Mason Dixon Salvage.

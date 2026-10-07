@@ -5,6 +5,4 @@
 - variants: "Old World Blues locations"
 - categories: Old World Blues locations
 
-## Summary from the source
-
 Elijah's Watch is a location in Big MT in Fallout: New Vegas.

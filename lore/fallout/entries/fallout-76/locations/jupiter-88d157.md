@@ -6,6 +6,4 @@
 - categories: Fallout 76 mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Jupiter is a planet mentioned in Fallout 3 and Fallout 76.

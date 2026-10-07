@@ -5,6 +5,4 @@
 - variants: "Fallout 76 mentioned-only locations"
 - categories: Fallout 76 mentioned-only locations
 
-## Summary from the source
-
 Hamilton County is a location in Ohio.

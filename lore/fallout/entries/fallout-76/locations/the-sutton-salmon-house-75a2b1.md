@@ -5,6 +5,4 @@
 - categories: Fallout 76 locations
 - variants: "Sutton Salmon House"
 
-## Summary from the source
-
 The Sutton Salmon House is an unmarked location in Fallout 76.

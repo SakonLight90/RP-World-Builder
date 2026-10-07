@@ -5,6 +5,4 @@
 - variants: "Andale"
 - categories: Fallout 3 locations; Andale
 
-## Summary from the source
-
 Old Man Harris' House is a location in Fallout 3. It is the residence of Old Man Harris in Andale.

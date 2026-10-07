@@ -5,6 +5,4 @@
 - variants: "Savage Divide locations"
 - categories: Savage Divide locations
 
-## Summary from the source
-
 The South Mountain Nuke Crater is an unmarked location in the Savage Divide region of Appalachia. It is located at the end of a small dirt road, which starts near the military checkpoint at the southern side of Huntersville.

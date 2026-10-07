@@ -4,6 +4,4 @@
 - game: fallout-4
 - categories: Bureau of Alcohol, Drugs, Tobacco, Firearms, and Lasers
 
-## Summary from the source
-
 The Bureau of Alcohol, Drugs, Tobacco, Firearms, and Lasers or BADTFL was a law enforcement organization before the Great War.

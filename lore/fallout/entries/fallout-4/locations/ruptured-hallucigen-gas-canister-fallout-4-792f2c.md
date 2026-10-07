@@ -5,6 +5,4 @@
 - variants: "Ruptured HalluciGen Gas Canister", "HalluciGen", "Inc."
 - categories: HalluciGen, Inc.
 
-## Summary from the source
-
 A Ruptured HalluciGen Gas Canister is a junk item in Fallout 4.

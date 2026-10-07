@@ -5,6 +5,4 @@
 - variants: "Concord buildings", "Fallout 4 Pre-War Shops"
 - categories: Concord buildings; Fallout 4 Pre-War Shops
 
-## Summary from the source
-
 The Hardware Store is an unmarked location in The Commonwealth in Fallout 4. It is located in the city of Concord, across the street from the Museum of Freedom.

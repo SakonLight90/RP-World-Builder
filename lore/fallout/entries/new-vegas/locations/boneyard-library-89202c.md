@@ -5,6 +5,4 @@
 - variants: "Followers of the Apocalypse locations"
 - categories: Followers of the Apocalypse locations
 
-## Summary from the source
-
 The Boneyard Library is a location within Boneyard, a district to the west of downtown. It is the headquarter of the Followers of the Apocalypse.

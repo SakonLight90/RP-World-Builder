@@ -5,6 +5,4 @@
 - variants: "Lucky 38"
 - categories: Lucky 38
 
-## Summary from the source
-
 The Lucky 38 Control Room is a section of the Lucky 38, containing the physical body of Mr. House.

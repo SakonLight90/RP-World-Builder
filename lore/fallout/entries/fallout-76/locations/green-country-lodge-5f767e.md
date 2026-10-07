@@ -5,6 +5,4 @@
 - variants: "The Forest locations", "Fallout 76 general theme locations", "Flatwoods"
 - categories: Fallout 76 locations; The Forest locations; Fallout 76 general theme locations; Flatwoods
 
-## Summary from the source
-
 Green Country Lodge is a location in Appalachia.

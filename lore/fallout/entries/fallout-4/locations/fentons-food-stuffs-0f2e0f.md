@@ -5,6 +5,4 @@
 - variants: "Quincy (Fallout 4)"
 - categories: Quincy (Fallout 4)
 
-## Summary from the source
-
 Fentons Food Stuffs is an unmarked location in Quincy Ruins in Fallout 4.

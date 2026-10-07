@@ -5,6 +5,4 @@
 - variants: "Fallout 76 roadways"
 - categories: Fallout 76 locations; Fallout 76 roadways
 
-## Summary from the source
-
 Pike Street is a roadway in Monongah, found in Fallout 76.

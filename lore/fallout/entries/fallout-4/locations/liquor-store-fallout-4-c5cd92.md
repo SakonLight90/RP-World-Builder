@@ -5,6 +5,4 @@
 - categories: Fallout 4 locations
 - variants: "Liquor Store"
 
-## Summary from the source
-
 The Liquor Store is an unmarked location in Fallout 4.

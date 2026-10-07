@@ -5,6 +5,4 @@
 - variants: "Vault City locations"
 - categories: Vault City locations
 
-## Summary from the source
-
 Dr. Andrew's Clinic is the primary source of medical care for the inhabitants of the Courtyard. It is run by Dr. Andrew.

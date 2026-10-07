@@ -5,6 +5,4 @@
 - variants: "Northwest Territories"
 - categories: Northwest Territories
 
-## Summary from the source
-
 The Southwest Satellite Tower is an unmarked location in Fallout 3.

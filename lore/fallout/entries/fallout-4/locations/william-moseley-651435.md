@@ -5,6 +5,4 @@
 - variants: "Commonwealth Institute of Technology"
 - categories: Commonwealth Institute of Technology
 
-## Summary from the source
-
 Dr. William Moseley is a special-purpose liason in the Institute in Fallout 4.

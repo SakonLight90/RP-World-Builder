@@ -5,6 +5,4 @@
 - variants: "Foundation Structure With Ramp", "Fallout 4 settlement objects"
 - categories: Fallout 4 settlement objects
 
-## Summary from the source
-
 The Foundation Structure With Ramp is a settlement object in Fallout 4.

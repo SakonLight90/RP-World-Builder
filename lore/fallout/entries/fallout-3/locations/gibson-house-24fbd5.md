@@ -5,6 +5,4 @@
 - variants: "Minefield"
 - categories: Fallout 3 locations; Minefield
 
-## Summary from the source
-
 The Gibson House is one of the four accessible houses in Minefield, the others being the Benson House, the Gillian House, and the Zane House.

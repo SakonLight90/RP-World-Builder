@@ -5,6 +5,4 @@
 - variants: "Central Mountains"
 - categories: Fallout: New Vegas unmarked locations; Central Mountains secondary locations
 
-## Summary from the source
-
 Boulder City Billboard Sign is an unmarked location in the Mojave Wasteland.

@@ -5,6 +5,4 @@
 - variants: "Railroad safehouses"
 - categories: Railroad safehouses; Cambridge locations
 
-## Summary from the source
-
 Ticonderoga is a Railroad safehouse in The Commonwealth in Fallout 4.

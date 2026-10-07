@@ -5,6 +5,4 @@
 - variants: "Berkeley Springs"
 - categories: Berkeley Springs
 
-## Summary from the source
-
 Berkeley Springs Church is an unmarked location in Berkeley Springs.

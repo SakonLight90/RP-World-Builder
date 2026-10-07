@@ -5,6 +5,4 @@
 - variants: "GNR Building Plaza", "Galaxy News Radio"
 - categories: Galaxy News Radio
 
-## Summary from the source
-
 Galaxy News Radio is a building in Washington, D.C. and appears in both Fallout 3 and in the Fallout 4 Creation Club creation Capital Wasteland Mercenaries.

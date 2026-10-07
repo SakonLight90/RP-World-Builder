@@ -5,6 +5,4 @@
 - variants: "Pressure Plate", "Fallout 4 settlement objects"
 - categories: Fallout 4 settlement objects
 
-## Summary from the source
-
 The pressure plate is a settlement object in Fallout 4.

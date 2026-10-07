@@ -5,6 +5,4 @@
 - variants: "Commonwealth Institute of Technology"
 - categories: Commonwealth Institute of Technology
 
-## Summary from the source
-
 The Institute Agent is a member of the Institute in Fallout 4.

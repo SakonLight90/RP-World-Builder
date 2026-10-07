@@ -5,6 +5,4 @@
 - variants: "Boston"
 - categories: Boston
 
-## Summary from the source
-
 Swatting Sultans was the name of Boston's Baseball team, mentioned in Fallout 4 and Fallout 76.

@@ -5,6 +5,4 @@
 - variants: "Trapper's shack", "Klamath"
 - categories: Fallout 2 locations; Klamath
 
-## Summary from the source
-
 The Trapper's shack is a building in Klamath.

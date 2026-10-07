@@ -5,6 +5,4 @@
 - variants: "Hubologists"
 - categories: Hubologists
 
-## Summary from the source
-
 The Hubologist Holodisk is a holodisk in Fallout 2.

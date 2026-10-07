@@ -5,6 +5,4 @@
 - variants: "Klamath"
 - categories: Fallout 2 locations; Klamath
 
-## Summary from the source
-
 The Bathhouse is a location in Klamath, owned by Sally Dunton.

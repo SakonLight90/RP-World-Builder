@@ -5,6 +5,4 @@
 - variants: "Point Lookout locations"
 - categories: Point Lookout locations
 
-## Summary from the source
-
 Haley's Hardware is a small building north of Pilgrim's Landing in Fallout 3. Its only inhabitant is its sole proprietor, Haley. It has only one interior section.

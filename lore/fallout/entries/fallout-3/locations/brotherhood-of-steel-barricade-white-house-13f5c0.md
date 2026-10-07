@@ -5,6 +5,4 @@
 - variants: "Brotherhood of Steel Barricade", "Interior D.C. Metropolitan Ruins"
 - categories: Interior D.C. Metropolitan Ruins
 
-## Summary from the source
-
 Brotherhood of Steel Barricade is an unmarked location in Fallout 3.

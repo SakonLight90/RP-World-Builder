@@ -5,6 +5,4 @@
 - variants: "Boulder City locations"
 - categories: Fallout: New Vegas locations; Fallout: New Vegas unmarked locations; Boulder City locations
 
-## Summary from the source
-
 The Boulder City Memorial is a post-War installation in Boulder City.

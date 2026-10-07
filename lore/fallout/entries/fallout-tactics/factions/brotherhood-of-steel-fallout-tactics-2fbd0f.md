@@ -5,6 +5,4 @@
 - variants: "Brotherhood of Steel"
 - categories: Fallout Tactics Brotherhood of Steel; Fallout Tactics factions
 
-## Summary from the source
-
 The Brotherhood of Steel is a faction in Fallout Tactics.

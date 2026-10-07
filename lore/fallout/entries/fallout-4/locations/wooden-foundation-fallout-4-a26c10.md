@@ -5,6 +5,4 @@
 - variants: "Wooden Foundation", "Fallout 4 settlement objects"
 - categories: Fallout 4 settlement objects
 
-## Summary from the source
-
 The Wooden Foundation is a Settlement Object in Fallout 4.

@@ -4,6 +4,4 @@
 - game: new-vegas
 - categories: Fallout: New Vegas factions
 
-## Summary from the source
-
 First Recon, 1st Recon, First Recon Battalion, or NCR First Recon is a sniper battalion, part of the New California Republic Army.

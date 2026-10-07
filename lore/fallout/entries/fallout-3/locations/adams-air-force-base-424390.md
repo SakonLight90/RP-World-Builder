@@ -5,6 +5,4 @@
 - variants: "Broken Steel locations"
 - categories: Broken Steel locations; Adams Air Force Base
 
-## Summary from the source
-
 Adams Air Force Base is a fortified Enclave compound outside the Capital Wasteland in Fallout 3. It is accessible only with the Broken Steel DLC for Fallout 3. Fast travel to the location is not possible.

@@ -5,6 +5,4 @@
 - categories: Fallout 76 locations
 - variants: "Drumlin Diner"
 
-## Summary from the source
-
 Drumlin Diner is an unmarked location in the Appalachian city of Watoga.

@@ -5,6 +5,4 @@
 - variants: "Flatwoods"
 - categories: Flatwoods
 
-## Summary from the source
-
 Heather Ellis is a resident of Flatwoods in Appalachia trying to resurrect and continue the legacy of the Responders.

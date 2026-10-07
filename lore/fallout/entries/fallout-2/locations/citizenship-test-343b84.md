@@ -5,6 +5,4 @@
 - variants: "Vault City"
 - categories: Vault City
 
-## Summary from the source
-
 The test is a comprehensive exam, testing, among others, advanced mathematics, spatial relations, deductive reasoning, and language comprehension, ending with a thorough physical examination that includes checking vitals and the presence of communicable diseases.

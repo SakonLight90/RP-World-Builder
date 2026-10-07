@@ -5,6 +5,4 @@
 - variants: "Crab Shack"
 - categories: Fallout 76 locations
 
-## Summary from the source
-
 Crab Shack is a location in Fallout 76.

@@ -6,6 +6,4 @@
 - categories: Fallout 4 mentioned-only locations; Railroad safehouses
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Herkimer Safehouse is a Railroad safehouse in Fallout 4.

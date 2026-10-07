@@ -5,6 +5,4 @@
 - variants: "Financial District"
 - categories: Financial District
 
-## Summary from the source
-
 A transcript of the Zone 15 Financial District section of the Fallout 4 Vault Dweller's Survival Guide.

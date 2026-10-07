@@ -5,6 +5,4 @@
 - variants: "Green Line", "Flatwoods"
 - categories: Green Line; Flatwoods
 
-## Summary from the source
-
 Green Line is a location in Fallout 76.

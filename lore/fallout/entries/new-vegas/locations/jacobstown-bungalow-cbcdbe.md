@@ -5,6 +5,4 @@
 - variants: "Jacobstown locations"
 - categories: Fallout: New Vegas locations; Fallout: New Vegas unmarked locations; Jacobstown locations
 
-## Summary from the source
-
 The Jacobstown Bungalows consist of seven cabins within close proximity to one another, three of which are accessible, on the western side of Jacobstown in Fallout: New Vegas.

@@ -5,6 +5,4 @@
 - categories: Fallout 4 locations
 - variants: "Tunnels"
 
-## Summary from the source
-
 Tunnels was a location that was unused in Fallout 4.

@@ -5,6 +5,4 @@
 - variants: "Ash Heap locations"
 - categories: Fallout 76 locations; Ash Heap locations
 
-## Summary from the source
-
 The Ash Heap is one of the eight regions of Appalachia.

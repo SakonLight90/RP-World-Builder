@@ -5,6 +5,4 @@
 - variants: "Canada"
 - categories: Canada
 
-## Summary from the source
-
 The Uranium City Internment Camp was a pre-War location in Canada.

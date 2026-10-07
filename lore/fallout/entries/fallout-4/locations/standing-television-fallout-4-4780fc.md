@@ -5,6 +5,4 @@
 - variants: "Standing Television", "Fallout 4 settlement objects"
 - categories: Fallout 4 settlement objects
 
-## Summary from the source
-
 The Standing Television is a world object and settlement object in Fallout 4.

@@ -4,6 +4,4 @@
 - game: fallout-76
 - categories: Fallout 76 locations
 
-## Summary from the source
-
 Thunder Mountain Substation TM-03 is a location in Fallout 76, introduced in the Skyline Valley update.

@@ -5,6 +5,4 @@
 - categories: Fallout 76 locations
 - variants: "Bathhouse"
 
-## Summary from the source
-
 Bathhouse is an Unmarked Location in Fallout 76, introduced in the Burning Springs update.

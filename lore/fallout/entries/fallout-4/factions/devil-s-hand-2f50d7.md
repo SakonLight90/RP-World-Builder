@@ -4,6 +4,4 @@
 - game: fallout-4
 - categories: Fallout 4 factions
 
-## Summary from the source
-
 Devil's Hand is a faction in the Fallout 4 Creation Club creation X-02 Power Armor.

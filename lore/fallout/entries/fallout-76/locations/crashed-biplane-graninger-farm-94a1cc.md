@@ -5,6 +5,4 @@
 - variants: "Crashed Biplane", "Toxic Valley locations"
 - categories: Toxic Valley locations
 
-## Summary from the source
-
 The Crashed Biplane is a unmarked location in Appalachia.

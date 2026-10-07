@@ -5,6 +5,4 @@
 - variants: "Shopping Cart", "Fallout 4 settlement objects"
 - categories: Fallout 4 settlement objects
 
-## Summary from the source
-
 The Cart is a world and settlement object in Fallout 4.

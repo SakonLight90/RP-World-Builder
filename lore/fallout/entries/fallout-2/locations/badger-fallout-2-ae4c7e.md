@@ -5,6 +5,4 @@
 - variants: "Badger", "Tanker vagrants"
 - categories: Tanker vagrants
 
-## Summary from the source
-
 Badger is one of the Tanker Vagrants on the PMV Valdez in San Francisco in Fallout 2.

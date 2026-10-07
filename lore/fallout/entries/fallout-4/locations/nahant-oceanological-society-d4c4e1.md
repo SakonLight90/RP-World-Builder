@@ -5,6 +5,4 @@
 - variants: "Coastal Commonwealth primary locations", "Nahant"
 - categories: Fallout 4 locations; Coastal Commonwealth primary locations; Nahant
 
-## Summary from the source
-
 The Nahant Oceanological Society is a location and pre-War association in The Commonwealth town of Nahant.

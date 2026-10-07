@@ -5,6 +5,4 @@
 - variants: "Fallout 4 shops"
 - categories: Fallout 4 shops
 
-## Summary from the source
-
 Daisy's Discounts is an unmarked location in Goodneighbor in Fallout 4.

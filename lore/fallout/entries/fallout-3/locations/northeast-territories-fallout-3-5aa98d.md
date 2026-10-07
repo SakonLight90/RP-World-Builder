@@ -5,6 +5,4 @@
 - variants: "Northeast Territories", "Capital Wasteland regions"
 - categories: Capital Wasteland regions
 
-## Summary from the source
-
 The Northeast Territories are an unmarked location in the Capital Wasteland.

@@ -4,6 +4,4 @@
 - game: new-vegas
 - categories: Fallout: New Vegas locations; Fallout: New Vegas marked locations
 
-## Summary from the source
-
 Ranger Morales' Corpse is a location in the Mojave Wasteland, just to the east of REPCONN Headquarters.

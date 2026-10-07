@@ -6,6 +6,4 @@
 - categories: Fallout 2 mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Maxson is one of the five states of the New California Republic.

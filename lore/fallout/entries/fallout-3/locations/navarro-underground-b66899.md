@@ -5,6 +5,4 @@
 - variants: "Navarro"
 - categories: Navarro
 
-## Summary from the source
-
 Navarro underground is a part of Navarro.

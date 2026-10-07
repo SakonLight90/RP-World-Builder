@@ -5,6 +5,4 @@
 - variants: "Cranberry Bog locations", "Fallout 76 outdoors theme locations"
 - categories: Fallout 76 locations; Cranberry Bog locations; Fallout 76 outdoors theme locations
 
-## Summary from the source
-
 The Creekside Sundew Grove is a location in the Cranberry Bog region of Appalachia.

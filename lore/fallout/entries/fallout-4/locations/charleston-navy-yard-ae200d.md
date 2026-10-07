@@ -5,6 +5,4 @@
 - variants: "Boston"
 - categories: Boston
 
-## Summary from the source
-
 The Charleston Navy Yard is part of the Boston National Historical Park.

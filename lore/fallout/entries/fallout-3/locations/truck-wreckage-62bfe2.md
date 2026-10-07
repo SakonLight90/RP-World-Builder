@@ -5,6 +5,4 @@
 - variants: "Point Lookout locations"
 - categories: Point Lookout locations
 
-## Summary from the source
-
 The Truck Wreckage is the location of a wrecked cargo truck that overturned on a hillside road in Point Lookout.

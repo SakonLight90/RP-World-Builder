@@ -5,6 +5,4 @@
 - variants: "Chemist's"
 - categories: Fallout 76 locations
 
-## Summary from the source
-
 The Chemist's is a shop in the Whitespring Mall.

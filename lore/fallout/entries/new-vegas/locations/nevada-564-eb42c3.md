@@ -5,6 +5,4 @@
 - variants: "Fallout: New Vegas Roadways"
 - categories: Fallout: New Vegas unmarked locations; Fallout: New Vegas Roadways
 
-## Summary from the source
-
 Nevada 564 also known as Lake Mead Parkway is a roadway in the Mojave Wasteland.

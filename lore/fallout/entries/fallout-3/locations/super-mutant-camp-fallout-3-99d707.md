@@ -5,6 +5,4 @@
 - variants: "Super Mutant Camp", "Georgetown"
 - categories: Georgetown
 
-## Summary from the source
-
 Super Mutant Camp is an unmarked location in Fallout 3.

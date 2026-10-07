@@ -5,6 +5,4 @@
 - variants: "Fallout 76 general theme locations"
 - categories: Fallout 76 locations; Fallout 76 general theme locations
 
-## Summary from the source
-
 Surly's Shack is a location in Fallout 76, introduced in the Atlantic City America's Playground update.

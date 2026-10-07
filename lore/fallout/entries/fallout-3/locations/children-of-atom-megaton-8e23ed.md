@@ -5,6 +5,4 @@
 - variants: "Children of Atom", "Megaton buildings"
 - categories: Fallout 3 locations; Megaton buildings
 
-## Summary from the source
-
 Children of Atom is a building in Megaton and the home to the Children of Atom in Fallout 3.

@@ -5,6 +5,4 @@
 - variants: "Clinic"
 - categories: Fallout 76 locations
 
-## Summary from the source
-
 The Clinic is a section in the Whitespring Refuge.

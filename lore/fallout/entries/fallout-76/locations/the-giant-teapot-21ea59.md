@@ -5,6 +5,4 @@
 - variants: "Giant Teapot", "The Forest locations", "Fallout 76 dungeons", "Fallout 76 Red Rocket theme locations"
 - categories: Fallout 76 locations; The Forest locations; Fallout 76 dungeons; Fallout 76 Red Rocket theme locations
 
-## Summary from the source
-
 The Giant Teapot is a location in The Forest region of Appalachia.

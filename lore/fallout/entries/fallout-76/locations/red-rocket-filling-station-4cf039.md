@@ -5,6 +5,4 @@
 - variants: "Ash Heap locations", "Fallout 76 dungeons", "Red Rocket locations FO76", "Fallout 76 Red Rocket theme locations"
 - categories: Fallout 76 locations; Ash Heap locations; Fallout 76 dungeons; Red Rocket locations FO76; Fallout 76 Red Rocket theme locations
 
-## Summary from the source
-
 The Red Rocket Filling Station is a location in the Ash Heap region of Appalachia.

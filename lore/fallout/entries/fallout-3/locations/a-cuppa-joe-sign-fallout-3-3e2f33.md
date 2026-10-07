@@ -4,6 +4,4 @@
 - game: fallout-3
 - categories: Fallout 3 locations
 
-## Summary from the source
-
 A Cuppa Joe Sign is a world object in Fallout 3 and in the Fallout 3 DLC Point Lookout.

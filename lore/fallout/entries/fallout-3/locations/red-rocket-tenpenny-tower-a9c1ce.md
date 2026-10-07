@@ -5,6 +5,4 @@
 - variants: "Red Rocket", "Red Rocket locations FO3"
 - categories: Red Rocket locations FO3
 
-## Summary from the source
-
 The Red Rocket is a gas station near Tenpenny Tower in Fallout 3.

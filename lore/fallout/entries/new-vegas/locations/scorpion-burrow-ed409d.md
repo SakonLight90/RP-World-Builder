@@ -4,6 +4,4 @@
 - game: new-vegas
 - categories: Fallout: New Vegas unmarked locations
 
-## Summary from the source
-
 The Scorpion Burrow is an unmarked location in the Mojave Wasteland. It is located south of Nipton Road Pit Stop, in the dry lake bed.

@@ -4,6 +4,4 @@
 - game: fallout-3
 - categories: Fallout 3 factions; Talon Company
 
-## Summary from the source
-
 Talon Company is a mercenary organization active in the Capital Wasteland in Fallout 3.

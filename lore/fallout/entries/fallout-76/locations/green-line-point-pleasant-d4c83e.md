@@ -5,6 +5,4 @@
 - variants: "Green Line", "Point Pleasant"
 - categories: Green Line; Point Pleasant
 
-## Summary from the source
-
 Green Line is a location in Fallout 76.

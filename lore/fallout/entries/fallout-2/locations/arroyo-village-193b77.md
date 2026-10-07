@@ -5,6 +5,4 @@
 - variants: "Arroyo locations"
 - categories: Fallout 2 locations; Arroyo locations
 
-## Summary from the source
-
 The Arroyo Village is a settlement and section of Arroyo.

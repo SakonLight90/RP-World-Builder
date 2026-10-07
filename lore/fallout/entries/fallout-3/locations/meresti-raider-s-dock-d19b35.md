@@ -5,6 +5,4 @@
 - variants: "Meresti"
 - categories: Meresti
 
-## Summary from the source
-
 Meresti Raider's Dock is an unmarked location in the Capital Wasteland in Fallout 3. It is located just west of the Meresti Trainyard.

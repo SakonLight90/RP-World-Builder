@@ -5,6 +5,4 @@
 - variants: "Sleeping Bag", "Fallout 4 settlement objects"
 - categories: Fallout 4 settlement objects
 
-## Summary from the source
-
 The sleeping bag is a constructible settlement and world object in Fallout 4.

@@ -5,6 +5,4 @@
 - categories: Fallout 76 locations
 - variants: "Radstag Hunter's Pylon Camp"
 
-## Summary from the source
-
 The Radstag Hunter's Pylon Camp is an unmarked location in Fallout 76.

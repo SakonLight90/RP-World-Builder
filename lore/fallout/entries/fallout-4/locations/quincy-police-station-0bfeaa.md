@@ -5,6 +5,4 @@
 - variants: "Quincy (Fallout 4)", "Southern Commonwealth primary locations"
 - categories: Quincy (Fallout 4); Southern Commonwealth primary locations; Fallout 4 locations
 
-## Summary from the source
-
 The Quincy Police Station is a location in Quincy Ruins in The Commonwealth in Fallout 4.

@@ -5,6 +5,4 @@
 - variants: "Goodsprings locations", "Fallout: New Vegas Post-War Health Care Institutions"
 - categories: Fallout: New Vegas locations; Fallout: New Vegas unmarked locations; Goodsprings locations; Fallout: New Vegas Post-War Health Care Institutions
 
-## Summary from the source
-
 Doc Mitchell's House is the home of Doc Mitchell and serves as starting location for Fallout: New Vegas.

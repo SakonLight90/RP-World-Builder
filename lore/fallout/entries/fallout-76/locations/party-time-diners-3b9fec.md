@@ -5,6 +5,4 @@
 - variants: "The Forest locations"
 - categories: The Forest locations
 
-## Summary from the source
-
 Party Time Diners is an unmarked location in The Forest region of Appalachia. It is located at the top of a small mountain east of the Tyler County Fairgrounds.

@@ -5,6 +5,4 @@
 - variants: "Hoover Dam locations"
 - categories: Fallout: New Vegas locations; Fallout: New Vegas unmarked locations; Hoover Dam locations
 
-## Summary from the source
-
 Hoover Dam Tower 2 is a location at the Hoover Dam in Fallout: New Vegas.

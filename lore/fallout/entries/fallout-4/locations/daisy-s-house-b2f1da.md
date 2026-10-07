@@ -5,6 +5,4 @@
 - variants: "Goodneighbor"
 - categories: Goodneighbor
 
-## Summary from the source
-
 Daisy's House was a location that was unused in Fallout 4.

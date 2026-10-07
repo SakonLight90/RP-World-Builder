@@ -5,6 +5,4 @@
 - variants: "Far Harbor locations"
 - categories: Far Harbor locations
 
-## Summary from the source
-
 The Bar Harbor Museum is a museum in the town of Bar Harbor, Maine. It is found due west of Far Harbor, just past the Trapper-occupied Super-Duper Mart.

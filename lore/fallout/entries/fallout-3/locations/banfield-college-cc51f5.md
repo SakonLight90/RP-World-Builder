@@ -5,6 +5,4 @@
 - variants: "Mothership Zeta mentioned-only locations"
 - categories: Mothership Zeta mentioned-only locations
 
-## Summary from the source
-
 Banfield College was a location in Humboldt, Oregon.

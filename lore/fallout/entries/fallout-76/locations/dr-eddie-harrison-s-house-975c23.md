@@ -5,6 +5,4 @@
 - variants: "Savage Divide locations", "Monongah"
 - categories: Savage Divide locations; Monongah
 
-## Summary from the source
-
 Dr. Eddie Harrison's House is an unmarked location within the town of Monongah in the Savage Divide region of Appalachia. It is the starting point of the daily quest Daily: Someone To Talk To.

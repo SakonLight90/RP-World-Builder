@@ -5,6 +5,4 @@
 - variants: "Operation: Anchorage mentioned-only locations"
 - categories: Operation: Anchorage mentioned-only locations
 
-## Summary from the source
-
 Elemndorf AFB was a United States Air Force base in Anchorage.

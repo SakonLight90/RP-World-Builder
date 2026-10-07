@@ -5,6 +5,4 @@
 - categories: Fallout 76 locations
 - variants: "Marksman's Monorail"
 
-## Summary from the source
-
 The Marksman's Monorail is an unmarked location in Fallout 76.

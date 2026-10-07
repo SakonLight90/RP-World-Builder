@@ -5,6 +5,4 @@
 - variants: "Freeside locations"
 - categories: Fallout: New Vegas unmarked locations; Freeside locations
 
-## Summary from the source
-
 Kingman's BBQ is an unmarked location in Freeside. It can be found across the road from the Silver Rush at the end of the street. The building is inaccessible.

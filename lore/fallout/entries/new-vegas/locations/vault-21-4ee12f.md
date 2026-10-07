@@ -5,6 +5,4 @@
 - variants: "Fallout: New Vegas vaults", "New Vegas Strip", "New Vegas Conurbation New Vegas primary locations"
 - categories: Fallout: New Vegas locations; Fallout: New Vegas unmarked locations; Fallout: New Vegas vaults; New Vegas Strip; New Vegas Conurbation New Vegas primary locations
 
-## Summary from the source
-
 Vault 21 is a Vault-Tec vault, converted into a hotel/casino in Fallout: New Vegas.

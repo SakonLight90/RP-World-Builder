@@ -4,6 +4,4 @@
 - game: fallout-3
 - categories: Fallout 3 locations
 
-## Summary from the source
-
 Early Dawn Elementary was a pre-War school located in Washington, D.C. The building is located just north of the GNR Building Plaza.

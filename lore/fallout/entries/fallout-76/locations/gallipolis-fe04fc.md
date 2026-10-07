@@ -6,6 +6,4 @@
 - categories: Fallout 76 mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Gallipolis is a town in Ohio near Point Pleasant West Virginia, across the Ohio River.

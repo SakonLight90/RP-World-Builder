@@ -6,6 +6,4 @@
 - categories: Fallout 4 mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Iwo Jima is a location that existed before the Great War.

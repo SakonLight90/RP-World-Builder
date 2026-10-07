@@ -5,6 +5,4 @@
 - variants: "Mick & Ralph's locations"
 - categories: Fallout: New Vegas unmarked locations; Mick & Ralph's locations
 
-## Summary from the source
-
 Upper Apartment is an unmarked location in Mick & Ralph's.

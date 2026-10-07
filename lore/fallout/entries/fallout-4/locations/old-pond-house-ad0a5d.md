@@ -5,6 +5,4 @@
 - variants: "Far Harbor locations"
 - categories: Far Harbor locations
 
-## Summary from the source
-
 The Old Pond House is a Trapper-controlled location on The Island in the Fallout 4 DLC Far Harbor.

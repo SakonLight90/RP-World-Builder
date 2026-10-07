@@ -5,6 +5,4 @@
 - variants: "Train Tunnel", "Mojave Northeast territories primary locations", "Fallout: New Vegas Tunnels"
 - categories: Fallout: New Vegas unmarked locations; Mojave Northeast territories primary locations; Fallout: New Vegas Tunnels
 
-## Summary from the source
-
 The Train Tunnel is an unmarked location in the Mojave Wasteland in Fallout: New Vegas. It is located between Raul's Shack and the Brotherhood of Steel Safehouse, and north of Gypsum Train Yard.

@@ -5,6 +5,4 @@
 - variants: "Water Merchants", "The Hub"
 - categories: Fallout locations; The Hub; Water Merchants
 
-## Summary from the source
-
 The Water Merchants, also called the Hub Water Tower is a location in Fallout.

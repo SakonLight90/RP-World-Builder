@@ -5,6 +5,4 @@
 - variants: "Old World Blues locations"
 - categories: Old World Blues locations
 
-## Summary from the source
-
 The Big MT East Tunnel is a location in the east section of Big MT in Fallout: New Vegas.

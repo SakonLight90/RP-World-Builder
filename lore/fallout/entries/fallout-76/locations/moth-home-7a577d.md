@@ -5,6 +5,4 @@
 - variants: "The Mire locations"
 - categories: Fallout 76 locations; The Mire locations
 
-## Summary from the source
-
 The Moth-Home is a location in The Mire region of Appalachia.

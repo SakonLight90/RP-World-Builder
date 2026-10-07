@@ -5,6 +5,4 @@
 - variants: "The Family", "Family (Fallout 3)"
 - categories: Fallout 3 factions
 
-## Summary from the source
-
 The Family is a group of nocturnal cannibals that identify as vampires and live in Meresti Metro Station, east of the settlement of Arefu in Fallout 3.

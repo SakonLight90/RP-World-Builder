@@ -5,6 +5,4 @@
 - variants: "Institute locations", "Commonwealth Institute of Technology"
 - categories: Fallout 4 locations; Institute locations; Commonwealth Institute of Technology
 
-## Summary from the source
-
 Public Works Maintenance Area is a section of The Institute in Fallout 4.

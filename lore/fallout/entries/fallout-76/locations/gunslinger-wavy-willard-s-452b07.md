@@ -5,6 +5,4 @@
 - categories: Fallout 76 locations
 - variants: "Gunslinger"
 
-## Summary from the source
-
 Gunslinger is a location in Fallout 76.

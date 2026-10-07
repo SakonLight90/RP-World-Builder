@@ -6,6 +6,4 @@
 - categories: Fallout: New Vegas mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Hidalgo Ranch is the childhood home of Raul Tejada, mentioned in Fallout: New Vegas.

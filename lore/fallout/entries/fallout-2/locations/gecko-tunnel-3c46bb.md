@@ -5,6 +5,4 @@
 - variants: "Gecko"
 - categories: Fallout 2 locations; Gecko
 
-## Summary from the source
-
 Gecko Tunnel is a location in Gecko in Fallout 2.

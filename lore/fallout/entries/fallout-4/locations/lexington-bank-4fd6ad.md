@@ -5,6 +5,4 @@
 - variants: "Fallout 4 Banks", "Lexington", "Northwest Commonwealth"
 - categories: Fallout 4 Banks; Lexington; Northwest Commonwealth secondary locations
 
-## Summary from the source
-
 Lexington Bank is an unmarked location in Lexington in Fallout 4.

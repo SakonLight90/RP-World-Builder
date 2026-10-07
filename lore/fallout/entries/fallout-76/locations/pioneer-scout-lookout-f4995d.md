@@ -5,6 +5,4 @@
 - variants: "Toxic Valley locations", "Fallout 76 survey towers", "Fallout 76 outdoors theme locations"
 - categories: Fallout 76 locations; Toxic Valley locations; Fallout 76 survey towers; Fallout 76 outdoors theme locations
 
-## Summary from the source
-
 The Pioneer Scout Lookout is a location in the Toxic Valley region of Appalachia.

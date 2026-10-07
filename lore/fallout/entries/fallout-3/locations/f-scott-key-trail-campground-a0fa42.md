@@ -5,6 +5,4 @@
 - variants: "Southwest Territories"
 - categories: Fallout 3 locations; Southwest Territories
 
-## Summary from the source
-
 The F. Scott Key Trail & Campground is a camping ground located south of Girdershade and north of the Dunwich Building in the Capital Wasteland.

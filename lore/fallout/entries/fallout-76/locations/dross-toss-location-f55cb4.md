@@ -5,6 +5,4 @@
 - variants: "Dross Toss"
 - categories: Fallout 76 locations
 
-## Summary from the source
-
 Dross Toss is a location in Fallout 76.

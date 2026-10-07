@@ -5,6 +5,4 @@
 - variants: "Ruined Store", "Dead Money locations"
 - categories: Dead Money locations
 
-## Summary from the source
-
 The Ruined Store is a location located in the Sierra Madre's Puesta del Sol South in the Fallout: New Vegas DLC Dead Money.

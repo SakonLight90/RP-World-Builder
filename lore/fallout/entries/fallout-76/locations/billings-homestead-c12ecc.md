@@ -5,6 +5,4 @@
 - variants: "The Forest locations", "Fallout 76 outdoors theme locations", "with public workshops"
 - categories: Fallout 76 locations; The Forest locations; Fallout 76 outdoors theme locations; Fallout 76 locations with public workshops
 
-## Summary from the source
-
 The Billings Homestead is a location in The Forest region of Appalachia. It is a Public Workshop with claim and defend events.

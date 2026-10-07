@@ -5,6 +5,4 @@
 - variants: "Navarro"
 - categories: Navarro
 
-## Summary from the source
-
 Get the vertibird plans for the Brotherhood of Steel is a side quest in Fallout 2.

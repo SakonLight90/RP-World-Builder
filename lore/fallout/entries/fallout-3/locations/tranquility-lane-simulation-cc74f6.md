@@ -5,6 +5,4 @@
 - variants: "Tranquility Lane"
 - categories: Fallout 3 locations; Tranquility Lane
 
-## Summary from the source
-
 The Tranquility Lane Simulation is the currently active program of a Vault-Tec simulation created by Stanislaus Braun, located within the tranquility loungers in Vault 112.

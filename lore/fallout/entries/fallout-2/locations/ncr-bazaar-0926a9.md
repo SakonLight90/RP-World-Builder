@@ -5,6 +5,4 @@
 - variants: "New California Republic (town)"
 - categories: Fallout 2 locations; New California Republic (town)
 
-## Summary from the source
-
 The NCR Bazaar is a section of New California Republic in Fallout 2.

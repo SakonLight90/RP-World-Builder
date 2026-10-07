@@ -1,11 +1,10 @@
 id: fallout
 version: "1.0.0"
 title: "Fallout - locations, factions and category structure"
-generatedAt: "2026-09-30"
 summary: >-
-  Canonical location and faction names from every Fallout game, taken from the
-  Fallout Wiki categories. It exists so the narrator can know that a name exists
-  and how it is spelled, without carrying all of them in every prompt.
+  Canonical location and faction names from every Fallout game. It exists so the
+  narrator can know that a name exists and how it is spelled, without carrying
+  all of them in every prompt.
 counts:
   factions: 233
   locations: 6816
@@ -13,15 +12,13 @@ counts:
 
 # How this library is shaped, declared here and not written into the server.
 #
-# The engine that looks for names in the player's text does not know what a Vault
-# is and does not know what "mentioned" means: it only knows that there are two
-# kinds of record here, that the index is a list of records, that an entry's file
-# is named in one particular way, and that some of the wiki's categories are
-# citations rather than holdings. What it knows, it knows because it is written
-# above.
+# The engine that looks for names in the player's text knows only that there are two
+# kinds of record here, that the index is a list of records, that an entry's file is
+# named in one particular way, and that some categories mark a record as a citation
+# rather than a holding. What it knows, it knows because it is written above.
 layout:
   # Index format: `- name: "..."` with the columns indented underneath.
-  adapter: wiki-record-list
+  adapter: record-list
   sections:
     locations:
       dir: locations
@@ -30,9 +27,6 @@ layout:
       dir: factions
       index: "{group}.md"
   fields:
-    # There is no `source` column: the library no longer carries a link per row,
-    # so the field is absent rather than declared and always empty. A row that
-    # carried one anyway would be ignored, like any undeclared column.
     name: name
     aliases: variants
     categories: categories
@@ -80,18 +74,16 @@ layout:
       - state
       - united
       - royal
-    # These forms are not place names: they are section headings and wiki
-    # containers.
+    # These forms are not place names: they are section headings and containers.
     ignoreNamePatterns:
       - '^(Fallout|New|Category|Unmarked|Marked|Mentioned)\b'
       - 'locations?$'
       - 'factions?$'
       - ' Secondary Locations$'
   primary:
-    # "Fallout: New Vegas locations" is the game's record; "Fallout 4
-    # mentioned-only locations" is a citation. The category ending in the type's
-    # name is the record, unless it is one of the ones the wiki uses to flag a
-    # place as only being named.
+    # "Fallout: New Vegas locations" is the game's record; "Fallout 4 mentioned-only
+    # locations" is a citation. The category ending in the type's name is the record,
+    # unless it is one of those that marks a place as only being named.
     sectionSuffix: true
     excludePatterns:
       - 'mentioned[- ]only'

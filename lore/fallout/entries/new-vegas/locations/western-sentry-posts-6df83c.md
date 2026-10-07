@@ -4,6 +4,4 @@
 - game: new-vegas
 - categories: Fallout: New Vegas unmarked locations
 
-## Summary from the source
-
 Western Sentry Posts is an unmarked location at Camp McCarran.

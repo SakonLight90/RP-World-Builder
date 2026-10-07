@@ -5,6 +5,4 @@
 - variants: "Fallout 76 playgrounds", "Beckley"
 - categories: Fallout 76 playgrounds; Beckley
 
-## Summary from the source
-
 Beckley Playground is an unmarked location in Appalachia.

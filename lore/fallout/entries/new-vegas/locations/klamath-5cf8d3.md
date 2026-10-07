@@ -6,6 +6,4 @@
 - categories: Fallout: New Vegas mentioned-only locations
 - in this game: mentioned only, it has no entry of its own
 
-## Summary from the source
-
 Klamath is a town formerly known as Klamath Falls. The location can be found four squares east of Arroyo.

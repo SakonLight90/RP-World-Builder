@@ -5,6 +5,4 @@
 - variants: "Dead Money locations"
 - categories: Dead Money locations
 
-## Summary from the source
-
 The Tampico is a location within the Sierra Madre and part of the Sierra Madre Casino in the Fallout: New Vegas DLC Dead Money.

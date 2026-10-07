@@ -5,6 +5,4 @@
 - variants: "Red Rocket", "Red Rocket locations FO76", "Berkeley Springs"
 - categories: Fallout 76 locations; Red Rocket locations FO76; Berkeley Springs
 
-## Summary from the source
-
 The Red Rocket is an unmarked location within Berkeley Springs, situated in The Mire region of Appalachia.

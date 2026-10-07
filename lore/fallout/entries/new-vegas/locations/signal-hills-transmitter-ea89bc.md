@@ -5,6 +5,4 @@
 - variants: "Old World Blues locations"
 - categories: Old World Blues locations
 
-## Summary from the source
-
 Signal Hills Transmitter is a location in the north of Big MT in Fallout: New Vegas. It is located east-northeast of Little Yangtze.

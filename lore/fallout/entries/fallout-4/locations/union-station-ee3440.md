@@ -5,6 +5,4 @@
 - variants: "Washington, D.C."
 - categories: Washington, D.C.
 
-## Summary from the source
-
 Union Station was a Train Station located in Washington, D.C.

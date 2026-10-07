@@ -5,6 +5,4 @@
 - variants: "Citadel"
 - categories: Citadel
 
-## Summary from the source
-
 The Laboratory is a section inside The Citadel.

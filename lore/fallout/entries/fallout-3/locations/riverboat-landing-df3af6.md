@@ -5,6 +5,4 @@
 - variants: "Point Lookout locations"
 - categories: Point Lookout locations
 
-## Summary from the source
-
 The Riverboat Landing is a location in the Capital Wasteland from which the Duchess Gambit ferry can take the Lone Wanderer to Point Lookout.

@@ -5,6 +5,4 @@
 - variants: "Water Tower", "Concord buildings"
 - categories: Concord buildings
 
-## Summary from the source
-
 A Water Tower is a world object in Fallout 4.

@@ -5,6 +5,4 @@
 - variants: "Clinic", "Northwest Mountains"
 - categories: Fallout: New Vegas unmarked locations; Northwest Mountains secondary locations
 
-## Summary from the source
-
 Clinic is an unmarked location inside Vault 19.

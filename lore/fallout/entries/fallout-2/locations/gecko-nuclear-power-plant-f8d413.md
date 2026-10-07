@@ -5,6 +5,4 @@
 - variants: "Gecko"
 - categories: Fallout 2 locations; Gecko
 
-## Summary from the source
-
 Gecko Nuclear Power Plant, also known as Poseidon Oil Reactor #5, is a location in Gecko in Fallout 2.

@@ -5,6 +5,4 @@
 - categories: Fallout 76 locations
 - variants: "Campground"
 
-## Summary from the source
-
 Campground is an unmarked location in Fallout 76.

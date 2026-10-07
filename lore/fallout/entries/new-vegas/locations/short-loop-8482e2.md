@@ -5,6 +5,4 @@
 - variants: "Fallout: New Vegas mentioned-only locations", "Fallout: New Vegas Roadways Mentioned"
 - categories: Fallout: New Vegas mentioned-only locations; Fallout: New Vegas Roadways Mentioned
 
-## Summary from the source
-
 The Short Loop is a trade route mentioned in Fallout: New Vegas.

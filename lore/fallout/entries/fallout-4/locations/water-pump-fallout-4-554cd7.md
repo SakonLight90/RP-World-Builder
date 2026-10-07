@@ -5,6 +5,4 @@
 - variants: "Water Pump", "Fallout 4 settlement objects"
 - categories: Fallout 4 settlement objects
 
-## Summary from the source
-
 The Water Pump is a settlement object in Fallout 4.

@@ -5,6 +5,4 @@
 - variants: "New Reno"
 - categories: New Reno
 
-## Summary from the source
-
 The easternmost district of New Reno is the East Side, under the Wrights' control.

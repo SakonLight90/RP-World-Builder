@@ -5,6 +5,4 @@
 - variants: "Far Harbor locations"
 - categories: Far Harbor locations
 
-## Summary from the source
-
 Kawaketak Station is an unmarked location on The Island in Fallout 4. It is located east of the Children of Atom Shrine.

@@ -4,6 +4,4 @@
 - game: new-vegas
 - categories: Fallout: New Vegas locations; Fallout: New Vegas unmarked locations
 
-## Summary from the source
-
 Big Sal's Office is a location in Gomorrah on the New Vegas Strip in Fallout: New Vegas.

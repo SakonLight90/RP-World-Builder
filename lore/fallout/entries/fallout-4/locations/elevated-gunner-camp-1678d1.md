@@ -5,6 +5,4 @@
 - variants: "Fallout 4 game guide locations"
 - categories: Fallout 4 game guide locations; Gunners locations; North Central Commonwealth secondary locations
 
-## Summary from the source
-
 Elevated Gunner Camp is an unmarked location in Fallout 4.

@@ -5,6 +5,4 @@
 - variants: "Fallout 76 general theme locations", "Charleston"
 - categories: Fallout 76 locations; Fallout 76 general theme locations; Charleston
 
-## Summary from the source
-
 The Charleston Capitol Building is a location in the Appalachian city of Charleston.

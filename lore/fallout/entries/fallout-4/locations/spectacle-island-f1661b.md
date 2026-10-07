@@ -5,6 +5,4 @@
 - variants: "Fallout 4 settlements", "Southern Commonwealth primary locations"
 - categories: Fallout 4 locations; Fallout 4 settlements; Southern Commonwealth primary locations
 
-## Summary from the source
-
 Spectacle Island is a location and potential Settlement in The Commonwealth in Fallout 4.

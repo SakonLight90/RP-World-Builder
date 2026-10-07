@@ -5,6 +5,4 @@
 - variants: "Covered Bridge", "Fallout 3 roadways", "Fallout 3 Bridges"
 - categories: Fallout 3 roadways; Fallout 3 Bridges
 
-## Summary from the source
-
 The Covered Bridge is an unmarked location in Point Lookout in the Fallout 3 DLC Point Lookout.

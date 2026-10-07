@@ -5,6 +5,4 @@
 - variants: "Westside locations"
 - categories: Fallout: New Vegas unmarked locations; Westside locations
 
-## Summary from the source
-
 Evert's Building & Garden Supplies is an unmarked location in Westside next to Miguel's Pawn Shop. The building is inaccessible.

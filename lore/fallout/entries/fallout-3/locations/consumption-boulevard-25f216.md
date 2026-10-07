@@ -5,6 +5,4 @@
 - variants: "Fallout 3 roadways"
 - categories: Fallout 3 locations; Fallout 3 roadways
 
-## Summary from the source
-
 Consumption Boulevard is a roadway in Fallout 3.
