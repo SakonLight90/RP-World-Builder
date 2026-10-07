@@ -16,16 +16,15 @@ import type { LoreLibrary, LoreProvider, LoreRecord } from "../provider.js";
 import { libraryPath } from "../registry.js";
 
 /**
- * Adapter for the record-list index used by wiki libraries.
+ * Adapter for the record-list index.
  *
  * The format is this: one file per sub-index, and inside it lines starting with
- * `- name: "..."` followed by indented lines with the other columns. It is not a
- * format invented by the engine, it is the format a wiki exports its categories
- * in, so it lives here and not in the engine.
+ * `- name: "..."` followed by indented lines with the other columns. It is a format
+ * the engine did not invent, so it lives here and not in the engine.
  *
- * The column names also come from the library's descriptor: one that writes
- * `title` instead of `name` is read without touching anything. A column the
- * descriptor does not declare — a source link, a note — is simply not read.
+ * The column names also come from the library's descriptor: one that writes `title`
+ * instead of `name` is read without touching anything. A column the descriptor does not
+ * declare is simply not read.
  */
 
 /**
@@ -37,9 +36,9 @@ import { libraryPath } from "../registry.js";
  * required by a world has stopped being readable. A new library declares its own
  * `layout` and this value does not concern it.
  */
-export function legacyWikiDescriptor(): LoreDescriptor {
+export function legacyDescriptor(): LoreDescriptor {
   return {
-    adapter: "wiki-record-list",
+    adapter: "record-list",
     sections: {
       locations: { dir: "locations", index: "{group}.md" },
       factions: { dir: "factions", index: "{group}.md" },
@@ -160,9 +159,9 @@ function parseRecords(raw: string, layout: LoreDescriptor): Array<Map<string, st
   return records;
 }
 
-export function wikiRecordList(layout: LoreDescriptor): LoreProvider {
+export function recordList(layout: LoreDescriptor): LoreProvider {
   return {
-    id: "wiki-record-list",
+    id: "record-list",
     layout,
     kinds: () => Object.keys(layout.sections),
 
